@@ -23,12 +23,11 @@ export const syncResearcherToTapestry = async (
     }
 ) => {
     try {
-        await tapestry.profiles.profilesCreate(
+        await tapestry.profiles.findOrCreateCreate(
             { apiKey: TAPESTRY_API_KEY },
             {
+                username: metadata.name,
                 walletAddress,
-                namespace: TAPESTRY_NAMESPACE,
-                name: metadata.name,
                 bio: metadata.bio,
                 image: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${walletAddress}`,
                 properties: [
@@ -53,12 +52,11 @@ export const syncResearcherToTapestry = async (
  */
 export const followUser = async (followerAddress: string, followeeAddress: string) => {
     try {
-        await tapestry.follows.followsCreate(
+        await tapestry.followers.postFollowers(
             { apiKey: TAPESTRY_API_KEY },
             {
                 startId: followerAddress,
                 endId: followeeAddress,
-                namespace: TAPESTRY_NAMESPACE,
             }
         );
         console.log(`[Tapestry] ${followerAddress} → followed → ${followeeAddress}`);
@@ -74,12 +72,11 @@ export const followUser = async (followerAddress: string, followeeAddress: strin
  */
 export const unfollowUser = async (followerAddress: string, followeeAddress: string) => {
     try {
-        await tapestry.follows.followsDelete(
+        await tapestry.followers.removeCreate(
             { apiKey: TAPESTRY_API_KEY },
             {
                 startId: followerAddress,
                 endId: followeeAddress,
-                namespace: TAPESTRY_NAMESPACE,
             }
         );
         console.log(`[Tapestry] ${followerAddress} → unfollowed → ${followeeAddress}`);
@@ -95,12 +92,11 @@ export const unfollowUser = async (followerAddress: string, followeeAddress: str
  */
 export const getFollowers = async (walletAddress: string): Promise<string[]> => {
     try {
-        const res = await tapestry.follows.followsGetFollowers({
+        const res = await tapestry.profiles.followersList({
             apiKey: TAPESTRY_API_KEY,
             id: walletAddress,
-            namespace: TAPESTRY_NAMESPACE,
         });
-        return (res as any)?.followers?.map((f: any) => f.id) ?? [];
+        return (res as any)?.followers?.map((f: any) => f.profile.id) ?? [];
     } catch (err) {
         console.error('[Tapestry] getFollowers failed:', err);
         return [];
@@ -112,12 +108,11 @@ export const getFollowers = async (walletAddress: string): Promise<string[]> => 
  */
 export const getFollowing = async (walletAddress: string): Promise<string[]> => {
     try {
-        const res = await tapestry.follows.followsGetFollowing({
+        const res = await tapestry.profiles.followingList({
             apiKey: TAPESTRY_API_KEY,
             id: walletAddress,
-            namespace: TAPESTRY_NAMESPACE,
         });
-        return (res as any)?.following?.map((f: any) => f.id) ?? [];
+        return (res as any)?.following?.map((f: any) => f.profile.id) ?? [];
     } catch (err) {
         console.error('[Tapestry] getFollowing failed:', err);
         return [];
@@ -135,27 +130,17 @@ export const createPostNode = async (
     title: string
 ) => {
     try {
-        await tapestry.nodes.nodesCreate(
+        await tapestry.contents.findOrCreateCreate(
             { apiKey: TAPESTRY_API_KEY },
             {
                 id: postId,
-                namespace: TAPESTRY_NAMESPACE,
-                label: 'ResearchPost',
+                profileId: walletAddress, // This automatically links the author
                 properties: [
                     { key: 'title', value: title },
                     { key: 'author', value: walletAddress },
                     { key: 'createdAt', value: new Date().toISOString() },
+                    { key: 'label', value: 'ResearchPost' }
                 ],
-            }
-        );
-        // Create "published" edge: author → post
-        await tapestry.edges.edgesCreate(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                startId: walletAddress,
-                endId: postId,
-                label: 'PUBLISHED',
-                namespace: TAPESTRY_NAMESPACE,
             }
         );
         console.log(`[Tapestry] Post node created: ${postId}`);
@@ -178,27 +163,19 @@ export const createCommentNode = async (
     content: string
 ) => {
     try {
-        await tapestry.nodes.nodesCreate(
+        await tapestry.comments.commentsCreate(
             { apiKey: TAPESTRY_API_KEY },
             {
-                id: commentId,
-                namespace: TAPESTRY_NAMESPACE,
-                label: 'Comment',
+                commentId,
+                contentId: postId,
+                profileId: walletAddress,
+                text: content.slice(0, 280),
                 properties: [
-                    { key: 'content', value: content.slice(0, 280) },
                     { key: 'author', value: walletAddress },
                     { key: 'postId', value: postId },
                     { key: 'createdAt', value: new Date().toISOString() },
+                    { key: 'label', value: 'Comment' }
                 ],
-            }
-        );
-        await tapestry.edges.edgesCreate(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                startId: walletAddress,
-                endId: postId,
-                label: 'COMMENTED_ON',
-                namespace: TAPESTRY_NAMESPACE,
             }
         );
         console.log(`[Tapestry] Comment node created: ${commentId}`);

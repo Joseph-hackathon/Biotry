@@ -1,0 +1,10 @@
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/deps/libsolana_instruction-b20d79c6c91324b9.rmeta: /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/lib.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/account_meta.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/error.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/syscalls.rs
+
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/deps/libsolana_instruction-b20d79c6c91324b9.rlib: /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/lib.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/account_meta.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/error.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/syscalls.rs
+
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/deps/solana_instruction-b20d79c6c91324b9.d: /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/lib.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/account_meta.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/error.rs /home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/syscalls.rs
+
+/home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/lib.rs:
+/home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/account_meta.rs:
+/home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/error.rs:
+/home/test/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-instruction-2.3.3/src/syscalls.rs:

@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "programs/*"
+]
+resolver = "2"
+
+[profile.release]
+overflow-checks = true
+lto = "thin"
+
+# ── Force older versions that don't require edition2024 ──────────
+# blake3 1.8.x and constant_time_eq 0.4.x require edition2024 (Rust 1.85+)
+# Pinning to last compatible versions for Rust 1.84 / Solana 1.18.x
+[patch.crates-io]
+blake3           = { git = "https://github.com/BLAKE3-team/BLAKE3", tag = "1.7.0" }

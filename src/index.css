@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply text-black font-soft selection:bg-accent-purple/20 overflow-x-hidden antialiased;
+        background-color: #FAFAFA;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-display font-black uppercase text-black;
+        letter-spacing: -0.02em;
+    }
+}
+
+@layer components {
+    .illustration-card {
+        @apply bg-white border-3 border-black p-6 transition-all duration-200 shadow-flat;
+    }
+
+    .illustration-card:hover {
+        @apply -translate-x-[2px] -translate-y-[2px] shadow-flat-hover;
+    }
+
+    .btn-illu-primary {
+        @apply bg-accent-purple text-white border-3 border-black font-header font-black py-2.5 px-6 transition-all shadow-flat uppercase tracking-wider text-xs active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    }
+
+    .btn-illu-primary:hover {
+        @apply bg-purple-500 -translate-x-[2px] -translate-y-[2px] shadow-flat-hover;
+    }
+
+    .btn-illu-secondary {
+        @apply bg-accent-pink text-white border-3 border-black font-header font-black py-2.5 px-6 transition-all shadow-flat uppercase tracking-wider text-xs active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    }
+
+    .btn-illu-secondary:hover {
+        @apply bg-pink-500 -translate-x-[2px] -translate-y-[2px] shadow-flat-hover;
+    }
+
+    .btn-illu-outline {
+        @apply bg-white text-black border-3 border-black font-header font-black py-2.5 px-6 transition-all shadow-flat uppercase tracking-wider text-xs active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+    }
+
+    .btn-illu-outline:hover {
+        @apply bg-accent-softPurple -translate-x-[2px] -translate-y-[2px] shadow-flat-hover;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 py-3 px-4 rounded-none border-3 border-transparent transition-all font-header font-black uppercase tracking-wider text-[11px] text-gray-500;
+    }
+
+    .nav-link:hover {
+        @apply text-black bg-white border-black shadow-flat-sm;
+    }
+
+    .nav-link.active {
+        @apply text-black bg-white border-black shadow-flat;
+    }
+
+    .illu-input {
+        @apply w-full bg-white border-3 border-black px-4 py-3 text-sm font-header font-black text-black placeholder:text-gray-400 focus:shadow-flat-purple outline-none transition-all;
+    }
+}
+
+/* Animations & Effects */
+@keyframes fluid-float {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-30px) scale(1.02);
+    }
+}
+
+.animate-fluid-float {
+    animation: fluid-float 8s ease-in-out infinite;
+}
+
+.anim-item {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.anim-item.animate-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(124, 58, 237, 0.2), 4px 4px 0px #000;
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.4), 4px 4px 0px #000;
+    }
+}
+
+.animate-glow {
+    animation: glow-pulse 3s ease-in-out infinite;
+}

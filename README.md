@@ -1,7 +1,5 @@
 # Biotry: The Social Graph of Science
 
-![Biotry Logo](https://via.placeholder.com/800x200?text=BIOTRY+-+The+Social+Graph+of+Science)
-
 ## Market Research
 Science is currently stuck in Web2 silos. Research is trapped in opaque journals where reward structures are significantly distorted. Early-stage researchers lack access to crucial capital, while investors are forced to bet blindly with massive information asymmetry. Existing social platforms like Reddit and Twitter are used to discuss research, but they fundamentally lack verification systems and trust-based structures. There is a pressing market demand for a **Credibly Neutral** infrastructure where reputation is quantifiable and expertise becomes a tangible new asset class.
 

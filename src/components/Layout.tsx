@@ -59,8 +59,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView }) => {
                 <div className="h-16 flex items-center justify-between px-4 border-b-3 border-black shrink-0">
                     {sidebarOpen && (
                         <button onClick={() => navigate('/')} className="flex items-center gap-2.5 transition-transform hover:-translate-y-0.5 group">
-                            <div className="w-9 h-9 bg-accent-softPurple border-3 border-black flex items-center justify-center shrink-0 shadow-flat-sm group-hover:shadow-flat transition-all">
-                                <Microscope className="w-5 h-5 text-accent-purple" />
+                            <div className="w-9 h-9 bg-accent-softPurple border-3 border-black flex items-center justify-center shrink-0 shadow-flat-sm group-hover:shadow-flat transition-all p-1">
+                                <img src="/biotry-logo.png" alt="Biotry" className="w-full h-full object-contain" />
                             </div>
                             <span className="text-xl font-display font-black tracking-tight text-black">
                                 BIOTRY<span className="text-accent-purple">.</span>
@@ -68,8 +68,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView }) => {
                         </button>
                     )}
                     {!sidebarOpen && (
-                        <button onClick={() => navigate('/')} className="w-9 h-9 bg-accent-softPurple border-3 border-black flex items-center justify-center mx-auto shadow-flat-sm hover:shadow-flat transition-all">
-                            <Microscope className="w-5 h-5 text-accent-purple" />
+                        <button onClick={() => navigate('/')} className="w-9 h-9 bg-accent-softPurple border-3 border-black flex items-center justify-center mx-auto shadow-flat-sm hover:shadow-flat transition-all p-1">
+                            <img src="/biotry-logo.png" alt="Biotry" className="w-full h-full object-contain" />
                         </button>
                     )}
                 </div>

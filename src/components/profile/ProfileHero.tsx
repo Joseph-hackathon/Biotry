@@ -47,7 +47,7 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({
                 <div className="absolute inset-0 opacity-10"
                     style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center pointer-events-none opacity-20">
-                    <Microscope className="w-64 h-64 text-accent-purple -rotate-12" />
+                    <img src="/biotry-logo.png" alt="Biotry Background" className="w-64 h-64 object-contain -rotate-12 opacity-80" />
                 </div>
             </div>
 

@@ -34,7 +34,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
             <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-5xl bg-white border-3 border-black p-4 flex items-center justify-between shadow-flat animate-fade-in-down">
                 <button onClick={onLaunch} className="flex items-center gap-3 group cursor-pointer">
                     <div className="w-10 h-10 bg-accent-softPurple border-3 border-black flex items-center justify-center transition-all group-hover:bg-accent-softPink">
-                        <Microscope className="w-6 h-6 text-black" />
+                        <img src="/biotry-logo.png" alt="Biotry Logo" className="w-full h-full object-contain p-1.5" />
                     </div>
                     <span className="text-xl font-display font-black tracking-tight uppercase text-black">BIOTRY<span className="text-accent-pink">.</span></span>
                 </button>
@@ -423,8 +423,8 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
             < footer className="py-24 px-6 border-t-3 border-black bg-white" >
                 <div className="max-w-6xl mx-auto flex flex-col items-center text-center space-y-12">
                     <button onClick={onLaunch} className="flex items-center gap-4 group">
-                        <div className="w-16 h-16 bg-accent-softPurple border-4 border-black flex items-center justify-center shadow-flat-sm group-hover:shadow-flat transition-all">
-                            <Microscope className="w-8 h-8 text-black" />
+                        <div className="w-16 h-16 bg-accent-softPurple border-4 border-black flex items-center justify-center shadow-flat-sm group-hover:shadow-flat transition-all overflow-hidden p-2">
+                            <img src="/biotry-logo.png" alt="Biotry Logo" className="w-full h-full object-contain" />
                         </div>
                         <span className="text-4xl font-display font-black tracking-tight uppercase text-black">BIOTRY<span className="text-accent-pink">.</span></span>
                     </button>

@@ -8,6 +8,7 @@ import ResearchEditor from './components/ResearchEditor';
 import DeSciDashboard from './components/DeSciDashboard';
 import ProfileView from './components/ProfileView';
 import JournalView from './components/JournalView';
+import SimulatePage from './pages/SimulatePage';
 import { Globe, Network as NetworkIcon } from 'lucide-react';
 import { SolanaProvider } from './context/SolanaContext';
 import { useAppContext } from './context/AppContext';
@@ -24,10 +25,17 @@ function App() {
     const currentView = location.pathname.split('/')[1] as string;
 
     const PostDetailWrapper = () => {
-        const id = location.pathname.split('/').pop();
+        const id = location.pathname.split('/')[2];
         const post = posts.find((p: Post) => p.id === id);
         if (!post) return <Navigate to="/journal" />;
         return <PostDetail post={post} onBack={() => navigate('/journal')} />;
+    };
+
+    const SimulatePageWrapper = () => {
+        const id = location.pathname.split('/')[2];
+        const post = posts.find((p: Post) => p.id === id);
+        if (!post) return <Navigate to="/journal" />;
+        return <SimulatePage post={post} onBack={() => navigate(`/node/${id}`)} />;
     };
 
     return (
@@ -44,6 +52,7 @@ function App() {
                                 <Route path="analytics" element={<DeSciDashboard />} />
                                 <Route path="profile" element={<ProfileView />} />
                                 <Route path="node/:id" element={<PostDetailWrapper />} />
+                                <Route path="node/:id/simulate" element={<SimulatePageWrapper />} />
                                 <Route path="*" element={<Navigate to="/journal" />} />
                             </Routes>
                         </Layout>

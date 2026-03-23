@@ -1,5 +1,6 @@
 import React from 'react';
-import { MessageSquare, ArrowBigUp, FileText, Link2, Binary, User, ExternalLink, ArrowUpRight } from 'lucide-react';
+import { MessageSquare, ArrowBigUp, FileText, Link2, Binary, User, ExternalLink, ArrowUpRight, Play, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types';
 import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
@@ -12,6 +13,7 @@ interface PostCardProps { post: Post; }
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { authenticated, login, user } = usePrivy();
     const { voteOnProposal: upvotePost } = useAppContext();
+    const navigate = useNavigate();
 
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -28,108 +30,82 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         }
     };
 
+    const handleSimulate = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        navigate(`/node/${post.id}/simulate`);
+    };
+
     return (
-        <article className="illustration-card group cursor-pointer mb-6 hover:-translate-x-[2px] hover:-translate-y-[2px] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all duration-200">
-            <div className="flex gap-4">
-                {/* Avatar */}
-                <div className="shrink-0">
-                    <div className="w-12 h-12 bg-accent-softPurple border-3 border-black flex items-center justify-center shadow-flat-sm overflow-hidden">
-                        <User className="w-6 h-6 text-black" />
+        <article 
+            onClick={() => navigate(`/node/${post.id}`)}
+            className="glass-card p-6 flex flex-col gap-6 cursor-pointer group relative overflow-hidden"
+        >
+            {/* Hover Glow Effect */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#F6851B]/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+
+            <div className="flex gap-5">
+                {/* Status & Category */}
+                <div className="flex-1 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#F6851B]/10 group-hover:border-[#F6851B]/30 transition-all">
+                        <img 
+                            src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${post.author}`} 
+                            className="w-7 h-7 rounded-sm" 
+                            alt="Author" 
+                        />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-[11px] font-bold text-white uppercase tracking-tight truncate">{truncateAddress(post.author)}</p>
+                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{post.createdAt}</p>
                     </div>
                 </div>
+                <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-bold text-white/50 uppercase tracking-wider">
+                        {post.type}
+                    </span>
+                </div>
+            </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0 space-y-3">
-                    {/* Author row */}
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <span className="text-xs font-header font-black text-black uppercase tracking-wider">{truncateAddress(post.author)}</span>
-                        <span className="text-black/20 font-black">/</span>
-                        <span className="text-[10px] font-header font-black text-black/40 uppercase tracking-widest">{post.createdAt}</span>
-                        {post.status && (
-                            <span className={clsx(
-                                "px-2 py-0.5 border-2 border-black text-[8px] font-header font-black uppercase tracking-widest shadow-flat-xs",
-                                post.status === 'Published' ? "bg-accent-softPurple text-black" : "bg-accent-softPink text-black"
-                            )}>
-                                {post.status}
-                            </span>
-                        )}
-                        <span className="ml-auto px-3 py-1 bg-white border-2 border-black text-[9px] font-header font-black uppercase tracking-widest text-black shadow-flat-xs">
-                            {post.type}
-                        </span>
-                    </div>
+            {/* Title & Abstract */}
+            <div className="space-y-3">
+                <h2 className="text-xl font-bold tracking-tight text-white group-hover:text-gradient-orange transition-all">
+                    {post.title}
+                </h2>
+                {post.abstract && (
+                    <p className="text-sm text-white/40 font-medium leading-relaxed line-clamp-2 uppercase tracking-tight">
+                        {post.abstract}
+                    </p>
+                )}
+            </div>
 
-                    {/* Title */}
-                    <h2 className="text-xl font-display font-black uppercase tracking-tight leading-tight text-black group-hover:text-accent-purple transition-colors">
-                        {post.title}
-                    </h2>
+            {/* Tags & Meta */}
+            <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#7C3AED]/10 border border-[#7C3AED]/30 rounded-full text-[9px] font-bold text-[#A78BFA] uppercase tracking-widest">
+                    <Binary className="w-3.5 h-3.5" /> {post.researchField}
+                </span>
+                {post.topics?.slice(0, 2).map(topic => (
+                    <span key={topic} className="px-3 py-1.5 bg-white/5 border border-white/5 rounded-full text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                        # {topic}
+                    </span>
+                ))}
+            </div>
 
-                    {/* Abstract */}
-                    {post.abstract && (
-                        <p className="text-sm text-black/60 font-black uppercase tracking-tight leading-relaxed line-clamp-2">
-                            {post.abstract}
-                        </p>
-                    )}
-
-                    {/* Field & Meta */}
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
-                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-softPurple border-2 border-black text-[10px] font-header font-black text-black uppercase tracking-wider">
-                            <Binary className="w-3.5 h-3.5 text-accent-purple" /> {post.researchField}
-                        </span>
-                        {post.doi && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 border-2 border-black text-[10px] font-header font-black text-black/50 uppercase tracking-tight">
-                                DOI: {post.doi}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* PDF & Links */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                        {post.pdfUrl && (
-                            <a href={post.pdfUrl} target="_blank" rel="noopener noreferrer"
-                                onClick={e => e.stopPropagation()}
-                                className="flex items-center gap-3 p-3 bg-white border-3 border-black shadow-flat-xs hover:shadow-flat transition-all group/pdf">
-                                <div className="w-9 h-9 bg-accent-softPurple border-2 border-black flex items-center justify-center shrink-0">
-                                    <FileText className="w-5 h-5 text-black" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-[10px] font-header font-black text-black uppercase truncate">RESEARCH.PDF</p>
-                                    <p className="text-[9px] font-header font-black text-accent-pink uppercase">VIEW MANUSCRIPT</p>
-                                </div>
-                                <ArrowUpRight className="w-4 h-4 text-black/20 group-hover/pdf:translate-x-0.5 group-hover/pdf:-translate-y-0.5 transition-transform" />
-                            </a>
-                        )}
-
-                        {post.attachedLinks && post.attachedLinks[0] && (
-                            <a href={post.attachedLinks[0]} target="_blank" rel="noopener noreferrer"
-                                onClick={e => e.stopPropagation()}
-                                className="flex items-center gap-3 p-3 bg-white border-3 border-black shadow-flat-xs hover:shadow-flat transition-all group/link">
-                                <div className="w-9 h-9 bg-accent-softPink border-2 border-black flex items-center justify-center shrink-0">
-                                    <Link2 className="w-5 h-5 text-black" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-[10px] font-header font-black text-black uppercase truncate">EXTERNAL LINK</p>
-                                    <p className="text-[9px] font-header font-black text-accent-purple uppercase">RESOURCES</p>
-                                </div>
-                                <ArrowUpRight className="w-4 h-4 text-black/20 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                            </a>
-                        )}
-                    </div>
-
-                    {/* Action bar */}
-                    <div className="flex items-center gap-8 pt-4 mt-2 border-t-2 border-black/5">
-                        <button onClick={handleLike} className="flex items-center gap-2 text-black/40 hover:text-accent-purple transition-colors group/up">
-                            <div className="p-1 rounded-full group-hover/up:bg-accent-softPurple transition-colors">
-                                <ArrowBigUp className="w-5 h-5" />
-                            </div>
-                            <span className="text-xs font-header font-black tabular-nums">{post.upvotes.toLocaleString()}</span>
-                        </button>
-                        <span className="flex items-center gap-2 text-black/40">
-                            <div className="p-1">
-                                <MessageSquare className="w-5 h-5" />
-                            </div>
-                            <span className="text-xs font-header font-black tabular-nums">{post.commentCount}</span>
-                        </span>
-                    </div>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 pt-2">
+                <button 
+                    onClick={handleSimulate}
+                    className="flex-1 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#F6851B] hover:border-[#F6851B] transition-all group/sim shadow-lg"
+                >
+                    <Zap className="w-3.5 h-3.5 fill-current" />
+                    Simulate & Verify
+                </button>
+                <button 
+                    onClick={handleLike}
+                    className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-[#F6851B] hover:bg-[#F6851B]/10 hover:border-[#F6851B]/30 transition-all"
+                >
+                    <ArrowBigUp className="w-5 h-5" />
+                </button>
+                <div className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40">
+                    <MessageSquare className="w-4 h-4" />
                 </div>
             </div>
         </article>

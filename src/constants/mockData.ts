@@ -13,6 +13,7 @@ export const MOCK_POSTS: Post[] = [
         upvotes: 42000,
         commentCount: 124,
         createdAt: '2h ago',
+        timestamp: Date.now() - 2 * 3600 * 1000,
         references: ['0x8a...2e1', '0x5e...2f6'],
         topics: ['ZK-Proofs', 'Peer Review', 'Social Graph'],
         license: 'CC-BY',
@@ -34,6 +35,7 @@ export const MOCK_POSTS: Post[] = [
         upvotes: 8500,
         commentCount: 56,
         createdAt: '5h ago',
+        timestamp: Date.now() - 5 * 3600 * 1000,
         topics: ['Genomics', 'Open Source', 'Solana'],
         license: 'Apache-2.0',
         status: 'In-Review'
@@ -49,6 +51,7 @@ export const MOCK_POSTS: Post[] = [
         upvotes: 18900,
         commentCount: 42,
         createdAt: '8h ago',
+        timestamp: Date.now() - 8 * 3600 * 1000,
         topics: ['AI Safety', 'Hardware', 'Transparency'],
         versions: [{ version: 'v1', date: 'Jan 20, 2026', url: '#' }],
         status: 'In-Review'
@@ -65,6 +68,7 @@ export const MOCK_POSTS: Post[] = [
         upvotes: 3400,
         commentCount: 18,
         createdAt: '12h ago',
+        timestamp: Date.now() - 12 * 3600 * 1000,
         topics: ['Reputation', 'ZK-Proofs', 'Infrastructure'],
         license: 'MIT',
         status: 'Published'

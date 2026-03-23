@@ -171,31 +171,47 @@ export const bioProtocol = {
     },
 
     /**
-     * Calculate on-chain researcher reputation from their post activity.
-     * In production: derived from Solana program state.
+     * Reliability Index 2.0
+     * Calculate on-chain researcher reputation with enhanced weights.
      */
     getResearcherReputation: async (
         walletAddress: string,
-        stats: { postCount: number; upvotesReceived: number; citationCount: number }
+        stats: { 
+            postCount: number; 
+            upvotesReceived: number; 
+            citationCount: number;
+            followerCount?: number; // From Tapestry
+        }
     ): Promise<ResearcherReputation> => {
-        const score = Math.min(
-            1000,
-            stats.postCount * 10 +
-            stats.upvotesReceived * 2 +
-            stats.citationCount * 5
-        );
+        const followerCount = stats.followerCount || 0;
+        
+        // Base points
+        let score = (stats.postCount * 12) + (stats.upvotesReceived * 3);
+        
+        // Reliability 2.0: Higher weight for peer citations
+        score += (stats.citationCount * 15);
+        
+        // Reliability 2.0: Network effect (Followers)
+        score += (followerCount * 5);
+
+        // Reliability 2.0: Consistency multiplier (Active researchers)
+        if (stats.postCount >= 5) score *= 1.2;
+
+        const finalScore = Math.min(1000, Math.floor(score));
 
         const level: ResearcherReputation['level'] =
-            score >= 800 ? 'Legend' :
-                score >= 500 ? 'Principal' :
-                    score >= 200 ? 'Senior' :
-                        score >= 50 ? 'Researcher' : 'Novice';
+            finalScore >= 850 ? 'Legend' :
+                finalScore >= 600 ? 'Principal' :
+                    finalScore >= 300 ? 'Senior' :
+                        finalScore >= 100 ? 'Researcher' : 'Novice';
 
         return {
             walletAddress,
-            score,
+            score: finalScore,
             level,
-            ...stats,
+            postCount: stats.postCount,
+            upvotesReceived: stats.upvotesReceived,
+            citationCount: stats.citationCount
         };
     },
 

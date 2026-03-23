@@ -13,6 +13,7 @@ export interface Post {
     upvotes: number;
     commentCount: number;
     createdAt: string;
+    timestamp: number;
     references?: string[];
     isNsfw?: boolean;
     pdfUrl?: string;

@@ -5,6 +5,12 @@ import { SocialProviders } from './components/providers/SocialProviders'
 import { AppProvider } from './context/AppContext'
 import App from './App'
 import './index.css'
+import { Buffer } from 'buffer'
+
+// Polyfill Buffer for Solana/Anchor
+if (typeof window !== 'undefined') {
+    window.Buffer = window.Buffer || Buffer
+}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>

@@ -1,345 +1,245 @@
 import React, { useState } from 'react';
-import {
-    ArrowLeft, ArrowBigUp, MessageSquare, Clock, User,
-    ChevronRight, Send, FileText, Link2, ExternalLink, ArrowUpRight,
-    Tag, Coins, History, ShieldCheck, Map
+import { 
+    ArrowLeft, MessageSquare, ArrowBigUp, Share2, 
+    MoreHorizontal, FileText, Globe, Link2, 
+    Binary, Zap, Sparkles, ShieldCheck, 
+    ChevronRight, ArrowUpRight, Play, Activity
 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import type { Post } from '../types';
+import { useNavigate } from 'react-router-dom';
+import type { Post, Comment } from '../types';
 import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
-import { useNavigate } from 'react-router-dom';
-import { useSolana } from '../context/useSolana';
-import { voteOnProposal as onChainVote, findProposalPDA } from '../lib/program';
-import { PublicKey } from '@solana/web3.js';
 import { truncateAddress } from '../utils/address';
 
 interface PostDetailProps { post: Post; onBack: () => void; }
 
-
 const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
-    const { authenticated, login, user } = usePrivy();
-    const { voteOnProposal: upvotePost, addComment, comments } = useAppContext();
-    const { program, solanaAddress, hasProfile, showTransactionModal, showSystemModal } = useSolana();
+    const { authenticated, login } = usePrivy();
+    const { voteOnProposal: upvotePost, addComment, comments: allComments } = useAppContext();
+    const postComments = allComments[post.id] || [];
     const navigate = useNavigate();
-    const [commentText, setCommentText] = useState('');
+    const [newComment, setNewComment] = useState('');
 
-    const postComments = comments[post.id] || [];
-    const walletAddress = user?.wallet?.address || '';
-
-    const handleUpvote = async () => {
+    const handleUpvote = (postId: string) => {
         if (!authenticated) return login();
-
-        // On-Chain Voice
-        if (program && solanaAddress) {
-            console.log('Voting on-chain...');
-
-            // PROFILE CHECK: Ensure account is initialized
-            if (!hasProfile) {
-                showTransactionModal({
-                    status: 'error',
-                    category: 'UPVOTE',
-                    message: 'Join the DAO to vote on-chain! Initialize your membership in the profile page.'
-                });
-                navigate('/profile');
-                return;
-            }
-
-            try {
-                // Validate if post.id is a valid PublicKey before attempting on-chain vote
-                let proposalPubkey: PublicKey;
-                try {
-                    proposalPubkey = new PublicKey(post.id);
-                } catch (e) {
-                    throw new Error(`Invalid local ID (${post.id}). Voting is only available for on-chain research.`);
-                }
-
-                const { tx } = await onChainVote(program, {
-                    voter: new PublicKey(solanaAddress),
-                    proposalPDA: proposalPubkey,
-                    approve: true
-                });
-                console.log('On-chain vote success');
-                showTransactionModal({
-                    status: 'success',
-                    category: 'UPVOTE',
-                    txId: tx
-                });
-            } catch (err) {
-                console.error('Vote Error Detail:', err);
-
-                let errorMsg = 'On-chain vote failed. This might happen if you have already voted or have insufficient funds.';
-                if (err instanceof Error && err.message.includes('Invalid local ID')) {
-                    errorMsg = err.message;
-                }
-
-                showTransactionModal({
-                    status: 'error',
-                    category: 'UPVOTE',
-                    message: errorMsg
-                });
-            }
-        }
-
-        upvotePost(post.id, true);
+        upvotePost(postId, true);
     };
-    const handleSubmitComment = () => {
+
+    const handleAddComment = () => {
         if (!authenticated) return login();
-        if (!commentText.trim()) return;
-        const author = walletAddress ? truncateAddress(walletAddress) : 'Anonymous';
-        addComment(post.id, author, commentText.trim());
-        setCommentText('');
+        if (!newComment.trim()) return;
+        addComment(post.id, authenticated ? truncateAddress("User") : "Anonymous", newComment);
+        setNewComment('');
     };
 
     return (
-        <div className="space-y-8 pb-10 font-soft">
-            {/* Back Button */}
-            <button
-                onClick={() => navigate('/')}
-                className="btn-illu-outline px-6 py-2.5 flex items-center gap-3"
-            >
-                <ArrowLeft className="w-4 h-4" />
-                BACK TO FEED
-            </button>
+        <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-700">
+            {/* ── Top Action Row ── */}
+            <div className="flex items-center justify-between">
+                <button 
+                    onClick={onBack}
+                    className="flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#F6851B] transition-all group group"
+                >
+                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-xs font-bold uppercase tracking-widest text-white/60 group-hover:text-white">Back to Lab</span>
+                </button>
+                <div className="flex items-center gap-4">
+                    <button className="w-11 h-11 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
+                        <Share2 className="w-5 h-5" />
+                    </button>
+                    <button className="w-11 h-11 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
+                        <MoreHorizontal className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                <div className="lg:col-span-9 space-y-8">
-                    {/* Hero Card */}
-                    <div className="illustration-card space-y-6 relative overflow-visible bg-white">
-                        {/* Meta */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-accent-softPurple border-3 border-black flex items-center justify-center shadow-flat-sm overflow-hidden">
-                                    <User className="w-6 h-6 text-black" />
-                                </div>
-                                <div>
-                                    <span className="text-xs font-header font-black text-black uppercase tracking-wider block leading-tight">{truncateAddress(post.author)}</span>
-                                    <span className="text-[10px] font-header font-black text-black/40 uppercase flex items-center gap-1.5 mt-1">
-                                        <Clock className="w-3 h-3 text-accent-purple" /> {post.createdAt}
-                                    </span>
-                                </div>
-                            </div>
-                            <span className="px-4 py-1.5 bg-white border-3 border-black text-[10px] font-header font-black uppercase tracking-widest text-black shadow-flat-sm">
-                                {post.type}
+            {/* ── Main Content Hero ── */}
+            <div className="space-y-10">
+                <div className="flex flex-wrap items-center gap-4">
+                    <span className="px-3 py-1.5 bg-[#F6851B]/10 border border-[#F6851B]/40 rounded-full text-[10px] font-bold text-[#F6851B] uppercase tracking-widest flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 fill-current" /> {post.status || 'Verified'}
+                    </span>
+                    <span className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                        {post.type}
+                    </span>
+                    <span className="text-sm font-bold text-white/20 uppercase tracking-[0.2em] ml-auto">{post.createdAt}</span>
+                </div>
+
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-tight text-white uppercase">
+                    {post.title}
+                </h1>
+
+                <div className="flex items-center gap-6 py-6 border-y border-white/5">
+                    <div className="flex items-center gap-3">
+                         <div className="w-12 h-12 rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                              <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${post.author}`} className="w-full h-full object-cover" />
+                         </div>
+                         <div className="space-y-0.5">
+                             <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Principal Investigator</p>
+                             <p className="text-base font-bold text-white tracking-tight">{truncateAddress(post.author)}</p>
+                         </div>
+                    </div>
+                    <div className="h-10 w-[1px] bg-white/5 hidden sm:block" />
+                    <div className="hidden sm:block space-y-0.5">
+                         <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Research Field</p>
+                         <p className="text-base font-bold text-[#A78BFA] tracking-tight">{post.researchField}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Simulator CTA Banner ── */}
+            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col md:flex-row items-center justify-between gap-8 group overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#F6851B]/5 blur-[80px] -z-10 group-hover:bg-[#F6851B]/10 transition-all" />
+                <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 rounded-3xl bg-[#F6851B] flex items-center justify-center shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                        <Zap className="w-10 h-10 text-white fill-white animate-pulse" />
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-bold tracking-tight text-white uppercase">AI Research Simulator</h3>
+                        <p className="text-white/40 font-medium max-w-sm uppercase text-xs tracking-widest leading-relaxed">Execute this research context through our LLM simulation engine to predict impact and validity.</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => navigate(`/node/${post.id}/simulate`)}
+                    className="btn-metamask h-16 px-12 text-sm shadow-[0_0_30px_rgba(246,133,27,0.2)]"
+                >
+                    RUN AI SIMULATION <Play className="w-4 h-4 fill-white ml-2" />
+                </button>
+            </div>
+
+            {/* ── Abstract & Body ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                <div className="lg:col-span-2 space-y-10">
+                    <div className="space-y-6">
+                        <h4 className="text-xs font-bold text-[#F6851B] uppercase tracking-[0.3em]">Research Abstract</h4>
+                        <div className="text-xl text-white/80 font-medium leading-relaxed uppercase tracking-tight">
+                            {post.abstract}
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h4 className="text-xs font-bold text-[#F6851B] uppercase tracking-[0.3em]">Main Methodology</h4>
+                        <p className="text-base text-white/40 leading-relaxed uppercase tracking-widest font-black">
+                            {post.content || "Detailed experimental documentation is stored on-chain. Access through the simulator or raw DOI logs for full dataset integration."}
+                        </p>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-3">
+                        {post.topics?.map(topic => (
+                            <span key={topic} className="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold text-white/60 uppercase tracking-widest">
+                                # {topic}
                             </span>
-                        </div>
-
-                        {/* Title */}
-                        <h1 className="text-2xl md:text-4xl font-display font-black uppercase tracking-tight text-black leading-tight">
-                            {post.title}
-                        </h1>
-
-                        {/* Topics Section */}
-                        {post.topics && post.topics.length > 0 && (
-                            <div className="flex flex-wrap gap-2 pt-2">
-                                {post.topics.map((topic, i) => (
-                                    <span key={topic} className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-softPurple border-2 border-black text-[9px] font-header font-black text-black uppercase tracking-widest shadow-flat-xs hover:-translate-y-0.5 transition-transform cursor-default">
-                                        <Tag className="w-3 h-3 text-accent-purple" /> {topic}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Abstract */}
-                        {post.abstract && (
-                            <div className="p-5 bg-accent-softPurple/30 border-l-4 border-accent-purple shadow-flat-sm">
-                                <p className="text-sm text-black/70 font-black uppercase tracking-tight leading-relaxed">{post.abstract}</p>
-                            </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex items-center justify-between pt-6 mt-2 border-t-3 border-black">
-                            <div className="flex items-center gap-6">
-                                <button onClick={handleUpvote}
-                                    className="flex items-center gap-2 text-xs font-header font-bold text-black group/btn">
-                                    <div className="w-10 h-10 border-3 border-black bg-white flex items-center justify-center transition-all group-hover/btn:bg-accent-softPurple group-hover/btn:shadow-flat-xs active:shadow-none active:translate-x-0.5 active:translate-y-0.5 shadow-flat-sm">
-                                        <ArrowBigUp className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-black tabular-nums">{post.upvotes.toLocaleString()}</span>
-                                </button>
-                                <span className="flex items-center gap-2 text-xs font-header font-bold text-black/50">
-                                    <div className="w-10 h-10 border-3 border-black bg-white flex items-center justify-center shadow-flat-xs opacity-50">
-                                        <MessageSquare className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-black tabular-nums">{post.commentCount}</span>
-                                </span>
-                            </div>
-
-                            <button
-                                onClick={() => showSystemModal({
-                                    type: 'info',
-                                    title: 'BioCoin Support',
-                                    message: 'BioCoin donations and support features will be available in the next release.'
-                                })}
-                                className="flex items-center gap-2 px-6 py-3 bg-accent-pink border-3 border-black text-[10px] font-header font-black text-white uppercase tracking-widest shadow-flat hover:shadow-flat-hover active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
-                            >
-                                <Coins className="w-4 h-4" /> SUPPORT WITH BIOCOIN
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Full Content */}
-                    <div className="illustration-card space-y-6 bg-white">
-                        <h3 className="text-xl font-display font-black uppercase tracking-tight text-black underline decoration-4 decoration-accent-pink">Full Research Content</h3>
-                        <div className="prose prose-sm md:prose-base max-w-none
-                            prose-headings:font-display prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tight prose-headings:text-black
-                            prose-p:font-header prose-p:font-black prose-p:uppercase prose-p:tracking-tight prose-p:text-black/80
-                            prose-strong:text-black prose-a:text-accent-purple prose-code:text-accent-pink
-                            prose-li:font-header prose-li:font-black prose-li:uppercase prose-li:text-black/70
-                            prose-hr:border-black prose-blockquote:border-accent-purple prose-blockquote:bg-accent-softPurple/30 prose-blockquote:p-4">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {post.content || post.abstract || 'No content available for this research node.'}
-                            </ReactMarkdown>
-                        </div>
-
-                        {/* Support Block (Mid-Page) */}
-                        <div className="p-8 bg-accent-softPink/20 border-3 border-dashed border-black text-center space-y-4">
-                            <Coins className="w-10 h-10 text-accent-pink mx-auto" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-header font-black text-black uppercase tracking-wider">Support Research Transparency</p>
-                                <p className="text-[10px] font-header font-black text-black/40 uppercase tracking-widest">Authors receive 95% of all BioCoin donations directly.</p>
-                            </div>
-                            <button
-                                onClick={() => showSystemModal({
-                                    type: 'info',
-                                    title: 'Contribute',
-                                    message: 'Direct BioCoin contributions are strictly for verified researchers.'
-                                })}
-                                className="btn-illu-primary bg-accent-pink w-full sm:w-auto"
-                            >
-                                CONTRIBUTE BIOCOIN
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Comments */}
-                    <div className="illustration-card space-y-6 bg-white overflow-visible">
-                        <h3 className="text-xl font-display font-black uppercase tracking-tight text-black">
-                            Community Discussion <span className="text-accent-pink">({postComments.length})</span>
-                        </h3>
-
-                        {/* Input */}
-                        <div className="flex gap-4">
-                            <div className="w-10 h-10 bg-accent-softPurple border-3 border-black flex items-center justify-center shrink-0 mt-1">
-                                <User className="w-5 h-5 text-black" />
-                            </div>
-                            <div className="flex-1 space-y-4">
-                                <textarea
-                                    value={commentText}
-                                    onChange={e => setCommentText(e.target.value)}
-                                    placeholder={authenticated ? 'ADD A COMMENT...' : 'CONNECT WALLET TO COMMENT...'}
-                                    disabled={!authenticated}
-                                    rows={3}
-                                    className="illu-input resize-none h-auto min-h-[100px]"
-                                />
-                                <div className="flex justify-end">
-                                    <button
-                                        onClick={handleSubmitComment}
-                                        disabled={!commentText.trim()}
-                                        className="btn-illu-primary flex items-center gap-3 px-8 py-3 text-[11px] bg-black text-white"
-                                    >
-                                        <Send className="w-4 h-4" /> SUBMIT COMMENT
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Comment List */}
-                        {postComments.length > 0 && (
-                            <div className="space-y-4 pt-4 border-t-3 border-black">
-                                {postComments.map(comment => (
-                                    <div key={comment.id} className="flex gap-4">
-                                        <div className="w-10 h-10 bg-gray-100 border-3 border-black flex items-center justify-center shrink-0">
-                                            <User className="w-5 h-5 text-black/40" />
-                                        </div>
-                                        <div className="flex-1 p-4 bg-white border-3 border-black shadow-flat-sm">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <span className="text-[11px] font-header font-black text-black uppercase tracking-wider">{comment.author}</span>
-                                                <span className="text-[10px] font-header font-black text-black/30 uppercase">{comment.createdAt}</span>
-                                            </div>
-                                            <p className="text-sm text-black/70 font-black uppercase tracking-tight leading-relaxed">{comment.content}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        {postComments.length === 0 && (
-                            <div className="py-12 text-center border-3 border-dashed border-black bg-gray-50/50">
-                                <p className="text-xs font-header font-black text-black/20 uppercase tracking-[0.25em]">
-                                    No discussions yet. Start the conversation.
-                                </p>
-                            </div>
-                        )}
+                        ))}
                     </div>
                 </div>
 
-                {/* Sidebar Metadata */}
-                <div className="lg:col-span-3 space-y-6">
-                    {/* DOI & License */}
-                    <div className="illustration-card bg-white space-y-4">
-                        <div className="space-y-3">
-                            <p className="text-[10px] font-header font-black text-black/30 uppercase tracking-widest">Object Identifier</p>
-                            {post.doi ? (
-                                <a href={`https://doi.org/${post.doi}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 bg-accent-softPurple border-2 border-black text-[11px] font-header font-black text-black uppercase tracking-tight shadow-flat-xs hover:shadow-flat transition-all group">
-                                    <Map className="w-4 h-4 text-accent-purple" /> DOI: {post.doi}
-                                    <ArrowUpRight className="w-3 h-3 ml-auto opacity-20 group-hover:opacity-100" />
+                {/* ── Sidebar Assets ── */}
+                <div className="space-y-8">
+                    <div className="glass-card p-8 space-y-6">
+                        <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Official Assets</h4>
+                        <div className="space-y-4">
+                            {post.pdfUrl && (
+                                <a href={post.pdfUrl} target="_blank" className="flex items-center gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-[#F6851B]/50 hover:bg-white/10 transition-all group">
+                                     <FileText className="w-6 h-6 text-[#F6851B]" />
+                                     <div className="flex-1 overflow-hidden">
+                                          <p className="text-[10px] font-bold text-white uppercase truncate">MANUSCRIPT.PDF</p>
+                                          <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Scientific Paper</p>
+                                     </div>
+                                     <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-white" />
                                 </a>
-                            ) : (
-                                <p className="text-[11px] font-header font-black text-black/40 uppercase">NO DOI RECORDED</p>
                             )}
-                        </div>
-                        <div className="pt-4 border-t-2 border-black/5 flex items-center justify-between">
-                            <p className="text-[10px] font-header font-black text-black/30 uppercase tracking-widest">Rights</p>
-                            <span className="flex items-center gap-1.5 px-2 py-1 bg-white border-2 border-black text-[9px] font-header font-black text-black uppercase tracking-widest shadow-flat-xs">
-                                <ShieldCheck className="w-3 h-3 text-accent-pink" /> {post.license || 'Proprietary'}
-                            </span>
+                            {post.attachedLinks?.map((link, i) => (
+                                <a key={i} href={link} target="_blank" className="flex items-center gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-[#7C3AED]/50 hover:bg-white/10 transition-all group">
+                                     <Link2 className="w-6 h-6 text-[#7C3AED]" />
+                                     <div className="flex-1 overflow-hidden">
+                                          <p className="text-[10px] font-bold text-white uppercase truncate">EXTERNAL LINK</p>
+                                          <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Research Resource</p>
+                                     </div>
+                                     <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-white" />
+                                </a>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Versions History */}
-                    {post.versions && post.versions.length > 0 && (
-                        <div className="illustration-card bg-white space-y-4">
-                            <div className="flex items-center gap-2">
-                                <History className="w-4 h-4 text-black" />
-                                <h4 className="text-sm font-header font-black text-black uppercase tracking-widest">Available Versions</h4>
-                            </div>
-                            <div className="space-y-2">
-                                {post.versions.map((v, i) => (
-                                    <a key={i} href={v.url} className="flex items-center justify-between p-3 border-2 border-black hover:bg-accent-softPurple shadow-flat-xs hover:shadow-flat active:shadow-none transition-all group">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-header font-black text-black uppercase tracking-widest">{v.version}</span>
-                                            <span className="text-[9px] font-header font-black text-black/30 uppercase">{v.date}</span>
-                                        </div>
-                                        <ChevronRight className="w-4 h-4 text-black/20 group-hover:text-black transition-colors" />
-                                    </a>
-                                ))}
-                            </div>
+                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-6">
+                        <div className="flex justify-between items-center">
+                             <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Influence Metrics</h4>
+                             <Activity className="w-4 h-4 text-green-400" />
                         </div>
-                    )}
+                        <div className="grid grid-cols-2 gap-6">
+                             <div className="space-y-1">
+                                 <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest leading-none">Citations</p>
+                                 <p className="text-2xl font-bold tracking-tighter">1,244</p>
+                             </div>
+                             <div className="space-y-1">
+                                 <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest leading-none">H-Index</p>
+                                 <p className="text-2xl font-bold tracking-tighter">42</p>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    {/* Resources & PDF (Moved to sidebar) */}
-                    <div className="illustration-card bg-white space-y-4">
-                        <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-black" />
-                            <h4 className="text-sm font-header font-black text-black uppercase tracking-widest">Assets</h4>
+            {/* ── Engagement Section ── */}
+            <div className="space-y-10 pt-10 border-t border-white/5">
+                <div className="flex items-center gap-8">
+                    <button 
+                        onClick={() => handleUpvote(post.id)}
+                        className="flex items-center gap-3 px-8 py-3 bg-[#F6851B]/10 border border-[#F6851B]/50 rounded-2xl text-white hover:bg-[#F6851B] transition-all group"
+                    >
+                        <ArrowBigUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{post.upvotes} UPVOTES</span>
+                    </button>
+                    <div className="flex items-center gap-3 text-white/40">
+                        <MessageSquare className="w-5 h-5" />
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{postComments.length} COMMENTS</span>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Expert Discussion</h4>
+                    <div className="flex gap-4">
+                        <div className="flex-1 relative">
+                            <input 
+                                value={newComment}
+                                onChange={e => setNewComment(e.target.value)}
+                                placeholder="Add professional commentary..." 
+                                className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 text-sm font-medium focus:border-[#F6851B]/50 outline-none transition-all placeholder:text-white/20"
+                            />
                         </div>
-                        {post.pdfUrl && (
-                            <a href={post.pdfUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-accent-softPink/30 border-2 border-black shadow-flat-xs hover:shadow-flat transition-all group">
-                                <div className="w-8 h-8 bg-white border-2 border-black flex items-center justify-center">
-                                    <FileText className="w-4 h-4 text-black" />
+                        <button 
+                            onClick={handleAddComment}
+                            className="btn-metamask h-16 px-10"
+                        >
+                            POST
+                        </button>
+                    </div>
+
+                    {/* Render existing comments */}
+                    <div className="space-y-6 pt-6">
+                        {postComments.map((comment) => (
+                            <div key={comment.id} className="glass-panel p-6 border-white/5 bg-white/5 rounded-[24px] space-y-4 animate-in fade-in slide-in-from-left-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl border border-white/10 overflow-hidden shadow-xl bg-black">
+                                            <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${comment.author}`} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-[10px] font-bold text-white uppercase tracking-tight">{truncateAddress(comment.author)}</p>
+                                            <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{comment.createdAt}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg">
+                                         <ArrowBigUp className="w-3.5 h-3.5 text-white/40" />
+                                         <span className="text-[10px] font-bold text-white/60">{comment.upvotes}</span>
+                                    </div>
                                 </div>
-                                <span className="text-[10px] font-header font-black text-black uppercase">MANUSCRIPT.PDF</span>
-                                <ArrowUpRight className="w-3 h-3 ml-auto opacity-20" />
-                            </a>
-                        )}
-                        {post.attachedLinks && post.attachedLinks.map((link, i) => (
-                            <a key={i} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border-2 border-black shadow-flat-xs hover:shadow-flat transition-all group">
-                                <Link2 className="w-4 h-4 text-accent-purple" />
-                                <span className="text-[9px] font-header font-black text-black uppercase truncate">{link.replace(/^https?:\/\//, '')}</span>
-                                <ArrowUpRight className="w-3 h-3 ml-auto opacity-20" />
-                            </a>
+                                <p className="text-sm text-white/70 font-medium leading-relaxed uppercase tracking-tight pl-1">
+                                    {comment.content}
+                                </p>
+                            </div>
                         ))}
                     </div>
                 </div>

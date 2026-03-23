@@ -34,9 +34,9 @@ export default {
                 'btn-primary': '0 10px 15px -3px rgba(124, 58, 237, 0.3)',
             },
             fontFamily: {
-                'display': ['"Syne"', 'sans-serif'],
-                'header': ['"Space Grotesk"', 'sans-serif'],
-                'soft': ['"Outfit"', 'sans-serif'],
+                'display': ['"Outfit"', 'sans-serif'],
+                'header': ['"Outfit"', 'sans-serif'],
+                'sans': ['"Inter"', 'sans-serif'],
             },
             spacing: {
                 '18': '4.5rem',

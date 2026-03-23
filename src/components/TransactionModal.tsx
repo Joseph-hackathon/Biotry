@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, XCircle, ExternalLink, X, FlaskConical, Activity, User, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, ExternalLink, X, FlaskConical, Activity, User, ShieldCheck, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export type TransactionCategory = 'DAO_JOIN' | 'UPVOTE' | 'PUBLISH' | 'DAO_INIT' | 'GENERIC';
@@ -14,12 +14,12 @@ interface TransactionModalProps {
     cluster?: string;
 }
 
-const CATEGORY_MAP: Record<TransactionCategory, { label: string; icon: any; color: string; bg: string }> = {
-    DAO_JOIN: { label: 'DAO MEMBERSHIP', icon: User, color: 'text-accent-purple', bg: 'bg-accent-softPurple' },
-    UPVOTE: { label: 'RESEARCH UPVOTE', icon: Activity, color: 'text-accent-pink', bg: 'bg-accent-softPink' },
-    PUBLISH: { label: 'RESEARCH PUBLISH', icon: FlaskConical, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    DAO_INIT: { label: 'DAO INITIALIZATION', icon: ShieldCheck, color: 'text-green-600', bg: 'bg-green-50' },
-    GENERIC: { label: 'INTERACTION', icon: Activity, color: 'text-gray-600', bg: 'bg-gray-100' },
+const CATEGORY_MAP: Record<TransactionCategory, { label: string; icon: any; color: string; glow: string }> = {
+    DAO_JOIN: { label: 'DAO MEMBERSHIP', icon: User, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/20' },
+    UPVOTE: { label: 'RESEARCH UPVOTE', icon: Activity, color: 'text-[#F6851B]', glow: 'bg-[#F6851B]/20' },
+    PUBLISH: { label: 'RESEARCH PUBLISH', icon: FlaskConical, color: 'text-[#F6851B]', glow: 'bg-[#F6851B]/20' },
+    DAO_INIT: { label: 'DAO INITIALIZATION', icon: ShieldCheck, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/20' },
+    GENERIC: { label: 'INTERACTION', icon: Zap, color: 'text-white/50', glow: 'bg-white/5' },
 };
 
 const TransactionModal: React.FC<TransactionModalProps> = ({
@@ -39,80 +39,93 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-md bg-white border-4 border-black shadow-flat animate-in fade-in zoom-in duration-300">
-                {/* Header Decoration */}
-                <div className={clsx("h-2 border-b-4 border-black", status === 'success' ? 'bg-green-400' : 'bg-accent-pink')} />
+            <div className="relative w-full max-w-md glass-panel p-0 overflow-hidden border border-white/10 shadow-3xl animate-in fade-in zoom-in duration-500 rounded-[40px] bg-[#0B0E11]/90">
+                {/* Status Gradient Bar */}
+                <div className={clsx(
+                    "h-1.5 w-full",
+                    status === 'success' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-[#F6851B] to-[#7C3AED]'
+                )} />
 
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 p-2 hover:bg-gray-100 border-2 border-transparent hover:border-black transition-all"
+                    className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group z-20"
                 >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 text-white/30 group-hover:text-white" />
                 </button>
 
-                <div className="p-8 space-y-8">
+                <div className="p-10 md:p-12 space-y-10">
                     {/* Status Icon & Label */}
-                    <div className="flex flex-col items-center text-center space-y-4">
-                        <div className={clsx(
-                            "w-20 h-20 border-4 border-black flex items-center justify-center rotate-3 shadow-flat-sm",
-                            status === 'success' ? 'bg-green-100' : 'bg-accent-softPink'
-                        )}>
-                            {status === 'success' ? (
-                                <CheckCircle2 className="w-10 h-10 text-green-600 -rotate-3" />
-                            ) : (
-                                <XCircle className="w-10 h-10 text-accent-pink -rotate-3" />
-                            )}
+                    <div className="flex flex-col items-center text-center space-y-6">
+                        <div className="relative">
+                            <div className={clsx(
+                                "w-24 h-24 rounded-3xl border flex items-center justify-center relative z-10 shadow-2xl transition-transform duration-700 hover:scale-110",
+                                status === 'success' ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#F6851B]/10 border-[#F6851B]/30'
+                            )}>
+                                {status === 'success' ? (
+                                    <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+                                ) : (
+                                    <XCircle className="w-12 h-12 text-[#F6851B]" />
+                                )}
+                            </div>
+                            {/* Animated Pulse Rings */}
+                            <div className={clsx(
+                                "absolute inset-0 rounded-3xl animate-ping opacity-20",
+                                status === 'success' ? 'bg-emerald-500' : 'bg-[#F6851B]'
+                            )} style={{ animationDuration: '3s' }} />
                         </div>
-                        <div className="space-y-1">
-                            <h2 className="text-3xl font-display font-black uppercase tracking-tight">
+
+                        <div className="space-y-2">
+                            <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-white uppercase leading-none">
                                 {status === 'success' ? 'TRANSACTION COMPLETE' : 'TRANSACTION FAILED'}
                             </h2>
-                            <p className="text-[11px] font-header font-black text-black/40 uppercase tracking-widest">
-                                {status === 'success' ? 'ON-CHAIN STATE UPDATED SUCCESSFULLY' : 'COULD NOT COMPLETE REQUEST'}
+                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em]">
+                                {status === 'success' ? 'ON-CHAIN STATE SYNCHRONIZED' : 'COULD NOT COMPLETE REQUEST'}
                             </p>
                         </div>
                     </div>
 
                     {/* Category Card */}
-                    <div className="border-3 border-black p-4 flex items-center gap-4 bg-gray-50 shadow-flat-xs">
-                        <div className={clsx("w-12 h-12 border-3 border-black flex items-center justify-center shrink-0", config.bg)}>
-                            <Icon className={clsx("w-6 h-6", config.color)} />
+                    <div className="glass-panel p-6 flex items-center gap-6 bg-white/5 border-white/5 rounded-[24px]">
+                        <div className={clsx("w-14 h-14 rounded-2xl border border-white/10 flex items-center justify-center shrink-0 shadow-xl", config.glow)}>
+                            <Icon className={clsx("w-7 h-7", config.color)} />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-header font-black text-black/40 uppercase tracking-widest leading-none mb-1">CATEGORY</p>
-                            <p className="text-sm font-header font-black text-black uppercase tracking-tight truncate">
+                            <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.3em] mb-1.5">PROTOCOL_LAYER</p>
+                            <p className="text-sm font-bold text-white uppercase tracking-tight truncate">
                                 {config.label}
                             </p>
                         </div>
                     </div>
 
                     {message && (
-                        <p className="text-xs font-header font-black text-black/70 leading-relaxed text-center uppercase">
-                            {message}
-                        </p>
+                        <div className="bg-red-500/5 border border-red-500/10 p-5 rounded-2xl text-center">
+                            <p className="text-[11px] font-bold text-red-500/70 leading-relaxed uppercase tracking-tight">
+                                {message}
+                            </p>
+                        </div>
                     )}
 
                     {/* Actions */}
-                    <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-1 gap-4 pt-2">
                         {txId && status === 'success' && (
                             <a
                                 href={`https://explorer.solana.com/tx/${txId}?cluster=${cluster}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="btn-illu-primary w-full py-4 flex items-center justify-center gap-3 bg-accent-purple text-white mb-2"
+                                className="btn-metamask h-16 w-full flex items-center justify-center gap-3 shadow-2xl"
                             >
                                 <ExternalLink className="w-5 h-5" />
-                                VIEW ON EXPLORER
+                                VIEW ON SOLANA EXPLORER
                             </a>
                         )}
                         <button
                             onClick={onClose}
-                            className="btn-illu-outline w-full py-4 uppercase"
+                            className="h-16 w-full bg-white/5 border border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/10 transition-all border-dashed"
                         >
-                            CLOSE WINDOW
+                            CLOSE_SESSION
                         </button>
                     </div>
                 </div>

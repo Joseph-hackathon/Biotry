@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Info, CheckCircle2, AlertTriangle, AlertCircle, LucideIcon } from 'lucide-react';
+import { X, Info, CheckCircle2, AlertTriangle, AlertCircle, LucideIcon, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export type SystemModalType = 'info' | 'success' | 'warning' | 'error';
@@ -12,11 +12,11 @@ interface SystemModalProps {
     message: string;
 }
 
-const TYPE_CONFIG: Record<SystemModalType, { icon: LucideIcon; color: string; bg: string; border: string }> = {
-    info: { icon: Info, color: 'text-accent-purple', bg: 'bg-accent-softPurple', border: 'border-accent-purple' },
-    success: { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50', border: 'border-green-500' },
-    warning: { icon: AlertTriangle, color: 'text-yellow-500', bg: 'bg-yellow-50', border: 'border-yellow-500' },
-    error: { icon: AlertCircle, color: 'text-accent-pink', bg: 'bg-accent-softPink', border: 'border-accent-pink' },
+const TYPE_CONFIG: Record<SystemModalType, { icon: LucideIcon; color: string; glow: string; border: string }> = {
+    info: { icon: Info, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/10', border: 'border-[#7C3AED]/30' },
+    success: { icon: CheckCircle2, color: 'text-emerald-500', glow: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
+    warning: { icon: AlertTriangle, color: 'text-amber-500', glow: 'bg-amber-500/10', border: 'border-amber-500/30' },
+    error: { icon: AlertCircle, color: 'text-[#F6851B]', glow: 'bg-[#F6851B]/10', border: 'border-[#F6851B]/30' },
 };
 
 const SystemModal: React.FC<SystemModalProps> = ({
@@ -34,37 +34,42 @@ const SystemModal: React.FC<SystemModalProps> = ({
     return (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-sm bg-white border-4 border-black shadow-flat animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-sm glass-panel p-0 overflow-hidden border border-white/10 shadow-3xl animate-in fade-in zoom-in duration-500 rounded-[40px] bg-[#0B0E11]/90">
                 {/* Accent Bar */}
-                <div className={clsx("h-2 border-b-4 border-black", config.bg.replace('bg-', 'bg-').split(' ')[0])} />
+                <div className={clsx("h-1.5 w-full", 
+                    type === 'success' ? 'bg-emerald-500' : 
+                    type === 'error' ? 'bg-[#F6851B]' : 
+                    type === 'warning' ? 'bg-amber-500' : 'bg-[#7C3AED]'
+                )} />
 
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 p-1.5 hover:bg-gray-100 border-2 border-transparent hover:border-black transition-all"
+                    className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group z-20"
                 >
-                    <X className="w-4 h-4 text-black" />
+                    <X className="w-4 h-4 text-white/30 group-hover:text-white" />
                 </button>
 
-                <div className="p-8 pb-10 space-y-6">
+                <div className="p-10 md:p-12 space-y-8">
                     {/* Icon */}
                     <div className="flex justify-center">
                         <div className={clsx(
-                            "w-16 h-16 border-4 border-black flex items-center justify-center rotate-3 shadow-flat-sm",
-                            config.bg
+                            "w-20 h-20 rounded-3xl border flex items-center justify-center transition-transform duration-700 hover:rotate-6 shadow-2xl",
+                            config.glow,
+                            config.border
                         )}>
-                            <Icon className={clsx("w-8 h-8 -rotate-3", config.color)} />
+                            <Icon className={clsx("w-10 h-10", config.color)} />
                         </div>
                     </div>
 
                     {/* Text */}
-                    <div className="text-center space-y-2">
-                        <h2 className="text-2xl font-display font-black uppercase tracking-tight text-black">
+                    <div className="text-center space-y-3">
+                        <h2 className="text-2xl md:text-3xl font-bold tracking-tighter text-white uppercase leading-none">
                             {title}
                         </h2>
-                        <p className="text-[10px] font-header font-black text-black/50 uppercase leading-relaxed tracking-widest">
+                        <p className="text-[10px] font-bold text-white/30 uppercase leading-relaxed tracking-[0.3em]">
                             {message}
                         </p>
                     </div>
@@ -72,9 +77,10 @@ const SystemModal: React.FC<SystemModalProps> = ({
                     {/* Action */}
                     <button
                         onClick={onClose}
-                        className="w-full py-4 bg-black text-white border-3 border-black text-[10px] font-header font-black uppercase tracking-[0.2em] shadow-flat-sm hover:shadow-flat active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
+                        className="btn-metamask h-16 w-full flex items-center justify-center text-[11px] font-bold uppercase tracking-widest shadow-2xl transition-all active:scale-95 px-8"
                     >
-                        ACKNOWLEDGE
+                        <Zap className="w-4 h-4 mr-2" />
+                        ACKNOWLEDGE_RECEIPT
                     </button>
                 </div>
             </div>

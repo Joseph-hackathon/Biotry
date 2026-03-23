@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Microscope, Check, Copy, Activity, Shield, AlertCircle, Info, User } from 'lucide-react';
+import { Microscope, Check, Copy, Activity, Shield, AlertCircle, Info, User, ChevronDown, Wallet, ExternalLink, RefreshCw } from 'lucide-react';
 import { clsx } from 'clsx';
 import { truncateAddress } from '../../utils/address';
 
@@ -41,37 +41,42 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({
     };
 
     return (
-        <div className="illustration-card overflow-hidden p-0 relative bg-white">
-            {/* Banner */}
-            <div className="h-40 relative overflow-hidden bg-accent-softPurple border-b-3 border-black">
-                <div className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center pointer-events-none opacity-20">
-                    <img src="/biotry-logo.png" alt="Biotry Background" className="w-64 h-64 object-contain -rotate-12 opacity-80" />
+        <div className="glass-panel overflow-hidden p-0 relative bg-black/40 border border-white/5 shadow-2xl rounded-[32px]">
+            {/* Banner with modern gradient / mesh */}
+            <div className="h-44 relative overflow-hidden bg-gradient-to-br from-[#7C3AED]/20 via-[#F6851B]/5 to-transparent border-b border-white/5">
+                <div className="absolute inset-0 opacity-[0.03]"
+                    style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center pointer-events-none opacity-10">
+                    <img src="/biotry-logo.png" alt="Biotry" className="w-80 h-80 object-contain -rotate-12 blur-sm" />
                 </div>
+                {/* Glow blobs */}
+                <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#F6851B]/10 rounded-full blur-[100px]" />
+                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#7C3AED]/10 rounded-full blur-[100px]" />
             </div>
 
-            <div className="px-8 pb-8">
-                {/* Avatar */}
-                <div className="flex items-center justify-between -mt-12 mb-6 relative z-10">
-                    <div className="w-24 h-24 bg-white border-4 border-black shadow-flat overflow-hidden">
+            <div className="px-10 pb-10">
+                {/* Avatar & Actions */}
+                <div className="flex items-center justify-between -mt-14 mb-8 relative z-10">
+                    <div className="w-28 h-28 bg-[#0B0E11] border-4 border-white/10 rounded-3xl shadow-2xl overflow-hidden p-1 group hover:border-[#F6851B]/50 transition-all duration-500">
                         <img
                             src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${activeAddress || 'default'}`}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain rounded-2xl grayscale group-hover:grayscale-0 transition-all duration-500"
                             alt="Profile"
                         />
                     </div>
-                    <div className="mt-12 flex gap-3">
+                    <div className="mt-14 flex items-center gap-4">
                         {availableWallets.length > 1 && (
                             <div className="relative">
                                 <button
                                     onClick={() => setShowWalletSelector(!showWalletSelector)}
-                                    className="px-4 py-2 border-3 border-black bg-white text-[10px] font-header font-black uppercase tracking-widest hover:bg-gray-50 flex items-center gap-2 shadow-flat-sm"
+                                    className="h-11 px-6 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-white hover:border-[#F6851B] transition-all flex items-center gap-3"
                                 >
-                                    Switch Wallet ({availableWallets.length})
+                                    <Wallet className="w-4 h-4" />
+                                    Switch Wallet
+                                    <ChevronDown className={clsx("w-3.5 h-3.5 transition-transform", showWalletSelector && "rotate-180")} />
                                 </button>
                                 {showWalletSelector && (
-                                    <div className="absolute top-full right-0 mt-2 w-64 bg-white border-3 border-black shadow-flat z-50">
+                                    <div className="absolute top-12 right-0 w-72 h-auto max-h-64 overflow-y-auto bg-[#0B0E11] border border-white/10 rounded-2xl shadow-2xl z-[100] p-2 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200">
                                         {availableWallets.map(w => (
                                             <button
                                                 key={w.address}
@@ -80,83 +85,88 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({
                                                     setShowWalletSelector(false);
                                                 }}
                                                 className={clsx(
-                                                    "w-full text-left px-4 py-3 border-b-2 border-black last:border-b-0 text-[10px] font-header font-black uppercase flex flex-col gap-1 transition-colors",
-                                                    activeAddress === w.cleanAddress ? "bg-accent-softPurple" : "hover:bg-gray-50"
+                                                    "w-full text-left p-4 rounded-xl text-[10px] font-bold uppercase flex flex-col gap-1.5 transition-all mb-1 last:mb-0",
+                                                    activeAddress === w.cleanAddress ? "bg-[#F6851B]/10 border border-[#F6851B]/30 text-[#F6851B]" : "hover:bg-white/5 text-white/50"
                                                 )}
                                             >
                                                 <span className="flex items-center justify-between">
                                                     {w.walletClientType}
-                                                    {activeAddress === w.cleanAddress && <Check className="w-3 h-3 text-accent-purple" />}
+                                                    {activeAddress === w.cleanAddress && <Check className="w-3 h-3" />}
                                                 </span>
-                                                <span className="text-[9px] text-black/50">{truncateAddress(w.cleanAddress)}</span>
+                                                <span className="text-[9px] opacity-60 font-mono">{truncateAddress(w.cleanAddress)}</span>
                                             </button>
                                         ))}
                                     </div>
                                 )}
                             </div>
                         )}
-                        <button onClick={logout} className="px-4 py-2 border-3 border-black bg-white text-[10px] font-header font-black uppercase tracking-widest hover:bg-accent-softPink shadow-flat-sm">
-                            Logout
+                        <button onClick={logout} className="h-11 px-6 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-red-400 hover:border-red-400/30 transition-all">
+                             Disconnect
                         </button>
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-                    <div className="space-y-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <h2 className="text-4xl font-display font-black uppercase tracking-tight text-black">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+                    <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white uppercase">
                                 {truncateAddress(activeAddress) || 'Searching...'}
                             </h2>
                             <div className="flex items-center gap-2 flex-wrap">
                                 <button
                                     onClick={handleCopy}
-                                    className="p-2 border-3 border-black bg-white hover:bg-accent-softPurple shadow-flat-sm hover:shadow-none transition-all"
+                                    className="w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-[#F6851B] transition-all"
                                     title="Copy Full Address"
                                 >
-                                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-black" />}
+                                    {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-white/40" />}
                                 </button>
 
                                 <div className={clsx(
-                                    "px-3 py-1 border-3 border-black text-[10px] font-header font-black uppercase tracking-widest shadow-flat-sm shrink-0",
-                                    programReady ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                                    "px-3.5 py-1.5 border rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl",
+                                    programReady ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-yellow-500/10 border-yellow-500/20 text-yellow-400"
                                 )}>
-                                    {programReady ? 'Program Ready' : (activeAddress ? 'Initializing...' : 'No Address')}
+                                    {programReady ? 'Sync_Stable' : 'Initializing_Node'}
                                 </div>
 
-                                <div className="px-3 py-1 bg-accent-softPink border-3 border-black text-[10px] font-header font-black uppercase tracking-widest shadow-flat-sm shrink-0">
-                                    {availableWallets.find(w => w.cleanAddress === activeAddress)?.walletClientType?.toUpperCase() || 'EXTERNAL'}
-                                </div>
-
-                                {daoStatus === 'initialized' ? (
-                                    <div className="px-3 py-1 bg-green-100 text-green-700 border-3 border-green-700 text-[10px] font-header font-black uppercase tracking-widest shadow-flat-xs shrink-0 flex items-center gap-1">
+                                {daoStatus === 'initialized' && (
+                                    <div className="px-3.5 py-1.5 bg-[#F6851B]/10 border border-[#F6851B]/20 text-[#F6851B] rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl flex items-center gap-1.5">
                                         <Shield className="w-3 h-3" /> DAO ACTIVE
                                     </div>
-                                ) : daoStatus === 'not-initialized' ? (
-                                    <div className="px-3 py-1 bg-amber-100 text-amber-700 border-3 border-amber-700 text-[10px] font-header font-black uppercase tracking-widest shadow-flat-xs shrink-0 flex items-center gap-1">
-                                        <AlertCircle className="w-3 h-3" /> DAO SETUP REQUIRED
-                                    </div>
-                                ) : null}
-                                {hasProfile ? (
-                                    <div className="px-3 py-1 bg-indigo-100 text-indigo-700 border-3 border-indigo-700 text-[10px] font-header font-black uppercase tracking-widest shadow-flat-xs shrink-0 flex items-center gap-1">
-                                        <User className="w-3 h-3" /> @{memberProfile?.username || 'Member'}
-                                    </div>
-                                ) : (
-                                    <div className="px-3 py-1 bg-purple-100 text-purple-700 border-3 border-purple-700 text-[10px] font-header font-black uppercase tracking-widest shadow-flat-xs shrink-0 flex items-center gap-1">
-                                        <Info className="w-3 h-3" /> PROFILE MISSING
+                                )}
+                                
+                                {hasProfile && (
+                                    <div className="px-3.5 py-1.5 bg-[#7C3AED]/10 border border-[#7C3AED]/20 text-[#A78BFA] rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl flex items-center gap-1.5">
+                                        <User className="w-3 h-3" /> @{memberProfile?.username || 'Core'}
                                     </div>
                                 )}
                             </div>
                         </div>
-                        <p className="text-[11px] font-header font-black text-accent-purple uppercase tracking-[0.3em]">
-                            CORE RESEARCHER • {balance !== null ? `${balance.toFixed(4)} SOL` : 'LOADING BALANCE...'}
-                        </p>
+                        
+                        <div className="flex items-center gap-6">
+                            <div className="space-y-0.5">
+                                <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Scientific Reputation</p>
+                                <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#F6851B] to-[#7C3AED] leading-none uppercase">Core Researcher v2</p>
+                            </div>
+                            <div className="w-[1px] h-10 bg-white/5" />
+                            <div className="space-y-0.5">
+                                <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Network Balance</p>
+                                <p className="text-2xl font-bold text-white leading-none uppercase">{balance !== null ? `${balance.toFixed(4)} SOL` : '0.0000 SOL'}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex gap-4 scroll-mt-20">
-                        <button onClick={refreshBalance} className="btn-illu-outline px-6 py-3 shrink-0 flex items-center gap-2">
-                            <Activity className="w-4 h-4" /> REFRESH
+
+                    <div className="flex gap-4">
+                        <button 
+                            onClick={refreshBalance} 
+                            className="h-14 px-8 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:bg-white/10 transition-all group"
+                        >
+                            <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" /> REFRESH
                         </button>
-                        <button onClick={() => navigate('/studio')} className="btn-illu-primary px-8 py-3 shrink-0">
-                            + NEW RESEARCH
+                        <button 
+                            onClick={() => navigate('/studio')} 
+                            className="btn-metamask h-14 px-10 text-xs shadow-2xl"
+                        >
+                            + NEW RESEARCH NODE
                         </button>
                     </div>
                 </div>

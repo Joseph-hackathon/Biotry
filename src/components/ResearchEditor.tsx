@@ -1,6 +1,6 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-    FlaskConical, Upload, Link2, X, Plus, Send, FileText, Sparkles, ChevronDown, Eye, Code
+    FlaskConical, Upload, Link2, X, Plus, Send, FileText, Sparkles, ChevronDown, Eye, Code, Terminal, BookOpen, Activity, Zap, File
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -9,7 +9,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { useSolana } from '../context/useSolana';
-import { submitProposal, findDaoConfigPDA } from '../lib/program';
+import { submitProposal } from '../lib/program';
 import { PublicKey } from '@solana/web3.js';
 
 const RESEARCH_FIELDS = [
@@ -21,46 +21,20 @@ const RESEARCH_FIELDS = [
 const POST_TYPES = ['Research', 'Critique', 'Investigation'];
 
 const typeStyle = {
-    Research: { active: 'bg-accent-purple text-white shadow-flat', inactive: 'bg-white text-black hover:bg-accent-softPurple' },
-    Critique: { active: 'bg-accent-pink text-white shadow-flat', inactive: 'bg-white text-black hover:bg-accent-softPink' },
-    Investigation: { active: 'bg-black text-white shadow-flat', inactive: 'bg-white text-black hover:bg-gray-100' },
+    Research: { active: 'bg-[#F6851B] text-white shadow-2xl', inactive: 'bg-white/5 text-white/40 hover:bg-white/10 border-white/5' },
+    Critique: { active: 'bg-[#7C3AED] text-white shadow-2xl', inactive: 'bg-white/5 text-white/40 hover:bg-white/10 border-white/5' },
+    Investigation: { active: 'bg-white text-black shadow-2xl', inactive: 'bg-white/5 text-white/40 hover:bg-white/10 border-white/5' },
 };
 
 const truncateAddress = (address: string) =>
     address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
 const ResearchEditor = () => {
-    const { user, authenticated, login } = usePrivy();
+    const { authenticated, login } = usePrivy();
     const { addProposal } = useAppContext();
     const navigate = useNavigate();
-    const { program, isReady, solanaAddress, showTransactionModal, showSystemModal } = useSolana();
+    const { program, solanaAddress, showTransactionModal, showSystemModal, hasDaoConfig, initializeHub } = useSolana();
     const activeAddress = solanaAddress || '';
-
-    if (!authenticated || !activeAddress) {
-        return (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white border-3 border-black shadow-flat">
-                <div className="w-20 h-20 bg-accent-softPurple border-4 border-black flex items-center justify-center shadow-flat mb-6">
-                    <FlaskConical className="w-10 h-10 text-accent-purple" />
-                </div>
-                <h2 className="text-3xl font-display font-black uppercase mb-2">
-                    {!authenticated ? 'AUTHENTICATION REQUIRED' : 'LINK WALLET REQUIRED'}
-                </h2>
-                <p className="text-[11px] font-header font-black text-black/50 uppercase tracking-widest max-w-sm mb-8">
-                    {!authenticated
-                        ? 'PLEASE LOGIN TO ACCESS THE RESEARCH STUDIO.'
-                        : 'YOU MUST LINK A SOLANA WALLET (PHANTOM/BACKPACK) TO PUBLISH RESEARCH NODES.'}
-                </p>
-                {!authenticated ? (
-                    <button onClick={login} className="btn-illu-primary px-8 py-3">LOGIN VIA PRIVY</button>
-                ) : (
-                    <div className="flex flex-col items-center gap-4">
-                        <p className="text-xs text-black/70 italic max-w-[200px]">PLEASE USE THE "LINK WALLET" BUTTON IN THE SIDEBAR TO CONTINUE.</p>
-                        <button onClick={() => navigate('/')} className="btn-illu-primary px-8 py-3">BACK TO JOURNAL</button>
-                    </div>
-                )}
-            </div>
-        );
-    }
 
     const [type, setType] = useState<'Research' | 'Critique' | 'Investigation'>('Research');
     const [title, setTitle] = useState('');
@@ -78,6 +52,27 @@ const ResearchEditor = () => {
 
     const canSubmit = title.trim() && abstract.trim() && content.trim();
 
+    if (!authenticated || !activeAddress) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center py-40 text-center">
+                 <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-[32px] flex items-center justify-center shadow-2xl mb-10 group">
+                    <FlaskConical className="w-12 h-12 text-[#F6851B] group-hover:scale-110 transition-transform" />
+                </div>
+                <h2 className="text-4xl font-bold tracking-tighter text-white uppercase mb-4">
+                    STUDIO ACCESS <span className="text-red-500">BLOCKED.</span>
+                </h2>
+                <p className="text-sm font-medium text-white/40 uppercase tracking-widest max-w-sm mb-10">
+                    Authenticating your scientific identity is required to publish new nodes to the research graph.
+                </p>
+                {!authenticated ? (
+                    <button onClick={login} className="btn-metamask h-16 px-14 shadow-2xl">CONNECT IDENTITY</button>
+                ) : (
+                    <button onClick={() => navigate('/')} className="btn-metamask h-16 px-14 shadow-2xl">LINK SOLANA WALLET</button>
+                )}
+            </div>
+        );
+    }
+
     const addLink = () => {
         if (newLink.trim()) {
             setLinks([...links, newLink.trim()]);
@@ -89,66 +84,48 @@ const ResearchEditor = () => {
         setLinks(links.filter((_, i) => i !== index));
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setPdfFile(e.target.files[0]);
+        }
+    };
+
+    const removeFile = () => {
+        setPdfFile(null);
+        if (fileRef.current) fileRef.current.value = '';
+    };
+
     const handleSubmit = async () => {
         if (!canSubmit || isSubmitting) return;
         setIsSubmitting(true);
         try {
-            const walletAddress = solanaAddress || 'Anonymous';
-            const shortAddress = truncateAddress(walletAddress);
-
-            let txHash = 'MOCK_TX';
+            const shortAddress = truncateAddress(activeAddress);
             let finalId = Math.random().toString(36).substr(2, 9);
 
-            console.log('Submission Debug:', { hasProgram: !!program, solanaAddress, isReady, authenticated });
-
-            // On-Chain Transaction
             if (program && solanaAddress) {
-                console.log('Submitting on-chain...');
                 try {
-                    // Safety check for base58 format
-                    if (!/^[1-9A-HJ-NP-Za-km-z]+$/.test(solanaAddress)) {
-                        throw new Error(`Invalid wallet address format: ${solanaAddress}. Please ensure you are connected with a Solana wallet.`);
-                    }
-
                     const { tx, proposalPDA } = await submitProposal(program, {
                         author: new PublicKey(solanaAddress),
                         title,
-                        contentUri: abstract, // Simplified for now
+                        contentUri: abstract,
                         fundingGoal: 0
                     });
-                    txHash = tx;
-                    console.log('On-chain success:', tx, 'PDA:', proposalPDA.toBase58());
-                    showTransactionModal({
-                        status: 'success',
-                        category: 'PUBLISH',
-                        txId: tx
-                    });
-                    // Use PDA as the unique ID so we can vote on it later
+                    showTransactionModal({ status: 'success', category: 'PUBLISH', txId: tx });
                     finalId = proposalPDA.toBase58();
-                } catch (txErr) {
-                    console.error('On-chain submission failed:', txErr);
-                    const errorMessage = txErr instanceof Error ? txErr.message : String(txErr);
-
-                    let errorMsg = `On-chain submission failed: ${errorMessage}`;
-                    if (errorMessage.includes('prior credit') || errorMessage.includes('InsufficientFunds')) {
-                        errorMsg = `Your wallet (${solanaAddress}) has insufficient funds for the transaction fees. Please ensure you have SOL on Devnet.`;
-                    }
-
-                    showTransactionModal({
-                        status: 'error',
-                        category: 'PUBLISH',
-                        message: errorMsg
-                    });
+                } catch (txErr: any) {
+                    showTransactionModal({ status: 'error', category: 'PUBLISH', message: txErr.message || String(txErr) });
+                    setIsSubmitting(false); // Stop here if on-chain fails to allow retry
+                    return; 
                 }
             } else {
-                console.warn('Skipping on-chain submission: Wallet/Program not ready');
-                if (authenticated) {
-                    showSystemModal({
-                        type: 'warning',
-                        title: 'Off-Chain Mode',
-                        message: 'Off-chain submission only: Wallet not fully initialized for transactions.'
-                    });
-                }
+                // If the user expects on-chain but program is missing
+                showSystemModal({
+                    type: 'error',
+                    title: 'On-Chain Sync Failed',
+                    message: 'The Solana program instance is not ready. Please ensure your Solana wallet is correctly linked and refreshed.'
+                });
+                setIsSubmitting(false);
+                return;
             }
 
             addProposal({
@@ -163,6 +140,7 @@ const ResearchEditor = () => {
                 upvotes: 0,
                 commentCount: 0,
                 createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                timestamp: Date.now(),
                 attachedLinks: links
             });
             navigate('/journal');
@@ -172,182 +150,219 @@ const ResearchEditor = () => {
             setIsSubmitting(false);
         }
     };
+
     return (
-        <div className="space-y-8 pb-10">
-            <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border-3 border-black shadow-flat-sm text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">
-                    <Sparkles className="w-3.5 h-3.5 text-accent-purple" /> RESEARCH STUDIO
+        <div className="space-y-12 pb-20 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-700">
+            {/* Header */}
+            <div className="space-y-4">
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-[#A78BFA] uppercase tracking-[0.5em]">
+                    <Terminal className="w-4 h-4" /> Research Authoring Studio
                 </div>
-                <h2 className="text-4xl font-display font-black uppercase tracking-tight text-black leading-tight">
-                    PUBLISH <span className="text-accent-pink italic">RESEARCH.</span>
+                <h2 className="text-4xl md:text-7xl font-bold tracking-tighter text-white uppercase leading-none">
+                    EMIT <span className="text-gradient-orange">RESEARCH.</span>
                 </h2>
+                <p className="text-base font-medium text-white/40 uppercase tracking-tight max-w-2xl">Publish high-integrity scientific findings directly to the on-chain social graph.</p>
             </div>
 
-            <div className="illustration-card space-y-4">
-                <p className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">Post Type</p>
+            {/* Type Selector */}
+            <div className="glass-panel p-10 rounded-[32px] border border-white/5 space-y-8 bg-black/40">
+                <div className="flex items-center gap-4">
+                    <BookOpen className="w-5 h-5 text-white/30" />
+                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em]">Node Classification</p>
+                </div>
                 <div className="flex gap-4 flex-wrap">
                     {POST_TYPES.map((t) => (
                         <button key={t} onClick={() => setType(t as any)}
-                            className={`px-6 py-3 border-3 border-black text-xs font-header font-black uppercase tracking-wider transition-all duration-200 ${type === t ? typeStyle[t as keyof typeof typeStyle].active : typeStyle[t as keyof typeof typeStyle].inactive}`}>
+                            className={clsx(
+                                "px-8 py-4 border rounded-2xl text-[11px] font-bold uppercase tracking-widest transition-all duration-300",
+                                type === t ? typeStyle[t as keyof typeof typeStyle].active : typeStyle[t as keyof typeof typeStyle].inactive
+                            )}>
                             {t}
                         </button>
                     ))}
                 </div>
             </div>
 
-            <div className="illustration-card space-y-6 relative">
-                {/* Removed overflow-hidden to fix dropdown clipping */}
-                <div className="space-y-2">
-                    <label className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">Research Title *</label>
-                    <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-                        placeholder="ENTER YOUR RESEARCH TITLE..."
-                        className="illu-input" />
+            {/* Initialize HUB if needed */}
+            {!hasDaoConfig && (
+                <div className="glass-panel p-10 rounded-[32px] border-[#F6851B]/20 bg-[#F6851B]/5 space-y-6 animate-in fade-in slide-in-from-top-4">
+                     <div className="flex items-center gap-4">
+                        <Zap className="w-8 h-8 text-[#F6851B]" />
+                        <h3 className="text-xl font-bold uppercase text-white tracking-tight">DeSci Hub Initialized Not Found</h3>
+                     </div>
+                     <p className="text-xs font-medium text-white/40 uppercase tracking-tight leading-relaxed max-w-xl">
+                        The smart contract environment for this network has not been initialized. You must initialize the core DAO config before you can publish research nodes.
+                     </p>
+                     <button onClick={initializeHub} className="btn-metamask h-14 px-10 text-[10px] font-black uppercase tracking-widest shadow-2xl">
+                        INITIALIZE DESCI HUB
+                     </button>
                 </div>
-                <div className="space-y-2 relative">
-                    <label className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">Research Field</label>
-                    <button onClick={() => setShowFieldDropdown(v => !v)}
-                        className="w-full bg-white border-3 border-black px-4 py-3 text-sm font-header font-black text-black uppercase tracking-tight flex items-center justify-between hover:bg-accent-softPurple transition-all shadow-flat-sm">
-                        {field}
-                        <ChevronDown className={`w-5 h-5 text-black transition-transform duration-200 ${showFieldDropdown ? 'rotate-180' : ''}`} />
-                    </button>
-                    {showFieldDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white border-3 border-black shadow-flat overflow-hidden">
-                            {RESEARCH_FIELDS.map(f => (
-                                <button key={f} onClick={() => { setField(f); setShowFieldDropdown(false); }}
-                                    className={`w-full text-left px-5 py-3 text-xs font-header font-black uppercase tracking-tight transition-all border-b-2 border-black last:border-b-0 ${field === f ? 'bg-accent-purple text-white' : 'text-black hover:bg-accent-softPurple'}`}>
-                                    {f}
+            )}
+
+            {/* Core Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-0">
+                <div className="glass-panel p-10 rounded-[32px] border border-white/5 space-y-8 bg-black/40 md:col-span-2 relative z-[60]">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em] ml-2">Node Title Identifier</label>
+                        <input type="text" value={title} onChange={e => setTitle(e.target.value)}
+                            placeholder="Enter the primary research title..."
+                            className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 text-sm font-bold text-white focus:border-[#F6851B]/50 transition-all outline-none placeholder:text-white/10 uppercase tracking-tight" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-3 relative z-50">
+                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em] ml-2">Field of Study</label>
+                            <div className="relative">
+                                <button onClick={() => setShowFieldDropdown(v => !v)}
+                                    className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 text-sm font-bold text-white uppercase tracking-tight flex items-center justify-between hover:border-[#F6851B] transition-all">
+                                    {field}
+                                    <ChevronDown className={clsx("w-5 h-5 transition-transform", showFieldDropdown && "rotate-180")} />
                                 </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className="space-y-2">
-                    <label className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">DOI (OPTIONAL)</label>
-                    <input type="text" value={doi} onChange={e => setDoi(e.target.value)} placeholder="10.XXXX/XXXXX"
-                        className="illu-input" />
-                </div>
-            </div>
-
-            <div className="illustration-card space-y-3">
-                <label className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">Abstract *</label>
-                <textarea value={abstract} onChange={e => setAbstract(e.target.value)}
-                    placeholder="SUMMARIZE YOUR RESEARCH..." rows={4}
-                    className="illu-input resize-none" />
-                <p className="text-[10px] font-header font-black text-gray-400 uppercase tracking-widest">{abstract.length} CHARS</p>
-            </div>
-
-            <div className="illustration-card space-y-3">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">Research Content (Markdown Supported) *</label>
-                    <div className="flex bg-gray-100 border-2 border-black p-1 shadow-flat-sm">
-                        <button
-                            onClick={() => setPreviewMode('edit')}
-                            className={clsx(
-                                "px-3 py-1 text-[10px] font-header font-black uppercase transition-all flex items-center gap-2",
-                                previewMode === 'edit' ? "bg-black text-white shadow-flat-xs" : "text-black hover:bg-white"
-                            )}
-                        >
-                            <Code className="w-3 h-3" /> Edit
-                        </button>
-                        <button
-                            onClick={() => setPreviewMode('preview')}
-                            className={clsx(
-                                "px-3 py-1 text-[10px] font-header font-black uppercase transition-all flex items-center gap-2",
-                                previewMode === 'preview' ? "bg-black text-white shadow-flat-xs" : "text-black hover:bg-white"
-                            )}
-                        >
-                            <Eye className="w-3 h-3" /> Preview
-                        </button>
-                    </div>
-                </div>
-
-                {previewMode === 'edit' ? (
-                    <textarea value={content} onChange={e => setContent(e.target.value)}
-                        placeholder="ADD EXTENDED RESEARCH CONTENT USING MARKDOWN...&#10;# Heading&#10;- List item&#10;**Bold text**" rows={12}
-                        className="illu-input resize-none font-mono text-sm" />
-                ) : (
-                    <div className="illu-input min-h-[300px] overflow-auto bg-white p-6">
-                        <div className="prose prose-sm prose-slate max-w-none 
-                            prose-headings:font-display prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tight prose-headings:text-black
-                            prose-p:font-header prose-p:font-black prose-p:uppercase prose-p:tracking-tight prose-p:text-black/80
-                            prose-strong:text-black prose-a:text-accent-purple prose-code:text-accent-pink
-                            prose-li:font-header prose-li:font-black prose-li:uppercase prose-li:text-black/70">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {content || '*No content to preview*'}
-                            </ReactMarkdown>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            <div className="illustration-card space-y-4">
-                <p className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">PDF Attachment</p>
-                <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={e => setPdfFile(e.target.files?.[0] ?? null)} />
-                {pdfFile ? (
-                    <div className="flex items-center gap-4 p-4 bg-accent-softPurple border-3 border-black shadow-flat-sm">
-                        <div className="w-11 h-11 bg-white border-3 border-black flex items-center justify-center shrink-0">
-                            <FileText className="w-6 h-6 text-accent-purple" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs font-header font-black text-black uppercase truncate">{pdfFile.name}</p>
-                            <p className="text-[10px] font-header font-black text-gray-500 uppercase">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                        </div>
-                        <button onClick={() => setPdfFile(null)} className="w-8 h-8 flex items-center justify-center border-3 border-black bg-white hover:bg-accent-pink hover:text-white transition-colors">
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-                ) : (
-                    <button onClick={() => fileRef.current?.click()}
-                        className="w-full border-3 border-dashed border-black bg-white py-12 flex flex-col items-center gap-4 hover:bg-accent-softPurple transition-all group shadow-flat-sm">
-                        <div className="w-12 h-12 bg-white border-3 border-black flex items-center justify-center group-hover:-translate-y-1 transition-transform">
-                            <Upload className="w-6 h-6 text-black" />
-                        </div>
-                        <div className="text-center">
-                            <p className="text-xs font-header font-black text-black uppercase tracking-widest">CLICK TO UPLOAD PDF</p>
-                            <p className="text-[10px] font-header font-black text-gray-400 uppercase mt-1">MAX 20MB</p>
-                        </div>
-                    </button>
-                )}
-            </div>
-
-            <div className="illustration-card space-y-4">
-                <p className="text-[11px] font-header font-black text-black uppercase tracking-[0.2em]">Citation Links</p>
-                <div className="flex gap-3">
-                    <input type="url" value={newLink} onChange={e => setNewLink(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && addLink()}
-                        placeholder="HTTPS://ARXIV.ORG/..."
-                        className="illu-input" />
-                    <button onClick={addLink} className="btn-illu-primary px-6 flex items-center gap-2">
-                        <Plus className="w-4 h-4" /> ADD
-                    </button>
-                </div>
-                {links.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {links.map((link, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 bg-white border-3 border-black shadow-flat-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all group">
-                                <Link2 className="w-4 h-4 text-accent-purple shrink-0" />
-                                <span className="text-xs font-header font-black text-black uppercase tracking-tight truncate flex-1">
-                                    {link.replace(/^https?:\/\//, '')}
-                                </span>
-                                <button onClick={() => removeLink(i)} className="w-6 h-6 flex items-center justify-center border-2 border-black hover:bg-accent-pink hover:text-white transition-colors">
-                                    <X className="w-3 h-3" />
-                                </button>
+                                {showFieldDropdown && (
+                                    <div className="absolute top-20 left-0 right-0 z-[100] bg-[#0B0E11]/90 border border-white/10 rounded-2xl shadow-2xl p-2 max-h-64 overflow-y-auto backdrop-blur-3xl animate-in fade-in slide-in-from-top-2 duration-200">
+                                        {RESEARCH_FIELDS.map(f => (
+                                            <button key={f} onClick={() => { setField(f); setShowFieldDropdown(false); }}
+                                                className={clsx(
+                                                    "w-full text-left p-4 rounded-xl text-[10px] font-bold uppercase transition-all mb-1 last:mb-0",
+                                                    field === f ? "bg-[#F6851B]/10 text-[#F6851B]" : "text-white/40 hover:bg-white/5 hover:text-white"
+                                                )}>
+                                                {f}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        ))}
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em] ml-2">DOI Lookup (Optional)</label>
+                            <input type="text" value={doi} onChange={e => setDoi(e.target.value)} placeholder="10.XXXX/XXXXX"
+                                className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 text-sm font-bold text-white focus:border-[#F6851B]/50 transition-all outline-none placeholder:text-white/10" />
+                        </div>
                     </div>
-                )}
+                </div>
+
+                {/* Abstract */}
+                <div className="glass-panel p-10 rounded-[32px] border border-white/5 space-y-8 bg-black/40 md:col-span-2 relative z-40">
+                    <div className="space-y-3">
+                         <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em] ml-2">Executive Abstract</label>
+                         <textarea value={abstract} onChange={e => setAbstract(e.target.value)}
+                            placeholder="Summarize the core findings and methodology..." rows={4}
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm font-medium text-white/80 focus:border-[#F6851B]/50 transition-all outline-none placeholder:text-white/10" />
+                         <p className="text-[9px] font-bold text-white/10 uppercase tracking-widest text-right">{abstract.length} Characters encoded</p>
+                    </div>
+                </div>
+
+                {/* Supporting Artifacts (PDF/DOCX) */}
+                <div className="glass-panel p-10 rounded-[32px] border border-white/5 space-y-8 bg-black/40 md:col-span-2 relative z-30">
+                    <div className="flex items-center gap-4">
+                         <FileText className="w-5 h-5 text-white/30" />
+                         <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em]">Supporting Artifacts</label>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div 
+                            onClick={() => fileRef.current?.click()}
+                            className="border-2 border-dashed border-white/5 rounded-3xl p-10 flex flex-col items-center justify-center gap-4 hover:border-[#F6851B]/30 hover:bg-[#F6851B]/5 transition-all cursor-pointer group"
+                        >
+                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                                <Upload className="w-6 h-6 text-white/40 group-hover:text-[#F6851B]" />
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[11px] font-bold text-white uppercase tracking-widest mb-1">Upload Source Node</p>
+                                <p className="text-[9px] font-bold text-white/20 uppercase tracking-tight">PDF or DOCX (MAX 25MB)</p>
+                            </div>
+                            <input
+                                ref={fileRef}
+                                type="file"
+                                accept=".pdf,.doc,.docx"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
+                        </div>
+
+                        <div className="space-y-4">
+                            {pdfFile ? (
+                                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between animate-in fade-in slide-in-from-right-4">
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="w-10 h-10 bg-[#F6851B]/10 rounded-xl flex items-center justify-center shrink-0">
+                                            <File className="w-5 h-5 text-[#F6851B]" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-bold text-white truncate uppercase tracking-tight">{pdfFile.name}</p>
+                                            <p className="text-[9px] font-bold text-white/20 uppercase">{(pdfFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={removeFile} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-red-500/10 hover:text-red-400 transition-all">
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="h-full border border-dashed border-white/5 rounded-2xl flex items-center justify-center text-[10px] font-bold text-white/10 uppercase tracking-[0.2em]">
+                                    No node artifact selected
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content Editor */}
+                <div className="glass-panel p-10 rounded-[32px] border border-white/5 space-y-8 bg-black/40 md:col-span-2 relative z-20">
+                    <div className="flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <Code className="w-5 h-5 text-white/30" />
+                            <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em]">Extended Data Content</label>
+                         </div>
+                         <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                            <button
+                                onClick={() => setPreviewMode('edit')}
+                                className={clsx("px-4 py-2 rounded-lg text-[9px] font-bold uppercase transition-all", previewMode === 'edit' ? "bg-white text-black" : "text-white/40 hover:text-white")}
+                            >
+                                EDITOR
+                            </button>
+                            <button
+                                onClick={() => setPreviewMode('preview')}
+                                className={clsx("px-4 py-2 rounded-lg text-[9px] font-bold uppercase transition-all", previewMode === 'preview' ? "bg-white text-black" : "text-white/40 hover:text-white")}
+                            >
+                                PREVIEW
+                            </button>
+                         </div>
+                    </div>
+
+                    {previewMode === 'edit' ? (
+                        <textarea value={content} onChange={e => setContent(e.target.value)}
+                            placeholder="Use Markdown to document your full research methodology and data sets..." rows={12}
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm font-mono text-white/80 focus:border-[#F6851B]/50 transition-all outline-none placeholder:text-white/10 scrollbar-hide" />
+                    ) : (
+                        <div className="w-full min-h-[300px] bg-white/5 border border-white/10 rounded-2xl p-8 overflow-auto">
+                            <div className="prose prose-invert prose-sm max-w-none 
+                                prose-headings:text-white prose-headings:font-bold prose-headings:uppercase 
+                                prose-p:text-white/60 prose-strong:text-white prose-a:text-[#F6851B]">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {content || '*No content to preview*'}
+                                </ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            <div className="flex items-center justify-between gap-6 pt-4">
-                <button onClick={() => navigate('/feed')} className="btn-illu-outline px-10 py-4">CANCEL</button>
-                <button onClick={handleSubmit} disabled={!canSubmit}
-                    className="btn-illu-primary px-12 py-4 text-sm flex items-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none bg-accent-pink">
-                    {isSubmitting ? (
-                        <><div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />PUBLISHING...</>
-                    ) : (
-                        <><Send className="w-5 h-5" />PUBLISH RESEARCH</>
-                    )}
-                </button>
+            {/* Publishing Controls */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-10 pt-10 border-t border-white/5">
+                <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.5em]">Network Status</p>
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <p className="text-xs font-bold text-green-500 uppercase tracking-widest">Awaiting_Solana_Payload</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-6 w-full md:w-auto">
+                    <button onClick={() => navigate('/journal')} className="h-14 px-10 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-all">ABORT_PUBLISH</button>
+                    <button onClick={handleSubmit} disabled={!canSubmit || isSubmitting}
+                        className="btn-metamask flex-1 md:flex-none h-16 px-16 shadow-2xl disabled:opacity-20 disabled:grayscale"
+                    >
+                        {isSubmitting ? 'EXECUTING_TX...' : 'EMIT_TO_GRAPH'}
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -1,14 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { MOCK_POSTS } from '../constants/mockData';
-import type { Post } from '../types';
-
-export interface Comment {
-    id: string;
-    postId: string;
-    author: string;
-    content: string;
-    createdAt: string;
-}
+// AppContext.tsx
+import type { Post, Comment } from '../types';
 
 interface AppContextValue {
     proposals: Post[];
@@ -37,10 +30,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const addComment = useCallback((postId: string, author: string, content: string) => {
         const newComment: Comment = {
             id: Math.random().toString(36).substr(2, 9),
-            postId,
             author,
             content,
             createdAt: 'Just now',
+            upvotes: 0
         };
         setComments(prev => ({
             ...prev,

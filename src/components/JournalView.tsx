@@ -3,7 +3,7 @@ import {
     BookOpen, Users, FileText, Send,
     ChevronRight, ExternalLink, ShieldCheck,
     Activity, Clock, Globe, Search,
-    Binary, Server, Trophy, TrendingUp, Sparkles, MoveRight, Coins
+    Binary, Server, Trophy, TrendingUp, Sparkles, MoveRight, Coins, Zap, ArrowUpRight
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { EDITORIAL_BOARD, FEATURED_HUBS, TOP_CONTRIBUTORS } from '../constants/mockData';
@@ -23,8 +23,6 @@ const JournalView: React.FC = () => {
 
     const filteredPosts = useMemo(() => {
         let result = [...posts];
-
-        // Apply search
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             result = result.filter(p =>
@@ -34,26 +32,16 @@ const JournalView: React.FC = () => {
                 p.researchField.toLowerCase().includes(q)
             );
         }
-
-        // Apply Hub filter
-        if (selectedHub) {
-            result = result.filter(p => p.researchField === selectedHub);
-        }
-
-        // Apply tab filtering
+        if (selectedHub) result = result.filter(p => p.researchField === selectedHub);
         if (activeTab === 'About') return [];
-        if (activeTab !== 'All') {
-            result = result.filter(p => p.status === activeTab);
-        }
-
-        // Fallback: Default to trending (upvotes) if no other specific order
-        return result.sort((a, b) => b.upvotes - a.upvotes);
+        if (activeTab !== 'All') result = result.filter(p => p.status === activeTab);
+        return result.sort((a, b) => b.timestamp - a.timestamp);
     }, [posts, activeTab, searchQuery, selectedHub]);
 
     const stats = [
-        { label: 'Total Nodes', value: '1,284', icon: Binary, color: 'text-accent-purple' },
-        { label: 'Active Scientists', value: '542', icon: Users, color: 'text-accent-pink' },
-        { label: 'BioCoin Funded', value: '12.4M', icon: Coins, color: 'text-accent-purple' },
+        { label: 'Network Nodes', value: '1,284', icon: Binary, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
+        { label: 'Active Scientists', value: '542', icon: Users, color: 'text-[#F6851B]', bg: 'bg-[#F6851B]/10' },
+        { label: 'BioCoin Reserves', value: '12.4M', icon: Coins, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
     ];
 
     const hubIcons: Record<string, any> = {
@@ -65,87 +53,91 @@ const JournalView: React.FC = () => {
     };
 
     return (
-        <div className="space-y-10 pb-20">
+        <div className="space-y-12 pb-20 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-700">
             {/* ── Hero Section ── */}
-            <div className="illustration-card bg-accent-softPurple border-black relative overflow-hidden p-8 sm:p-12">
-                <div className="relative z-10 lg:flex items-center gap-12">
-                    <div className="flex-1 space-y-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border-2 border-black text-[10px] font-header font-black text-black uppercase tracking-[0.2em] shadow-flat-xs">
-                            <BookOpen className="w-4 h-4 text-accent-purple" /> Biotry Journal
+            <div className="glass-panel overflow-hidden p-0 relative bg-black/40 border border-white/5 shadow-2xl rounded-[40px]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#7C3AED]/10 via-transparent to-[#F6851B]/5 opacity-50" />
+                <div className="relative z-10 lg:flex items-center gap-16 p-10 md:p-16">
+                    <div className="flex-1 space-y-8">
+                        <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-[#F6851B] uppercase tracking-[0.5em] backdrop-blur-md">
+                            <Sparkles className="w-4 h-4" /> DeSci Network v2
                         </div>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black uppercase tracking-tight text-black leading-tight">
-                            Explore <span className="text-accent-purple underline decoration-4 underline-offset-4">cutting-edge</span> research.
+                        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-white uppercase leading-none">
+                            ORBIT <span className="text-gradient-orange">OPEN SCIENCE.</span>
                         </h1>
-                        <p className="text-sm md:text-base font-header font-black text-black/60 uppercase tracking-tight leading-relaxed max-w-lg">
-                            The decentralized hub for peer-reviewed science, open access publishing, and cryptographic verification.
+                        <p className="text-base md:text-lg font-medium text-white/40 uppercase tracking-tight leading-relaxed max-w-xl">
+                            The decentralized hub for peer-reviewed research, open-access data sets, and cryptographic scientific verification.
                         </p>
-                        <div className="flex flex-wrap gap-4 pt-4">
+                        <div className="flex flex-wrap gap-6 pt-4">
                             <button
                                 onClick={() => navigate('/studio')}
-                                className="btn-illu-primary px-8 py-3 bg-black text-white"
+                                className="btn-metamask h-16 px-12 shadow-2xl"
                             >
-                                SUBMIT RESEARCH
+                                SUBMIT RESEARCH NODE
                             </button>
                             <button
                                 onClick={() => {
                                     const el = document.getElementById('featured-hubs');
                                     el?.scrollIntoView({ behavior: 'smooth' });
                                 }}
-                                className="btn-illu-outline px-8 py-3 bg-white"
+                                className="h-16 px-10 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/10 transition-all border-dashed"
                             >
                                 EXPLORE HUBS
                             </button>
                         </div>
                     </div>
 
-                    <div className="hidden lg:block w-72 h-72 bg-white border-4 border-black shadow-flat relative rotate-3 hover:rotate-0 transition-transform">
-                        <div className="absolute inset-0 flex items-center justify-center p-8">
-                            <div className="space-y-4 w-full">
-                                <div className="h-4 bg-accent-softPurple border-2 border-black w-3/4" />
-                                <div className="h-4 bg-accent-softPink border-2 border-black w-1/2" />
-                                <div className="h-4 bg-gray-100 border-2 border-black w-full" />
-                                <div className="pt-4 flex justify-between">
-                                    <div className="w-12 h-12 rounded-full bg-accent-purple border-3 border-black shadow-flat-xs" />
-                                    <ShieldCheck className="w-12 h-12 text-black" />
+                    <div className="hidden lg:block w-80 h-80 bg-[#0B0E11] border-2 border-white/10 rounded-[32px] shadow-2xl relative rotate-3 hover:rotate-0 transition-all duration-700 p-8 group overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#F6851B]/10 to-[#7C3AED]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                        <div className="relative z-10 space-y-6 w-full">
+                            <div className="h-4 bg-white/5 rounded-full w-3/4 animate-pulse" />
+                            <div className="h-4 bg-[#F6851B]/20 rounded-full w-1/2" />
+                            <div className="h-20 bg-white/5 rounded-2xl border border-white/5" />
+                            <div className="pt-4 flex justify-between items-center">
+                                <div className="w-14 h-14 rounded-2xl bg-[#7C3AED]/20 border border-[#7C3AED]/30 flex items-center justify-center text-[#A78BFA] shadow-xl">
+                                    <ShieldCheck className="w-6 h-6" />
                                 </div>
+                                <Zap className="w-10 h-10 text-[#F6851B] animate-pulse" />
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Decorative Elements */}
-                <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-accent-purple/5 -skew-x-12 translate-x-1/2" />
             </div>
 
             {/* ── Global Stats ── */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {stats.map((s) => (
-                    <div key={s.label} className="illustration-card bg-white p-6 flex items-center justify-between group hover:-translate-y-1 transition-transform">
+                    <div key={s.label} className="glass-card p-10 flex items-center justify-between group hover:border-[#F6851B]/40 transition-all duration-500">
                         <div className="space-y-1">
-                            <p className="text-[10px] font-header font-black text-black/40 uppercase tracking-widest">{s.label}</p>
-                            <p className="text-2xl font-display font-black text-black">{s.value}</p>
+                            <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] mb-2">{s.label}</p>
+                            <p className="text-3xl font-bold text-white tracking-tighter uppercase">{s.value}</p>
                         </div>
-                        <div className={clsx("w-12 h-12 border-3 border-black flex items-center justify-center shadow-flat-sm group-hover:shadow-flat transition-all bg-white", s.color)}>
-                            <s.icon className="w-6 h-6" />
+                        <div className={clsx("w-16 h-16 rounded-2xl border border-white/5 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform", s.bg, s.color)}>
+                            <s.icon className="w-8 h-8" />
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* ── Featured Hubs ── */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h3 id="featured-hubs" className="text-sm font-header font-black text-black uppercase tracking-[0.2em] flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-accent-pink" /> Featured Hubs
-                    </h3>
+            <div className="space-y-8">
+                <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center">
+                            <Globe className="w-5 h-5 text-[#F6851B]" />
+                        </div>
+                        <h3 id="featured-hubs" className="text-xl font-bold uppercase tracking-tight text-white flex items-center gap-3">
+                            FEATURED SCIENTIFIC HUBS
+                        </h3>
+                    </div>
                     <button
                         onClick={() => setSelectedHub(null)}
-                        className="text-[10px] font-header font-black text-accent-purple uppercase tracking-widest hover:underline flex items-center gap-1"
+                        className="text-[10px] font-bold text-[#A78BFA] uppercase tracking-widest hover:text-white transition-all flex items-center gap-2"
                     >
-                        Reset Filter <MoveRight className="w-3 h-3" />
+                         RESET_FILTERS <MoveRight className="w-3.5 h-3.5" />
                     </button>
                 </div>
-                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 mask-fade-right">
                     {FEATURED_HUBS.map((hub) => {
                         const Icon = hubIcons[hub.icon] || Globe;
                         const isActive = selectedHub === hub.name;
@@ -154,21 +146,21 @@ const JournalView: React.FC = () => {
                                 key={hub.id}
                                 onClick={() => setSelectedHub(isActive ? null : hub.name)}
                                 className={clsx(
-                                    "illustration-card px-6 py-4 flex items-center gap-4 shrink-0 transition-all",
+                                    "glass-card px-8 py-6 flex items-center gap-6 shrink-0 transition-all duration-500",
                                     isActive
-                                        ? "bg-accent-softPurple border-accent-purple shadow-none translate-x-0.5 translate-y-0.5"
-                                        : "bg-white hover:bg-accent-softPurple/30"
+                                        ? "bg-white/10 border-[#F6851B] scale-[1.02] shadow-[0_0_30px_rgba(246,133,27,0.15)]"
+                                        : "bg-black/40 hover:bg-white/5 border-white/5"
                                 )}
                             >
                                 <div className={clsx(
-                                    "w-10 h-10 border-2 border-black flex items-center justify-center shadow-flat-xs",
-                                    isActive ? "bg-white" : "bg-accent-softPurple"
+                                    "w-12 h-12 rounded-2xl border flex items-center justify-center shadow-xl transition-all duration-500",
+                                    isActive ? "bg-[#F6851B] border-[#F6851B] text-white" : "bg-white/5 border-white/10 text-white/30"
                                 )}>
-                                    <Icon className="w-5 h-5 text-accent-purple" />
+                                    <Icon className="w-6 h-6" />
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-xs font-header font-black text-black uppercase truncate">{hub.name}</p>
-                                    <p className="text-[9px] font-header font-black text-black/30 uppercase">{hub.count} Nodes</p>
+                                    <p className="text-sm font-bold text-white uppercase tracking-tight">{hub.name}</p>
+                                    <p className="text-[9px] font-bold text-white/10 uppercase tracking-[0.2em] mt-1">{hub.count} NETWORK_NODES</p>
                                 </div>
                             </button>
                         );
@@ -176,54 +168,52 @@ const JournalView: React.FC = () => {
                 </div>
             </div>
 
-            {/* ── Main Layout ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-
-                {/* ── Left Column: Content ── */}
-                <div className="lg:col-span-9 space-y-8">
-
+            {/* ── Main Content Area ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                {/* ── Left Column: Feed ── */}
+                <div className="lg:col-span-8 space-y-10">
                     {/* Tabs */}
-                    <div className="flex border-b-3 border-black items-center justify-between">
-                        <div className="flex">
+                    <div className="flex items-center justify-between border-b border-white/5">
+                        <div className="flex gap-2">
                             {(['All', 'In-Review', 'Published', 'About'] as JournalTab[]).map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={clsx(
-                                        "px-6 py-4 text-xs font-header font-black uppercase tracking-widest transition-all relative top-[3px]",
+                                        "px-8 py-5 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative",
                                         activeTab === tab
-                                            ? "border-3 border-black bg-white border-b-white z-10"
-                                            : "text-black/40 hover:text-black"
+                                            ? "text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#F6851B] bg-white/5"
+                                            : "text-white/20 hover:text-white/40"
                                     )}
                                 >
                                     {tab}
                                 </button>
                             ))}
                         </div>
-                        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-50 border-2 border-black text-[9px] font-header font-black text-black/50 uppercase tracking-widest">
-                            <TrendingUp className="w-3 h-3" /> Sort: Trending
+                        <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                            <TrendingUp className="w-3 h-3" /> RANKING: TRENDING
                         </div>
                     </div>
 
                     {/* About Tab Content */}
                     {activeTab === 'About' && (
-                        <div className="illustration-card bg-white p-8 space-y-10">
-                            <div className="space-y-4 text-center pb-8 border-b-3 border-black border-dashed">
-                                <h2 className="text-3xl font-display font-black uppercase text-black">Building the New Infrastructure of Science.</h2>
+                        <div className="glass-panel p-12 space-y-12 bg-black/40 border-white/5 rounded-[32px]">
+                            <div className="space-y-6 text-center max-w-2xl mx-auto">
+                                <h2 className="text-3xl font-bold tracking-tighter text-white uppercase">The Protocol for Verified Science.</h2>
+                                <p className="text-base text-white/40 uppercase tracking-tight leading-relaxed">DeSci Protocol decentralizes scientific peer review and publication via Solana, ensuring immutable open-access forever.</p>
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                                 {[
-                                    { icon: Clock, title: "14 Days", desc: "Average time to peer review completion." },
-                                    { icon: Activity, title: "Immediate", desc: "Preprints available right after submission." },
-                                    { icon: Globe, title: "Open Access", desc: "Scientific research free for everyone, forever." }
+                                    { icon: Clock, title: "14 Days", desc: "Mean Peer-Review Latency" },
+                                    { icon: Activity, title: "Real-Time", desc: "Immediate Preprint Sync" },
+                                    { icon: Globe, title: "Universal", desc: "Indestructible Open Access" }
                                 ].map((feature) => (
-                                    <div key={feature.title} className="text-center space-y-3 p-4">
-                                        <div className="w-12 h-12 bg-accent-softPink border-3 border-black flex items-center justify-center mx-auto shadow-flat-sm">
-                                            <feature.icon className="w-6 h-6 text-accent-pink" />
+                                    <div key={feature.title} className="text-center space-y-4 p-6 glass-card border-white/5 bg-white/5 hover:border-[#F6851B]/30 transition-all duration-500">
+                                        <div className="w-14 h-14 bg-[#7C3AED]/10 rounded-2xl border border-[#7C3AED]/20 flex items-center justify-center mx-auto text-[#A78BFA] shadow-xl">
+                                            <feature.icon className="w-6 h-6" />
                                         </div>
-                                        <h3 className="text-sm font-header font-black uppercase text-black">{feature.title}</h3>
-                                        <p className="text-[10px] font-header font-black text-black/50 uppercase leading-snug">{feature.desc}</p>
+                                        <h3 className="text-xs font-bold uppercase text-white tracking-widest">{feature.title}</h3>
+                                        <p className="text-[9px] font-bold text-white/20 uppercase leading-snug tracking-tight">{feature.desc}</p>
                                     </div>
                                 ))}
                             </div>
@@ -232,7 +222,7 @@ const JournalView: React.FC = () => {
 
                     {/* Feed Content */}
                     {activeTab !== 'About' && (
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             {filteredPosts.length > 0 ? (
                                 filteredPosts.map((post) => (
                                     <div key={post.id} onClick={() => navigate(`/node/${post.id}`)} className="cursor-pointer">
@@ -240,9 +230,12 @@ const JournalView: React.FC = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="illustration-card bg-gray-50 border-dashed border-black/20 p-20 text-center">
-                                    <Search className="w-12 h-12 text-black/10 mx-auto mb-4" />
-                                    <p className="text-sm font-header font-black text-black/30 uppercase tracking-[0.2em]">No manuscripts found in this category.</p>
+                                <div className="glass-panel py-32 text-center space-y-6 bg-black/40 border-dashed border-2 border-white/5">
+                                    <Search className="w-16 h-16 text-white/5 mx-auto" />
+                                    <div className="space-y-1">
+                                         <p className="text-xs font-bold text-white/20 uppercase tracking-[0.4em]">NO NODES IDENTIFIED</p>
+                                         <p className="text-[9px] uppercase tracking-widest text-white/10 font-bold">Try adjusting your network filters.</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -250,110 +243,75 @@ const JournalView: React.FC = () => {
                 </div>
 
                 {/* ── Right Column: Sidebar ── */}
-                <div className="lg:col-span-3 space-y-8">
-
-                    {/* Top Contributors Leaderboard */}
-                    <div className="illustration-card bg-white space-y-6">
-                        <div className="flex items-center gap-3 border-b-3 border-black pb-4 -mx-6 px-6">
-                            <Trophy className="w-5 h-5 text-accent-pink" />
-                            <h3 className="text-xs font-header font-black text-black uppercase tracking-widest">Top Contributors</h3>
+                <div className="lg:col-span-4 space-y-10">
+                    {/* Top Contributors */}
+                    <div className="glass-panel p-8 bg-black/40 rounded-[32px] border-white/5 space-y-8">
+                        <div className="flex items-center gap-4 border-b border-white/5 pb-6 -mx-8 px-8">
+                            <Trophy className="w-5 h-5 text-[#F6851B]" />
+                            <h3 className="text-sm font-bold text-white uppercase tracking-widest">Network Leaders</h3>
                         </div>
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {TOP_CONTRIBUTORS.map((user, i) => (
-                                <div key={user.id} className="flex items-center gap-3 group">
-                                    <div className="relative">
-                                        <div className="w-10 h-10 rounded-full border-2 border-black overflow-hidden shadow-flat-xs group-hover:shadow-none group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-all">
-                                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                <div key={user.id} className="flex items-center gap-4 group cursor-pointer">
+                                    <div className="relative shrink-0">
+                                        <div className="w-12 h-12 rounded-2xl border-2 border-white/ object-cover shadow-2xl overflow-hidden group-hover:border-[#F6851B]/50 transition-all duration-500">
+                                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                                         </div>
-                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white border-2 border-black flex items-center justify-center text-[9px] font-black italic">
+                                        <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-[#0B0E11] border border-white/10 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shadow-xl">
                                             {i + 1}
                                         </div>
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[10px] font-header font-black text-black uppercase truncate">{user.name}</p>
-                                        <div className="flex items-center gap-1 mt-0.5">
-                                            <div className="w-2 h-2 rounded-full bg-accent-pink" />
-                                            <p className="text-[8px] font-header font-black text-black/40 uppercase">{user.points} Reputation</p>
+                                        <p className="text-[11px] font-bold text-white uppercase group-hover:text-[#F6851B] transition-colors truncate">{user.name}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
+                                            <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{user.points.toLocaleString()} REPUTATION</p>
                                         </div>
                                     </div>
+                                    <ArrowUpRight className="w-4 h-4 text-white/10 group-hover:text-white transition-all" />
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Earn BioCoin Promo */}
-                    <div className="illustration-card bg-accent-pink border-black p-6 space-y-4 text-white hover:shadow-flat-hover transition-all group">
-                        <Coins className="w-10 h-10 group-hover:rotate-12 transition-transform" />
-                        <h4 className="text-lg font-display font-black uppercase tracking-tight leading-tight">Earn BioCoin for Peer Review.</h4>
-                        <p className="text-[10px] font-header font-black text-white/70 uppercase leading-relaxed">
-                            Join our expert network and get rewarded for high-quality manuscript critiques.
-                        </p>
+                    {/* Promo Card */}
+                    <div className="glass-panel p-8 bg-[#F6851B]/10 rounded-[32px] border-[#F6851B]/20 space-y-6 group hover:bg-[#F6851B]/20 transition-all duration-700">
+                        <div className="w-14 h-14 bg-[#F6851B] rounded-2xl flex items-center justify-center text-black shadow-[0_0_30px_rgba(246,133,27,0.3)]">
+                            <Zap className="w-8 h-8 font-bold" />
+                        </div>
+                        <div className="space-y-2">
+                             <h4 className="text-xl font-bold text-white uppercase tracking-tight leading-tight">BioCoin Reward Protocol</h4>
+                             <p className="text-xs font-medium text-white/40 uppercase tracking-tight leading-relaxed">Perform validated peer reviews and earn network incentives in BioCoin.</p>
+                        </div>
                         <button
                             onClick={() => showSystemModal({
                                 type: 'info',
                                 title: 'Coming Soon',
                                 message: 'The peer review reward program is currently in pilot phase. Public applications will open soon!'
                             })}
-                            className="w-full py-3 bg-white border-3 border-black text-[10px] font-header font-black text-black uppercase tracking-widest shadow-flat-sm active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
+                            className="w-full h-14 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/90 transition-all shadow-2xl"
                         >
-                            APPLY TO REVIEW
-                        </button>
-                    </div>
-
-                    {/* Editorial Board (Condensed) */}
-                    <div className="illustration-card bg-white space-y-6">
-                        <div className="flex items-center gap-3 border-b-3 border-black pb-4 -mx-6 px-6">
-                            <Users className="w-5 h-5 text-accent-purple" />
-                            <h3 className="text-xs font-header font-black text-black uppercase tracking-widest">Editors</h3>
-                        </div>
-                        <div className="space-y-4">
-                            {EDITORIAL_BOARD.slice(0, 3).map((editor) => (
-                                <div key={editor.id} className="flex gap-3 group cursor-default">
-                                    <div className="w-10 h-10 bg-accent-softPurple border-2 border-black shrink-0 shadow-flat-xs group-hover:shadow-flat transition-all">
-                                        <img src={editor.avatar} alt={editor.name} className="w-full h-full p-1" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-[10px] font-header font-black text-black uppercase leading-tight truncate">{editor.name}</p>
-                                        <p className="text-[8px] font-header font-black text-accent-pink uppercase tracking-widest mt-1 truncate">{editor.role}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="w-full py-2 bg-gray-50 border-2 border-black text-[9px] font-header font-black text-black uppercase tracking-widest hover:bg-white transition-colors">
-                            FULL BOARD
+                            APPLY_FOR_REVIEWER_NODE
                         </button>
                     </div>
 
                     {/* Resources */}
-                    <div className="illustration-card bg-white space-y-4">
-                        <div className="flex items-center gap-3 border-b-3 border-black pb-4 -mx-6 px-6 mb-2">
-                            <FileText className="w-5 h-5 text-accent-pink" />
-                            <h3 className="text-xs font-header font-black text-black uppercase tracking-widest">Resources</h3>
+                    <div className="glass-panel p-8 bg-black/40 rounded-[32px] border-white/5 space-y-6">
+                        <div className="flex items-center gap-4 border-b border-white/5 pb-6 -mx-8 px-8 mb-2">
+                            <BookOpen className="w-5 h-5 text-white/20" />
+                            <h3 className="text-sm font-bold text-white uppercase tracking-widest">SDK & Docs</h3>
                         </div>
-                        <a href="#" onClick={(e) => {
-                            e.preventDefault();
-                            showSystemModal({
-                                type: 'info',
-                                title: 'Coming Soon',
-                                message: 'Research submission guidelines are being finalized.'
-                            });
-                        }} className="flex items-center justify-between p-3 bg-accent-softPink/30 border-2 border-black shadow-flat-xs hover:shadow-flat transition-all group text-[9px] font-header font-black text-black uppercase">
-                            GUIDELINES <ExternalLink className="w-3 h-3 text-black/20" />
+                        <a href="#" className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-[#F6851B] hover:bg-white/10 transition-all group">
+                            <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Protocol Guidelines</span>
+                            <ExternalLink className="w-4 h-4 text-white/10 group-hover:text-white transition-all" />
                         </a>
-                        <a href="#" onClick={(e) => {
-                            e.preventDefault();
-                            showSystemModal({
-                                type: 'info',
-                                title: 'Coming Soon',
-                                message: 'API documentation for developers is in progress.'
-                            });
-                        }} className="flex items-center justify-between p-3 bg-white border-2 border-black shadow-flat-xs hover:shadow-flat transition-all group text-[9px] font-header font-black text-black uppercase">
-                            API DOCS <ExternalLink className="w-3 h-3 text-black/20" />
+                        <a href="#" className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-[#F6851B] hover:bg-white/10 transition-all group">
+                            <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Network API v1.0</span>
+                            <ExternalLink className="w-4 h-4 text-white/10 group-hover:text-white transition-all" />
                         </a>
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };

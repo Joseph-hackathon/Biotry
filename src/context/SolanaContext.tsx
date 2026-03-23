@@ -24,6 +24,8 @@ interface SolanaContextValue {
     memberProfile: any | null;
     hasProfile: boolean;
     refreshProfile: () => Promise<void>;
+    hasDaoConfig: boolean;
+    initializeHub: () => Promise<void>;
     showTransactionModal: (params: {
         status: 'success' | 'error';
         category: TransactionCategory;
@@ -69,6 +71,7 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [balance, setBalance] = useState<number | null>(null);
     const [memberProfile, setMemberProfile] = useState<any | null>(null);
     const [hasProfile, setHasProfile] = useState(false);
+    const [hasDaoConfig, setHasDaoConfig] = useState(false);
     const [isReady, setIsReady] = useState(false);
 
     // Modal State
@@ -129,6 +132,30 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     };
 
+    const checkDaoConfig = async () => {
+        if (!program) return;
+        try {
+            const { findDaoConfigPDA } = await import('../lib/program');
+            const [configPDA] = findDaoConfigPDA();
+            const accountInfo = await connection.getAccountInfo(configPDA);
+            setHasDaoConfig(accountInfo !== null);
+        } catch (e) {
+            setHasDaoConfig(false);
+        }
+    };
+
+    const initializeHub = async () => {
+        if (!program || !solanaAddress) return;
+        try {
+            const { initializeDao } = await import('../lib/program');
+            const { tx } = await initializeDao(program, "Biotry DeSci Hub", new PublicKey(solanaAddress));
+            showTransactionModal({ status: 'success', category: 'GENERIC', txId: tx, message: 'DeSci Hub Initialized Successfully' });
+            setHasDaoConfig(true);
+        } catch (e: any) {
+            showTransactionModal({ status: 'error', category: 'GENERIC', message: e.message || String(e) });
+        }
+    };
+
     // 1. Sync & Discover Wallets
     useEffect(() => {
         if (!authenticated) {
@@ -164,15 +191,18 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // 2. Initialize Program
     useEffect(() => {
         const init = async () => {
-            if (!solanaAddress || standardWallets.length === 0) {
+            if (!solanaAddress) {
                 setProgram(null);
                 setIsReady(false);
                 return;
             }
 
+            // Find wallet in standardWallets OR any linked Solana wallet in allWallets
             const sw = standardWallets.find(w => sanitize(w.accounts[0]?.address) === solanaAddress);
-            if (!sw) {
-                console.log('[Solana] Active address not yet available in standardWallets list:', solanaAddress);
+            const aw = allWallets.find(w => sanitize(w.address) === solanaAddress);
+
+            if (!sw && !aw) {
+                console.log('[Solana] Active address not yet available in any wallet list:', solanaAddress);
                 setIsReady(false);
                 return;
             }
@@ -181,24 +211,36 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 const anchorWallet = {
                     publicKey: new PublicKey(solanaAddress),
                     signTransaction: async (tx: any) => {
-                        const feature = sw.features['solana:signTransaction'];
-                        if (!feature) throw new Error('Wallet lacks signTransaction feature');
-                        const [out] = await feature.signTransaction({
-                            account: sw.accounts[0],
-                            transaction: tx.serialize({ verifySignatures: false, requireAllSignatures: false }),
-                            chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
-                        });
-                        return tx.constructor.from(out.signedTransaction);
+                        if (sw) {
+                            const feature = sw.features['solana:signTransaction'];
+                            if (!feature) throw new Error('Wallet lacks signTransaction feature');
+                            const [out] = await feature.signTransaction({
+                                account: sw.accounts[0],
+                                transaction: tx.serialize({ verifySignatures: false, requireAllSignatures: false }),
+                                chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
+                            });
+                            return tx.constructor.from(out.signedTransaction);
+                        } else if (aw) {
+                            // Fallback to Privy universal sign (Privy Embedded or other)
+                            const txRes = await (aw as any).signTransaction(tx);
+                            return txRes;
+                        }
+                        throw new Error('No wallet available for signing');
                     },
                     signAllTransactions: async (txs: any[]) => {
-                        const feature = sw.features['solana:signTransaction'];
-                        if (!feature) throw new Error('Wallet lacks signTransaction feature');
-                        const outputs = await feature.signTransaction(...txs.map(tx => ({
-                            account: sw.accounts[0],
-                            transaction: tx.serialize(),
-                            chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
-                        })));
-                        return outputs.map((out, i) => txs[i].constructor.from(out.signedTransaction));
+                        if (sw) {
+                            const feature = sw.features['solana:signTransaction'];
+                            if (!feature) throw new Error('Wallet lacks signTransaction feature');
+                            const outputs = await feature.signTransaction(...txs.map(tx => ({
+                                account: sw.accounts[0],
+                                transaction: tx.serialize(),
+                                chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
+                            })));
+                            return outputs.map((out, i) => txs[i].constructor.from(out.signedTransaction));
+                        } else if (aw) {
+                            return Promise.all(txs.map(tx => (aw as any).signTransaction(tx)));
+                        }
+                        throw new Error('No wallet available for signing');
                     }
                 };
 
@@ -208,6 +250,7 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 console.log('[Solana] Program Ready');
                 refreshBalance();
                 refreshProfile();
+                checkDaoConfig();
             } catch (err) {
                 console.error('[Solana] Init failed:', err);
                 setIsReady(false);
@@ -239,9 +282,10 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         solanaAddress, availableWallets, setActiveAddress: setSolanaAddress,
         balance, refreshBalance,
         memberProfile, hasProfile, refreshProfile,
+        hasDaoConfig, initializeHub,
         showTransactionModal,
         showSystemModal
-    }), [connection, program, network, isReady, solanaAddress, availableWallets, balance, memberProfile, hasProfile]);
+    }), [connection, program, network, isReady, solanaAddress, availableWallets, balance, memberProfile, hasProfile, hasDaoConfig]);
 
     return (
         <SolanaContext.Provider value={value}>

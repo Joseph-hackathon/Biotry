@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlaskConical, ArrowUpRight, Activity, User, Microscope, Copy, Check, Info } from 'lucide-react';
+import { FlaskConical, ArrowUpRight, Activity, User, Microscope, Copy, Check, Info, Zap, Sparkles, ChevronRight, Share2, Plus } from 'lucide-react';
 import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
@@ -13,9 +13,9 @@ import ProfileHero from './profile/ProfileHero';
 import { truncateAddress } from '../utils/address';
 
 const typeStyle: Record<string, string> = {
-    Research: 'bg-accent-softPurple border-black text-accent-purple',
-    Critique: 'bg-accent-softPink border-black text-accent-pink',
-    Investigation: 'bg-gray-100 border-black text-black',
+    Research: 'bg-[#F6851B]/10 border-[#F6851B]/30 text-[#F6851B]',
+    Critique: 'bg-[#7C3AED]/10 border-[#7C3AED]/30 text-[#A78BFA]',
+    Investigation: 'bg-white/5 border-white/10 text-white/50',
 };
 
 const ProfileView: React.FC = () => {
@@ -23,10 +23,8 @@ const ProfileView: React.FC = () => {
     const { proposals: posts } = useAppContext();
     const { program, solanaAddress, availableWallets, setActiveAddress, balance, refreshBalance, hasProfile, refreshProfile, memberProfile, showTransactionModal, showSystemModal } = useSolana();
     const navigate = useNavigate();
-    const [copied, setCopied] = useState(false);
     const [isInitializing, setIsInitializing] = useState(false);
     const [daoStatus, setDaoStatus] = useState<'checking' | 'initialized' | 'not-initialized'>('checking');
-    const [showWalletSelector, setShowWalletSelector] = useState(false);
     const [history, setHistory] = useState<any[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +44,6 @@ const ProfileView: React.FC = () => {
                 const account = await (program.account as any).daoConfig.fetch(configPDA);
                 if (account) setDaoStatus('initialized');
             } catch (e) {
-                console.log('DAO Not initialized yet');
                 setDaoStatus('not-initialized');
             }
         };
@@ -63,21 +60,20 @@ const ProfileView: React.FC = () => {
                 { limit: 25 }
             );
 
-            // Fetch detailed transaction info to categorize
             const detailedHistory = await Promise.all(signatures.map(async (sig) => {
                 try {
                     const tx = await connection.getParsedTransaction(sig.signature, { maxSupportedTransactionVersion: 0 });
-                    let category = 'GENERIC';
+                    let category = 'NETWORK_INTERACTION';
                     if (tx && tx.meta && tx.meta.logMessages) {
                         const logs = tx.meta.logMessages.join(' ');
-                        if (logs.includes('Instruction: CreateProfile')) category = 'DAO_JOIN';
-                        else if (logs.includes('Instruction: VoteOnProposal')) category = 'UPVOTE';
-                        else if (logs.includes('Instruction: SubmitProposal')) category = 'PUBLISH';
-                        else if (logs.includes('Instruction: InitializeDao')) category = 'DAO_INIT';
+                        if (logs.includes('Instruction: CreateProfile')) category = 'DAO_INITIAL_ONBOARD';
+                        else if (logs.includes('Instruction: VoteOnProposal')) category = 'RESEARCH_UPVOTE';
+                        else if (logs.includes('Instruction: SubmitProposal')) category = 'NODE_PUBLICATION';
+                        else if (logs.includes('Instruction: InitializeDao')) category = 'PROTOCOL_INIT';
                     }
                     return { ...sig, category };
                 } catch (e) {
-                    return { ...sig, category: 'GENERIC' };
+                    return { ...sig, category: 'GENERIC_EXECUTION' };
                 }
             }));
 
@@ -93,52 +89,25 @@ const ProfileView: React.FC = () => {
         fetchHistory();
     }, [fetchHistory]);
 
-    const handleCopy = () => {
-        if (!activeAddress) return;
-        navigator.clipboard.writeText(activeAddress);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
     const myPosts = myAuthorTag ? posts.filter(p => p.author === myAuthorTag) : [];
     const totalUpvotes = myPosts.reduce((sum, p) => sum + p.upvotes, 0);
 
     const handleJoinDao = async () => {
         if (!program || !activeAddress || isInitializing) return;
-
-        const username = prompt('Enter Username:', '') || '';
-        const bio = prompt('Enter Bio:', '') || '';
-
+        const username = prompt('Enter Network Handle:', '') || '';
+        const bio = prompt('Enter Biography Summary:', '') || '';
         if (!username) {
-            showSystemModal({
-                type: 'error',
-                title: 'Required Field',
-                message: 'A username is required to join the DAO.'
-            });
+            showSystemModal({ type: 'error', title: 'Action Required', message: 'A username is required to synchronize with the DAO.' });
             return;
         }
-
         setIsInitializing(true);
         try {
-            console.log('[Profile] Creating profile for:', activeAddress);
-            const { tx } = await createProfile(program, {
-                owner: new PublicKey(activeAddress),
-                username,
-                bio
-            });
-            showTransactionModal({
-                status: 'success',
-                category: 'DAO_JOIN',
-                txId: tx
-            });
+            const { tx } = await createProfile(program, { owner: new PublicKey(activeAddress), username, bio });
+            showTransactionModal({ status: 'success', category: 'DAO_JOIN', txId: tx });
             await refreshProfile();
             fetchHistory();
         } catch (err: any) {
-            console.error('Failed to create profile:', err);
-            showTransactionModal({
-                status: 'error',
-                category: 'DAO_JOIN',
-                message: err.message || String(err)
-            });
+            showTransactionModal({ status: 'error', category: 'DAO_JOIN', message: err.message || String(err) });
         } finally {
             setIsInitializing(false);
         }
@@ -146,38 +115,19 @@ const ProfileView: React.FC = () => {
 
     const handleInitializeDao = async () => {
         if (!program || !activeAddress || isInitializing) return;
-
-        // Final safety check for base58 validity
-        if (activeAddress === 'null' || activeAddress === 'undefined' || activeAddress.length < 32) {
-            showTransactionModal({
-                status: 'error',
-                category: 'DAO_INIT',
-                message: `Invalid wallet address detected (${activeAddress}). Please try reconnecting your wallet.`
-            });
+        if (activeAddress.length < 32) {
+            showTransactionModal({ status: 'error', category: 'DAO_INIT', message: `Invalid identifier (${activeAddress}).` });
             return;
         }
-
         setIsInitializing(true);
         try {
-            console.log('[Profile] Initializing DAO with address:', activeAddress);
-            const daoName = prompt('Enter DAO Name:', 'Biotry DAO') || 'Biotry DAO';
-
-            const cleanAddr = activeAddress.trim();
-            const { tx } = await initializeDao(program, daoName, new PublicKey(cleanAddr));
-            showTransactionModal({
-                status: 'success',
-                category: 'DAO_INIT',
-                txId: tx
-            });
+            const daoName = prompt('Enter Protocol Name:', 'Biotry DeSci Protocol') || 'Biotry DeSci Protocol';
+            const { tx } = await initializeDao(program, daoName, new PublicKey(activeAddress));
+            showTransactionModal({ status: 'success', category: 'DAO_INIT', txId: tx });
             setDaoStatus('initialized');
             fetchHistory();
         } catch (err: any) {
-            console.error('Failed to initialize DAO:', err);
-            showTransactionModal({
-                status: 'error',
-                category: 'DAO_INIT',
-                message: err.message || String(err)
-            });
+            showTransactionModal({ status: 'error', category: 'DAO_INIT', message: err.message || String(err) });
         } finally {
             setIsInitializing(false);
         }
@@ -185,177 +135,145 @@ const ProfileView: React.FC = () => {
 
     if (!authenticated || !activeAddress) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 space-y-6 text-center">
-                <div className="w-24 h-24 bg-accent-softPurple border-4 border-black flex items-center justify-center shadow-flat rotate-3">
-                    <User className="w-12 h-12 text-accent-purple" />
+            <div className="flex flex-col items-center justify-center py-40 space-y-10 text-center animate-in fade-in zoom-in duration-700">
+                <div className="w-32 h-32 bg-white/5 border border-white/10 rounded-[32px] flex items-center justify-center shadow-2xl relative group">
+                    <div className="absolute inset-0 bg-[#F6851B]/5 rounded-[32px] blur-2xl group-hover:bg-[#F6851B]/10 transition-all" />
+                    <User className="w-16 h-16 text-[#F6851B] animate-pulse" />
                 </div>
-                <div className="space-y-2">
-                    <h2 className="text-3xl font-display font-black uppercase tracking-tight text-black">
-                        {!authenticated ? 'CONNECT NODE.' : 'LINK SOLANA WALLET.'}
-                    </h2>
-                    <p className="text-[11px] font-header font-black text-black/50 uppercase tracking-[0.2em] max-w-xs">
-                        {!authenticated
-                            ? 'LOGIN VIA PRIVY TO ACCESS THE RESEARCH GRAPH.'
-                            : 'PLEASE LINK A SOLANA WALLET (PHANTOM/BACKPACK) TO VIEW YOUR RESEARCH PROFILE.'}
-                    </p>
+                <div className="space-y-4 max-w-lg">
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white uppercase">AUTHENTICATION <span className="text-[#F6851B]">REQUIRED.</span></h2>
+                    <p className="text-base font-medium text-white/40 uppercase tracking-tight leading-relaxed">Please connect your Solana identity or authenticate via Privy to access the Research Social Graph.</p>
                 </div>
-                {!authenticated ? (
-                    <button onClick={login} className="btn-illu-primary px-10 py-4">
-                        LOGIN VIA PRIVY
-                    </button>
-                ) : (
-                    <div className="flex flex-col gap-4">
-                        {user?.linkedAccounts?.some(a => a.type === 'wallet' && (a as any).chainType === 'solana') ? (
-                            <button
-                                onClick={() => connectWallet()}
-                                className="btn-illu-primary px-10 py-4"
-                            >
-                                CONNECT EXISTING WALLET
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => linkWallet()}
-                                className="btn-illu-primary px-10 py-4"
-                            >
-                                LINK NEW WALLET
-                            </button>
-                        )}
-                        <button onClick={() => navigate('/')} className="btn-illu-outline px-10 py-4">
-                            RETURN TO JOURNAL
-                        </button>
-                    </div>
-                )}
+                <div className="flex flex-wrap items-center justify-center gap-6">
+                    {!authenticated ? (
+                        <button onClick={login} className="btn-metamask h-16 px-14 shadow-2xl">CONNECT IDENTITY</button>
+                    ) : (
+                        <button onClick={() => linkWallet()} className="btn-metamask h-16 px-14 shadow-2xl">LINK SOLANA WALLET</button>
+                    )}
+                    <button onClick={() => navigate('/')} className="h-16 px-10 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-all">RETURN TO FEED</button>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] text-black">
-            <div className="space-y-8 pb-10">
-                <ProfileHero
-                    activeAddress={activeAddress}
-                    balance={balance}
-                    availableWallets={availableWallets}
-                    setActiveAddress={setActiveAddress}
-                    refreshBalance={refreshBalance}
-                    logout={logout}
-                    navigate={navigate}
-                    daoStatus={daoStatus}
-                    hasProfile={hasProfile}
-                    memberProfile={memberProfile}
-                    programReady={!!program}
-                />
+        <div className="space-y-12 pb-20 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-700">
+            <ProfileHero
+                activeAddress={activeAddress}
+                balance={balance}
+                availableWallets={availableWallets}
+                setActiveAddress={setActiveAddress}
+                refreshBalance={refreshBalance}
+                logout={logout}
+                navigate={navigate}
+                daoStatus={daoStatus}
+                hasProfile={hasProfile}
+                memberProfile={memberProfile}
+                programReady={!!program}
+            />
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {[
-                        { label: 'Publications', value: myPosts.length.toString(), icon: FlaskConical, color: 'text-accent-purple', bg: 'bg-accent-softPurple' },
-                        { label: 'Total Upvotes', value: totalUpvotes.toLocaleString(), icon: Activity, color: 'text-accent-pink', bg: 'bg-accent-softPink' },
-                    ].map((stat, i) => (
-                        <div key={i} className="illustration-card group flex flex-col items-center text-center gap-4 py-8 bg-white hover:-translate-y-1 transition-all duration-200">
-                            <div className={`w-14 h-14 ${stat.bg} border-3 border-black flex items-center justify-center shadow-flat-sm group-hover:shadow-flat transition-all`}>
-                                <stat.icon className={clsx('w-8 h-8', stat.color)} />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-4xl font-display font-black text-black tracking-tight leading-none uppercase">{stat.value}</p>
-                                <p className="text-[11px] font-header font-black text-black/40 uppercase tracking-[0.2em]">{stat.label}</p>
-                            </div>
+            {/* Publication Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                {[
+                    { label: 'Network Publications', value: myPosts.length.toString(), icon: FlaskConical, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
+                    { label: 'Cumulative Influence', value: totalUpvotes.toLocaleString(), icon: Zap, color: 'text-[#F6851B]', bg: 'bg-[#F6851B]/10' },
+                ].map((stat, i) => (
+                    <div key={i} className="glass-card p-10 flex flex-col items-center text-center gap-6 group hover:border-white/20 transition-all duration-500">
+                        <div className={clsx('w-16 h-16 rounded-2xl border border-white/10 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform', stat.bg)}>
+                            <stat.icon className={clsx('w-8 h-8', stat.color)} />
                         </div>
-                    ))}
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.4em] mb-2">{stat.label}</p>
+                            <p className="text-5xl font-bold text-white tracking-tighter leading-none">{stat.value}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* On-Chain Research Feed */}
+            <div className="space-y-8">
+                <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                     <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-xl flex items-center justify-center">
+                            <Microscope className="w-5 h-5 text-[#A78BFA]" />
+                        </div>
+                        <h3 className="text-2xl font-bold uppercase tracking-tight text-white">MY RESEARCH GRAPH</h3>
+                     </div>
+                     <div className="flex gap-4">
+                         {!hasProfile && (
+                            <button onClick={handleJoinDao} disabled={isInitializing} className="h-10 px-6 bg-[#F6851B] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl transition-all">
+                                {isInitializing ? 'BUFFERING...' : 'SYNC_IDENTITY_TO_DAO'}
+                            </button>
+                         )}
+                         <button onClick={() => navigate('/studio')} className="h-10 px-6 bg-white border border-white rounded-xl text-[10px] font-black uppercase tracking-widest text-black hover:bg-white/90 transition-all">
+                            + CREATE_NODE
+                         </button>
+                     </div>
                 </div>
 
-                {/* My Posts */}
-                <div className="space-y-6">
-                    <h3 className="text-2xl font-display font-black uppercase tracking-tight text-black">MY RESEARCH GRAPH</h3>
-
-                    {myPosts.length === 0 ? (
-                        <div className="illustration-card flex flex-col items-center py-16 text-center space-y-6 bg-white">
-                            <div className="w-20 h-20 bg-gray-100 border-3 border-black flex items-center justify-center rotate-6">
-                                <FlaskConical className="w-10 h-10 text-black/20" />
-                            </div>
-                            <div className="space-y-2">
-                                <p className="text-sm font-header font-black text-black uppercase tracking-[0.2em]">GRAPH IS EMPTY.</p>
-                                <p className="text-[11px] font-header font-black text-black/40 uppercase tracking-[0.15em] max-w-xs">
-                                    PUBLISH YOUR FIRST RESEARCH NODE TO START BUILDING YOUR SCIENTIFIC REPUTATION.
-                                </p>
-                            </div>
-                            <div className="flex flex-wrap justify-center gap-4">
-                                <button onClick={() => navigate('/studio')} className="btn-illu-primary px-10 py-4">
-                                    NEW POST
-                                </button>
-                                {!hasProfile && (
-                                    <button
-                                        onClick={handleJoinDao}
-                                        disabled={isInitializing}
-                                        className="btn-illu-primary px-10 py-4 bg-accent-purple text-white border-black"
-                                    >
-                                        {isInitializing ? 'JOINING...' : 'JOIN BIOTRY DAO'}
-                                    </button>
-                                )}
-                                {daoStatus === 'not-initialized' && (
-                                    <button
-                                        onClick={handleInitializeDao}
-                                        disabled={isInitializing}
-                                        className="btn-illu-outline px-10 py-4 border-accent-purple text-accent-purple"
-                                    >
-                                        {isInitializing ? 'INITIALIZING...' : 'INITIALIZE DAO'}
-                                    </button>
-                                )}
-                            </div>
+                {myPosts.length === 0 ? (
+                    <div className="glass-panel py-24 text-center space-y-8 bg-black/40 border-dashed border-2 border-white/5">
+                        <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-[32px] mx-auto flex items-center justify-center opacity-30">
+                            <FlaskConical className="w-10 h-10" />
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-6">
-                            {myPosts.map((post) => (
-                                <div
-                                    key={post.id}
-                                    onClick={() => navigate(`/node/${post.id}`)}
-                                    className="illustration-card group cursor-pointer flex flex-col md:flex-row justify-between gap-6 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all bg-white"
-                                >
-                                    <div className="space-y-4 flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <span className={clsx(
-                                                'px-3 py-1.5 border-2 text-[10px] font-header font-black uppercase tracking-[0.2em] shadow-flat-xs',
-                                                typeStyle[post.type] ?? typeStyle.Research
-                                            )}>
-                                                {post.type}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-xl font-display font-black uppercase tracking-tight text-black leading-tight group-hover:text-accent-purple transition-colors">
-                                            {post.title}
-                                        </h3>
-                                        {post.abstract && (
-                                            <p className="text-xs text-black/60 font-black uppercase tracking-tight leading-relaxed line-clamp-2">{post.abstract}</p>
-                                        )}
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">NO RESEARCH NODES IDENTIFIED</p>
+                            <p className="text-[10px] uppercase tracking-widest text-white/10 font-bold max-w-sm mx-auto leading-relaxed">Publish your first scientific node to start building your on-chain research reputation.</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-6">
+                        {myPosts.map((post) => (
+                            <div
+                                key={post.id}
+                                onClick={() => navigate(`/node/${post.id}`)}
+                                className="glass-card p-8 group cursor-pointer flex flex-col md:flex-row justify-between gap-8 hover:border-[#F6851B]/40 hover:bg-white/5 transition-all duration-300"
+                            >
+                                <div className="space-y-6 flex-1">
+                                    <div className="flex items-center gap-4">
+                                        <span className={clsx(
+                                            'px-3.5 py-1.5 border rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl',
+                                            typeStyle[post.type] ?? typeStyle.Research
+                                        )}>
+                                            {post.type}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">Transaction_{post.id.slice(0, 10)}</span>
                                     </div>
-                                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between pt-4 md:pt-0 border-t-2 md:border-t-0 md:border-l-2 border-black md:pl-6 shrink-0 gap-4">
-                                        <div className="text-right">
-                                            <p className="text-2xl font-display font-black text-black">{post.upvotes.toLocaleString()}</p>
-                                            <p className="text-[9px] font-header font-black text-black/40 uppercase">UPVOTES</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xs font-header font-black text-black uppercase tracking-widest">{post.createdAt}</p>
-                                            <p className="text-[9px] font-header font-black text-accent-pink uppercase">PUBLISHED</p>
-                                        </div>
-                                        <div className="hidden md:flex w-10 h-10 border-3 border-black bg-white items-center justify-center group-hover:bg-accent-softPurple shadow-flat-xs transition-all">
-                                            <ArrowUpRight className="w-5 h-5 text-black" />
-                                        </div>
+                                    <h3 className="text-2xl font-bold tracking-tight text-white uppercase group-hover:text-gradient-orange transition-all">
+                                        {post.title}
+                                    </h3>
+                                    {post.abstract && (
+                                        <p className="text-xs text-white/40 font-medium uppercase tracking-tight leading-relaxed line-clamp-2">{post.abstract}</p>
+                                    )}
+                                </div>
+                                <div className="flex flex-row md:flex-col items-center md:items-end justify-between pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-white/5 md:pl-10 shrink-0 gap-6">
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] mb-2">Network Upvotes</p>
+                                        <p className="text-4xl font-bold text-white tracking-tighter leading-none">{post.upvotes.toLocaleString()}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.1em] mb-2">Block_Created</p>
+                                        <p className="text-base font-bold text-[#F6851B] uppercase tracking-widest">{post.createdAt}</p>
+                                    </div>
+                                    <div className="hidden md:flex w-12 h-12 border border-white/10 bg-white/5 items-center justify-center rounded-2xl group-hover:bg-[#F6851B] group-hover:border-[#F6851B] transition-all duration-500">
+                                        <ArrowUpRight className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
-                <ActivityHistory
-                    history={history}
-                    currentPage={currentPage}
-                    itemsPerPage={itemsPerPage}
-                    setCurrentPage={setCurrentPage}
-                    isLoading={isLoadingHistory}
-                    onRefresh={fetchHistory}
-                />
-            </div >
-        </div >
+            <ActivityHistory
+                history={history}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                setCurrentPage={setCurrentPage}
+                isLoading={isLoadingHistory}
+                onRefresh={fetchHistory}
+            />
+        </div>
     );
 };
 

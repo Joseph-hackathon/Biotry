@@ -104,10 +104,14 @@ const ResearchEditor = () => {
 
             if (program && solanaAddress) {
                 try {
+                    // Stricter truncation to avoid 'UriTooLong' (UTF-8 bytes count)
+                    const onChainTitle = title.slice(0, 190);
+                    const onChainUri = abstract.slice(0, 500); 
+
                     const { tx, proposalPDA } = await submitProposal(program, {
                         author: new PublicKey(solanaAddress),
-                        title,
-                        contentUri: abstract,
+                        title: onChainTitle,
+                        contentUri: onChainUri,
                         fundingGoal: 0
                     });
                     showTransactionModal({ status: 'success', category: 'PUBLISH', txId: tx });

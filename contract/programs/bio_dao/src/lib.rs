@@ -5,8 +5,8 @@ declare_id!("2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y");
 // Constants
 const MAX_USERNAME_LEN: usize = 32;
 const MAX_BIO_LEN:      usize = 200;
-const MAX_TITLE_LEN:    usize = 100;
-const MAX_CONTENT_URI_LEN: usize = 200;
+const MAX_TITLE_LEN:    usize = 200;
+const MAX_CONTENT_URI_LEN: usize = 512;
 
 #[program]
 pub mod bio_dao {

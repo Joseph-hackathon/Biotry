@@ -42,6 +42,7 @@ function App() {
         <SolanaProvider>
             <Routes>
                 <Route path="/" element={<LandingPage onLaunch={() => navigate('/journal')} />} />
+                <Route path="node/:id/simulate" element={<SimulatePageWrapper />} />
                 <Route
                     path="/*"
                     element={
@@ -52,7 +53,6 @@ function App() {
                                 <Route path="analytics" element={<DeSciDashboard />} />
                                 <Route path="profile" element={<ProfileView />} />
                                 <Route path="node/:id" element={<PostDetailWrapper />} />
-                                <Route path="node/:id/simulate" element={<SimulatePageWrapper />} />
                                 <Route path="*" element={<Navigate to="/journal" />} />
                             </Routes>
                         </Layout>

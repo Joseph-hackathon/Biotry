@@ -6,13 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-});
+const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({

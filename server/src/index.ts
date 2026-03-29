@@ -23,13 +23,14 @@ app.get('/api/posts', async (req, res) => {
       orderBy: { timestamp: 'desc' }
     });
     // Serialize BigInt to String for JSON
-    const serializedPosts = posts.map(post => ({
+    const serializedPosts = posts.map((post: any) => ({
       ...post,
       timestamp: Number(post.timestamp)
     }));
     res.json(serializedPosts);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch posts' });
+  } catch (error: any) {
+    console.error('[GET /api/posts] DB Error:', error?.message || error);
+    res.status(500).json({ error: 'Failed to fetch posts', detail: error?.message });
   }
 });
 
@@ -89,4 +90,5 @@ app.get('/api/leaderboard', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Biotry Backend running on port ${PORT}`);
+  console.log(`DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
 });

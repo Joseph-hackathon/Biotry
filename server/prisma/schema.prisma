@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id            String   @id @default(cuid())
+  author        String
+  researchField String
+  type          String   // 'Research' | 'Critique' | 'Investigation'
+  title         String
+  doi           String?
+  abstract      String?  @db.Text
+  content       String?  @db.Text
+  upvotes       Int      @default(0)
+  commentCount  Int      @default(0)
+  createdAt     DateTime @default(now())
+  timestamp     BigInt
+  topics        String[]
+  license       String?
+  status        String   @default("Published") // 'Published' | 'In-Review' | 'Draft'
+  image         String?
+  pdfUrl        String?
+  pdfName       String?
+}
+
+model Editor {
+  id          String  @id @default(cuid())
+  name        String
+  role        String
+  institution String
+  avatar      String?
+}
+
+model Hub {
+  id    String @id @default(cuid())
+  name  String @unique
+  icon  String
+  count Int    @default(0)
+}
+
+model LeaderboardEntry {
+  id     String @id @default(cuid())
+  name   String @unique
+  points Int    @default(0)
+  avatar String?
+}

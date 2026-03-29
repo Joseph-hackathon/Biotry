@@ -7,5 +7,12 @@ export default defineConfig({
     server: {
         port: 5173,
         strictPort: true,
+        proxy: {
+            '/api-colosseum': {
+                target: 'https://copilot.colosseum.com',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api-colosseum/, '')
+            }
+        }
     },
 })

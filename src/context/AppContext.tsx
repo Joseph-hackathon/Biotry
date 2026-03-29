@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { MOCK_POSTS } from '../constants/mockData';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { apiClient } from '../lib/api';
 // AppContext.tsx
 import type { Post, Comment } from '../types';
 
@@ -17,14 +17,34 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [proposals, setProposals] = useState<Post[]>(MOCK_POSTS);
+    const [proposals, setProposals] = useState<Post[]>([]);
     const [members, setMembers] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     const [comments, setComments] = useState<Record<string, Comment[]>>({});
 
-    const addProposal = useCallback((proposal: Post) => {
-        setProposals(prev => [proposal, ...prev]);
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const posts = await apiClient.getPosts();
+                setProposals(posts);
+            } catch (err) {
+                console.error("Failed to load posts:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadData();
+    }, []);
+
+    const addProposal = useCallback(async (proposalData: Partial<Post>) => {
+        try {
+            const newPost = await apiClient.createPost(proposalData);
+            setProposals(prev => [newPost, ...prev]);
+        } catch (err) {
+            console.error("Failed to add proposal:", err);
+        }
     }, []);
 
     const addComment = useCallback((postId: string, author: string, content: string) => {

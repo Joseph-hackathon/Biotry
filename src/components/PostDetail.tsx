@@ -19,7 +19,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const { voteOnProposal: upvotePost, addComment, comments: allComments } = useAppContext();
     const postComments = allComments[post.id] || [];
     const navigate = useNavigate();
+    const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
+    const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
     const [newComment, setNewComment] = useState('');
+
+    const AGENTS = ['Dr. Bio', 'Solana Architect', 'ZK Shadow', 'Codama Bot', 'Colosseum Strategist'];
 
     const handleUpvote = (postId: string) => {
         if (!authenticated) return login();
@@ -35,7 +39,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
     return (
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-700">
-            {/* ── Top Action Row ── */}
+            {/* ... Rest of Top Action Row ... */}
             <div className="flex items-center justify-between">
                 <button 
                     onClick={onBack}
@@ -54,7 +58,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                 </div>
             </div>
 
-            {/* ── Main Content Hero ── */}
+            {/* ... Rest of Main Content Hero ... */}
             <div className="space-y-10">
                 <div className="flex flex-wrap items-center gap-4">
                     <span className="px-3 py-1.5 bg-[#F6851B]/10 border border-[#F6851B]/40 rounded-full text-[10px] font-bold text-[#F6851B] uppercase tracking-widest flex items-center gap-2">
@@ -88,8 +92,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                 </div>
             </div>
 
-            {/* ── Simulator CTA Banner ── */}
-            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col md:flex-row items-center justify-between gap-8 group overflow-hidden relative">
+            {/* ── Simulator CTA Banner with Dropdown ── */}
+            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col md:flex-row items-center justify-between gap-8 group relative z-[60]">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#F6851B]/5 blur-[80px] -z-10 group-hover:bg-[#F6851B]/10 transition-all" />
                 <div className="flex items-center gap-6">
                     <div className="w-20 h-20 rounded-3xl bg-[#F6851B] flex items-center justify-center shadow-2xl group-hover:scale-105 transition-transform duration-500">
@@ -100,16 +104,53 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         <p className="text-white/40 font-medium max-w-sm uppercase text-xs tracking-widest leading-relaxed">Execute this research context through our LLM simulation engine to predict impact and validity.</p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => navigate(`/node/${post.id}/simulate`)}
-                    className="btn-metamask h-16 px-12 text-sm shadow-[0_0_30px_rgba(246,133,27,0.2)]"
-                >
-                    RUN AI SIMULATION <Play className="w-4 h-4 fill-white ml-2" />
-                </button>
+                
+                <div className="flex flex-col sm:flex-row items-center gap-4 relative z-50 w-full md:w-auto">
+                    {/* Agent Selection Dropdown */}
+                    <div className="relative w-full sm:w-64 z-50">
+                         <button 
+                            onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
+                            className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 flex items-center justify-between hover:bg-white/10 transition-all group"
+                         >
+                            <div className="text-left">
+                                <p className="text-[10px] font-black text-[#F6851B] uppercase tracking-widest">Select Lead Agent</p>
+                                <p className="text-sm font-bold text-white uppercase">{selectedLeadAgent}</p>
+                            </div>
+                            <ChevronRight className={clsx("w-5 h-5 text-white/20 transition-transform", isAgentMenuOpen ? "rotate-90" : "")} />
+                         </button>
+
+                         {isAgentMenuOpen && (
+                             <div className="absolute top-full mt-3 left-0 w-full bg-[#121212] border border-white/10 rounded-2xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 z-[100] backdrop-blur-xl">
+                                 {AGENTS.map((agent) => (
+                                     <button 
+                                        key={agent}
+                                        onClick={() => {
+                                            setSelectedLeadAgent(agent);
+                                            setIsAgentMenuOpen(false);
+                                        }}
+                                        className={clsx(
+                                            "w-full text-left px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-tight transition-all",
+                                            selectedLeadAgent === agent ? "bg-[#F6851B] text-black" : "text-white/60 hover:text-white hover:bg-white/5"
+                                        )}
+                                     >
+                                         {agent}
+                                     </button>
+                                 ))}
+                             </div>
+                         )}
+                    </div>
+
+                    <button 
+                        onClick={() => navigate(`/node/${post.id}/simulate?lead=${selectedLeadAgent}`)}
+                        className="btn-metamask h-16 px-10 text-xs shadow-[0_0_30px_rgba(246,133,27,0.2)] whitespace-nowrap w-full sm:w-auto"
+                    >
+                        RUN SIMULATION <Play className="w-4 h-4 fill-white ml-2" />
+                    </button>
+                </div>
             </div>
 
             {/* ── Abstract & Body ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 relative z-0">
                 <div className="lg:col-span-2 space-y-10">
                     <div className="space-y-6">
                         <h4 className="text-xs font-bold text-[#F6851B] uppercase tracking-[0.3em]">Research Abstract</h4>

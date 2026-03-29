@@ -1,0 +1,14 @@
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/deps/serde-78d263bec5a63f93.d: /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/build/serde-57bcaa627657e6fd/out/private.rs
+
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/deps/libserde-78d263bec5a63f93.rlib: /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/build/serde-57bcaa627657e6fd/out/private.rs
+
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/deps/libserde-78d263bec5a63f93.rmeta: /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/build/serde-57bcaa627657e6fd/out/private.rs
+
+/home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/test/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/build/serde-57bcaa627657e6fd/out/private.rs:
+
+# env-dep:OUT_DIR=/mnt/c/Users/PC_1M/Desktop/Biotry/contract/target/sbpf-solana-solana/release/build/serde-57bcaa627657e6fd/out

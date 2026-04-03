@@ -12,7 +12,7 @@ import { tapestry, TAPESTRY_API_KEY } from '../lib/tapestry';
 import { truncateAddress } from '../utils/address';
 import { useSolana } from '../context/SolanaContext';
 import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SystemModal, { SystemModalType } from './SystemModal';
 
 interface PostCardProps { post: Post; }
@@ -27,6 +27,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const [postData, setPostData] = useState(post);
     const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
+
+    // Sync with prop changes to ensure local state doesn't track stale prop data
+    useEffect(() => {
+        setPostData(post);
+    }, [post]);
     
     // Modal State
     const [modalConfig, setModalConfig] = useState<{

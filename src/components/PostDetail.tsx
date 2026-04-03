@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     ArrowLeft, MessageSquare, ArrowBigUp, Share2, 
     MoreHorizontal, FileText, Globe, Link2, 
@@ -31,6 +31,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const [isFunding, setIsFunding] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
+
+    // Sync with prop changes
+    useEffect(() => {
+        setPostData(post);
+    }, [post]);
 
     const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
 

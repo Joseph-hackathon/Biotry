@@ -56,24 +56,24 @@ const SystemModal: React.FC<SystemModalProps> = ({
                     <X className="w-4 h-4 text-white/30 group-hover:text-white" />
                 </button>
 
-                <div className="p-10 md:p-12 space-y-8">
+                <div className="p-8 md:p-10 space-y-6">
                     {/* Icon */}
                     <div className="flex justify-center">
                         <div className={clsx(
-                            "w-20 h-20 rounded-3xl border flex items-center justify-center transition-transform duration-700 hover:rotate-6 shadow-2xl",
+                            "w-16 h-16 rounded-3xl border flex items-center justify-center transition-transform duration-700 hover:rotate-6 shadow-2xl",
                             config.glow,
                             config.border
                         )}>
-                            <Icon className={clsx("w-10 h-10", config.color)} />
+                            <Icon className={clsx("w-8 h-8", config.color)} />
                         </div>
                     </div>
 
                     {/* Text */}
-                    <div className="text-center space-y-3">
-                        <h2 className="text-2xl md:text-3xl font-bold tracking-tighter text-white uppercase leading-none">
+                    <div className="text-center space-y-2 px-2">
+                        <h2 className="text-xl md:text-2xl font-black tracking-tight text-white uppercase leading-tight break-words">
                             {title}
                         </h2>
-                        <p className="text-[10px] font-bold text-white/30 uppercase leading-relaxed tracking-[0.3em]">
+                        <p className="text-[9px] font-bold text-white/30 uppercase leading-relaxed tracking-[0.2em]">
                             {message}
                         </p>
                     </div>

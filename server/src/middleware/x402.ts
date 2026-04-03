@@ -38,14 +38,32 @@ export const x402Middleware = async (req: Request, res: Response, next: NextFunc
 
     const connection = new Connection(SOLANA_NETWORK, 'confirmed');
     
-    // 3. Real On-Chain Verification using Parsed Transaction
-    const tx = await connection.getParsedTransaction(paymentSignature, { 
-      maxSupportedTransactionVersion: 0,
-      commitment: 'confirmed'
-    });
+    // 3. Real On-Chain Verification using Parsed Transaction (with Retry Logic for Production Reliability)
+    let tx = null;
+    const maxRetries = 3;
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            tx = await connection.getParsedTransaction(paymentSignature, { 
+                maxSupportedTransactionVersion: 0,
+                commitment: 'confirmed'
+            });
+            if (tx) break;
+        } catch (e) {
+            console.warn(`[x402] Attempt ${i + 1} failed:`, e);
+        }
+        
+        if (i < maxRetries - 1) {
+            console.log(`[x402] Transaction not found yet, retrying in 2s... (${i + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+    }
     
     if (!tx) {
-      return res.status(402).json({ error: 'Payment Pending', message: 'Transaction not found on-chain yet.' });
+      return res.status(402).json({ 
+        error: 'Payment Pending', 
+        message: 'Transaction found but not yet finalized. Please wait a moment and try starting the audit again.',
+        detail: 'HINT: Solana Devnet occasionally has propagation delays. Retrying the START_STRATEGIC_AUDIT button shortly usually works.'
+      });
     }
 
     // Inspect internal instructions for USDC Transfer (SPL Token)

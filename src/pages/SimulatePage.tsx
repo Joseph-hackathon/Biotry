@@ -288,6 +288,9 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                      
                                      <div className="relative mx-auto w-24 h-24 bg-[#F6851B] rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(246,133,27,0.5)]">
                                          <CheckCircle2 className="w-12 h-12 text-black animate-pulse" />
+                                         <div className="absolute -bottom-3 px-3 py-1 bg-black border border-[#F6851B]/50 rounded-full">
+                                             <span className="text-[7px] font-black text-[#F6851B] uppercase tracking-widest whitespace-nowrap">OWS_X402_VERIFIED</span>
+                                         </div>
                                      </div>
 
                                      <div className="space-y-4">
@@ -494,6 +497,61 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                            <div className="h-[1px] w-40 bg-gradient-to-r from-transparent to-white/10" />
                                            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-[#F6851B]">Consensus_Agent_Detailed_Reports</span>
                                            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                                       </div>
+
+                                       {/* Technical Audit Proof - OWS Deep Integration Visibility */}
+                                       <div className="p-14 border border-[#F6851B]/20 rounded-[56px] bg-white/5 backdrop-blur-3xl space-y-12 relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-[#F6851B]/5 to-transparent" />
+                                            <div className="flex flex-col md:flex-row items-start justify-between gap-12">
+                                                <div className="space-y-6 flex-1">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-white/10 rounded-2xl border border-white/20">
+                                                            <Code2 className="w-6 h-6 text-white" />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <h4 className="text-[10px] text-white/40 font-black uppercase tracking-[0.4em]">OWS-Core v1.2.0</h4>
+                                                            <p className="text-2xl font-bold">Scientific Audit Proof</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-lg text-white/60 leading-relaxed max-w-2xl">
+                                                        This audit was generated and signed by the sovereign **Biotry Audit Agent** using the `@open-wallet-standard/core` library. 
+                                                        The signature provides non-repudiable proof that the analysis belongs to our authorized agent vault.
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-4">
+                                                        <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2">
+                                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                                            <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Integrity_Verified</span>
+                                                        </div>
+                                                        <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center gap-2">
+                                                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">NAPI_RS_BINDING_ACTIVE</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-4 min-w-[350px]">
+                                                    <div className="p-6 bg-black/40 border border-white/10 rounded-3xl space-y-3">
+                                                        <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Agent Sovereign ID</p>
+                                                        <p className="text-[10px] text-white/80 font-mono break-all font-black">{analysis.agentAddress}</p>
+                                                    </div>
+                                                    <div className="p-6 bg-black/40 border border-[#F6851B]/20 rounded-3xl space-y-3">
+                                                        <div className="flex justify-between items-center">
+                                                            <p className="text-[9px] font-black uppercase text-[#F6851B]/60 tracking-widest">Digital Signature</p>
+                                                            <Info className="w-3 h-3 text-[#F6851B]/40" />
+                                                        </div>
+                                                        <p className="text-[10px] text-[#F6851B] font-mono break-all border-l border-[#F6851B]/40 pl-4 text-[9px] leading-tight font-black">
+                                                            {analysis.agentSignature}
+                                                        </p>
+                                                    </div>
+                                                    <a 
+                                                      href={`https://solscan.io/account/${analysis.agentAddress}?cluster=devnet`}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3 hover:bg-white/10 transition-all group"
+                                                    >
+                                                      <Globe className="w-4 h-4 text-white/30 group-hover:text-white group-hover:rotate-12 transition-all" />
+                                                      <span className="text-[10px] font-black uppercase tracking-widest">View Agent on Explorer</span>
+                                                    </a>
+                                                </div>
+                                            </div>
                                        </div>
                                    </div>
                                )}

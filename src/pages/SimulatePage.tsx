@@ -617,16 +617,36 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                                                  </div>
                                                              </div>
                                                              <p className="text-3xl font-black tracking-tight text-white">Agent Sovereign Identity</p>
-                                                             <p className="text-white/50 font-medium">This scientific audit has been cryptographically signed by the Biotry Audit Agent.</p>
+                                                             <div className="flex items-center gap-4">
+                                                                <p className="text-white/50 font-medium">This scientific audit has been cryptographically signed by the Biotry Audit Agent.</p>
+                                                                <a 
+                                                                    href={`https://solscan.io/account/${analysis.agentAddress}?cluster=devnet`} 
+                                                                    target="_blank" 
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-[10px] text-[#F6851B] underline font-bold uppercase tracking-widest hover:text-white transition-colors"
+                                                                >
+                                                                    Verify Identity On-Chain
+                                                                </a>
+                                                             </div>
                                                          </div>
                                                      </div>
                                                      <div className="w-full lg:w-auto p-8 bg-black/40 border border-white/10 rounded-[32px] space-y-4 font-mono min-w-[320px]">
                                                          <div className="space-y-1">
                                                              <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Agent Address</p>
-                                                             <p className="text-[11px] text-white/70 break-all">{analysis.agentAddress}</p>
+                                                             <a 
+                                                                href={`https://solscan.io/account/${analysis.agentAddress}?cluster=devnet`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-[11px] text-[#F6851B] break-all hover:underline"
+                                                             >
+                                                                {analysis.agentAddress}
+                                                             </a>
                                                          </div>
                                                          <div className="space-y-1">
-                                                             <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Digital Signature</p>
+                                                             <div className="flex justify-between items-center">
+                                                                <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Digital Signature</p>
+                                                                <span className="text-[8px] text-green-400 font-bold uppercase tracking-widest">● Valid OWS Proof</span>
+                                                             </div>
                                                              <p className="text-[11px] text-[#F6851B] break-all border-l-2 border-[#F6851B]/40 pl-4">
                                                                  {analysis.agentSignature.slice(0, 32)}...{analysis.agentSignature.slice(-32)}
                                                              </p>

@@ -19,7 +19,7 @@ interface PostCardProps { post: Post; }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { authenticated, login, user } = usePrivy();
-    const { voteOnProposal: upvotePost } = useAppContext();
+    const { voteOnProposal: upvotePost, fundPost } = useAppContext();
     const { connection, solanaAddress, isReady, program } = useSolana();
     const navigate = useNavigate();
     
@@ -111,12 +111,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             });
 
             if (res.ok) {
-                // Real-time UI Update
-                setPostData(prev => ({
-                    ...prev,
-                    fundUSDC: (prev.fundUSDC || 0) + fundingAmount,
-                    fundCount: (prev.fundCount || 0) + 1
-                }));
+                // Global State Update: Synchronizes gauges across all views
+                fundPost(post.id, fundingAmount);
 
                 const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
                 showModal(

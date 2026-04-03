@@ -21,21 +21,18 @@ interface PostDetailProps { post: Post; onBack: () => void; }
 const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const { authenticated, login } = usePrivy();
     const { voteOnProposal: upvotePost, addComment, comments: allComments } = useAppContext();
+    const { proposals, fundPost } = useAppContext();
     const { connection, solanaAddress, isReady, program } = useSolana();
-    const postComments = allComments[post.id] || [];
     const navigate = useNavigate();
 
-    // Real-time state
-    const [postData, setPostData] = useState(post);
+    const postComments = allComments[post.id] || [];
+
+    // Use the latest post data from global context if available, fallback to prop
+    const postData = proposals.find(p => p.id === post.id) || post;
     const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
-
-    // Sync with prop changes
-    useEffect(() => {
-        setPostData(post);
-    }, [post]);
 
     const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
 
@@ -101,12 +98,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             });
 
             if (res.ok) {
-                // Real-time local update
-                setPostData(prev => ({
-                    ...prev,
-                    fundUSDC: (prev.fundUSDC || 0) + fundingAmount,
-                    fundCount: (prev.fundCount || 0) + 1
-                }));
+                // Global State Update: Synchronizes gauges across all views
+                fundPost(post.id, fundingAmount);
 
                 const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
                 showModal(

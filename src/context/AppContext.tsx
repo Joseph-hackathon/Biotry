@@ -10,6 +10,7 @@ interface AppContextValue {
     setSearchQuery: (q: string) => void;
     addProposal: (proposal: Post) => void;
     voteOnProposal: (proposalId: string, approve: boolean) => void;
+    fundPost: (postId: string, amount: number) => void;
     addComment: (postId: string, author: string, content: string) => void;
     comments: Record<string, Comment[]>;
 }
@@ -70,8 +71,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
     }, []);
 
+    const fundPost = useCallback((postId: string, amount: number) => {
+        setProposals(prev =>
+            prev.map(p => p.id === postId
+                ? { 
+                    ...p, 
+                    fundUSDC: (p.fundUSDC || 0) + amount,
+                    fundCount: (p.fundCount || 0) + 1
+                  }
+                : p
+            )
+        );
+    }, []);
+
     return (
-        <AppContext.Provider value={{ proposals, members, searchQuery, setSearchQuery, addProposal, voteOnProposal, addComment, comments }}>
+        <AppContext.Provider value={{ proposals, members, searchQuery, setSearchQuery, addProposal, voteOnProposal, fundPost, addComment, comments }}>
             {children}
         </AppContext.Provider>
     );

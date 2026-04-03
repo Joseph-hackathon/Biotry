@@ -95,8 +95,15 @@ app.get('/api/posts', async (req, res) => {
     }));
     res.json(serializedPosts);
   } catch (error: any) {
-    console.error('[GET /api/posts] DB Error:', error?.message || error);
-    res.status(500).json({ error: 'Failed to fetch posts', detail: error?.message });
+    console.error('[GET /api/posts] DB Connection/Schema Error:', {
+        message: error?.message || 'Unknown Error',
+        code: error?.code,
+        meta: error?.meta
+    });
+    res.status(500).json({ 
+        error: 'Failed to fetch posts from network', 
+        detail: error?.message || 'Production Database Error. Try running: npx prisma migrate deploy'
+    });
   }
 });
 

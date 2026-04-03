@@ -85,25 +85,63 @@ app.post('/api/posts/:id/fund', createX402Middleware('1.0'), async (req, res) =>
 // --- POSTS ---
 app.get('/api/posts', async (req, res) => {
   try {
+    // Attempt to fetch all fields (including new funding fields)
     const posts = await prisma.post.findMany({
       orderBy: { timestamp: 'desc' }
     });
-    // Serialize BigInt to String for JSON
+    
     const serializedPosts = posts.map((post: any) => ({
       ...post,
-      timestamp: Number(post.timestamp)
+      timestamp: post.timestamp ? Number(post.timestamp) : Date.now(),
+      fundUSDC: post.fundUSDC ?? 0,
+      fundCount: post.fundCount ?? 0,
+      fundingGoal: post.fundingGoal ?? 100
     }));
+
     res.json(serializedPosts);
   } catch (error: any) {
-    console.error('[GET /api/posts] DB Connection/Schema Error:', {
-        message: error?.message || 'Unknown Error',
-        code: error?.code,
-        meta: error?.meta
-    });
-    res.status(500).json({ 
-        error: 'Failed to fetch posts from network', 
-        detail: error?.message || 'Production Database Error. Try running: npx prisma migrate deploy'
-    });
+    console.error('[GET /api/posts] Primary Fetch Failed. Attempting legacy fallback...', error.message);
+    
+    try {
+        // Fallback for production: If new columns are missing, fetch only the known core fields
+        // This prevents the 500 error while the DB is being synced.
+        const legacyPosts = await (prisma.post as any).findMany({
+            select: {
+                id: true,
+                author: true,
+                researchField: true,
+                type: true,
+                title: true,
+                doi: true,
+                abstract: true,
+                content: true,
+                upvotes: true,
+                commentCount: true,
+                createdAt: true,
+                timestamp: true,
+                topics: true,
+                status: true
+            },
+            orderBy: { timestamp: 'desc' }
+        });
+
+        const serialized = legacyPosts.map((p: any) => ({
+            ...p,
+            timestamp: p.timestamp ? Number(p.timestamp) : Date.now(),
+            fundUSDC: 0,
+            fundCount: 0,
+            fundingGoal: 100
+        }));
+        
+        res.json(serialized);
+    } catch (fallbackError: any) {
+        console.error('[GET /api/posts] Critical DB Error:', fallbackError.message);
+        res.status(500).json({ 
+            error: 'Database Failure', 
+            detail: 'Ensure you have run: npx prisma db push',
+            technical: fallbackError.message 
+        });
+    }
   }
 });
 

@@ -13,6 +13,7 @@ import { truncateAddress } from '../utils/address';
 import { useSolana } from '../context/SolanaContext';
 import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { useState } from 'react';
+import SystemModal, { SystemModalType } from './SystemModal';
 
 interface PostCardProps { post: Post; }
 
@@ -22,7 +23,23 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { connection, solanaAddress, isReady, program } = useSolana();
     const navigate = useNavigate();
     const [isFunding, setIsFunding] = useState(false);
-    const [showFundSuccess, setShowFundSuccess] = useState(false);
+    
+    // Modal State
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        type: SystemModalType;
+        title: string;
+        message: string;
+    }>({
+        isOpen: false,
+        type: 'info',
+        title: '',
+        message: ''
+    });
+
+    const showModal = (type: SystemModalType, title: string, message: string) => {
+        setModalConfig({ isOpen: true, type, title, message });
+    };
 
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -47,7 +64,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const handleFund = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!isReady || !solanaAddress || !program) {
-            alert("Please connect your Solana wallet first.");
+            showModal('warning', 'WALLET_DISCONNECTED', 'Please connect your Solana wallet to contribute funds.');
             return;
         }
 
@@ -73,7 +90,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             await connection.confirmTransaction(signature, 'confirmed');
 
             // Notify backend
-            const res = await fetch(`${process.env.VITE_API_URL || 'https://biotry-production.up.railway.app'}/api/posts/${post.id}/fund`, {
+            const res = await fetch(`${process.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app'}/api/posts/${post.id}/fund`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -82,14 +99,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             });
 
             if (res.ok) {
-                setShowFundSuccess(true);
-                setTimeout(() => setShowFundSuccess(false), 3000);
+                showModal('success', 'FUNDING_VERIFIED', 'Your 1.0 USDC contribution has been proven on-chain. Thank you for supporting open research!');
             } else {
-                throw new Error('Backend failed to verify funding');
+                const errData = await res.json();
+                throw new Error(errData.detail || 'Backend failed to verify funding');
             }
         } catch (error: any) {
             console.error('Funding failed', error);
-            alert(`Funding failed: ${error.message || 'Error occurred'}`);
+            showModal('error', 'CONTRIBUTION_FAILED', error.message || 'We encountered an error during on-chain verification.');
         } finally {
             setIsFunding(false);
         }
@@ -102,16 +119,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             onClick={() => navigate(`/node/${post.id}`)}
             className="glass-card p-6 flex flex-col gap-6 cursor-pointer group relative overflow-hidden"
         >
-            {/* OWS Funding Success Toast */}
-            {showFundSuccess && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-40 flex flex-col items-center justify-center animate-in fade-in duration-300">
-                    <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.4)]">
-                        <CheckCircle2 className="w-7 h-7 text-black" />
-                    </div>
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-green-400">Funding_Proven_On_Chain</p>
-                    <p className="text-[8px] text-white/30 font-mono mt-1 tracking-widest">+1.0 USDC ADDED</p>
-                </div>
-            )}
+            <SystemModal 
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                type={modalConfig.type}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
 
             {/* Hover Glow Effect */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#F6851B]/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />

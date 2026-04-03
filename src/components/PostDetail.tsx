@@ -3,7 +3,8 @@ import {
     ArrowLeft, MessageSquare, ArrowBigUp, Share2, 
     MoreHorizontal, FileText, Globe, Link2, 
     Binary, Zap, Sparkles, ShieldCheck, 
-    ChevronRight, ArrowUpRight, Play, Activity
+    ChevronRight, ArrowUpRight, Play, Activity,
+    Info, Coins
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Post, Comment } from '../types';
@@ -11,23 +12,93 @@ import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
 import { truncateAddress } from '../utils/address';
+import { useSolana } from '../context/SolanaContext';
+import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import SystemModal, { SystemModalType } from './SystemModal';
 
 interface PostDetailProps { post: Post; onBack: () => void; }
 
 const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const { authenticated, login } = usePrivy();
     const { voteOnProposal: upvotePost, addComment, comments: allComments } = useAppContext();
+    const { connection, solanaAddress, isReady, program } = useSolana();
     const postComments = allComments[post.id] || [];
     const navigate = useNavigate();
     const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
     const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
     const [newComment, setNewComment] = useState('');
+    const [isFunding, setIsFunding] = useState(false);
+
+    // Modal State
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        type: SystemModalType;
+        title: string;
+        message: string;
+    }>({
+        isOpen: false,
+        type: 'info',
+        title: '',
+        message: ''
+    });
+
+    const showModal = (type: SystemModalType, title: string, message: string) => {
+        setModalConfig({ isOpen: true, type, title, message });
+    };
 
     const AGENTS = ['Dr. Bio', 'Solana Architect', 'ZK Shadow', 'Codama Bot', 'Colosseum Strategist'];
 
     const handleUpvote = (postId: string) => {
         if (!authenticated) return login();
         upvotePost(postId, true);
+    };
+
+    const handleFund = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!isReady || !solanaAddress || !program) {
+            showModal('warning', 'WALLET_DISCONNECTED', 'Please connect your Solana wallet to contribute funds.');
+            return;
+        }
+
+        setIsFunding(true);
+        try {
+            const recipientPubKey = new PublicKey('pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5');
+            const instruction = SystemProgram.transfer({
+                fromPubkey: new PublicKey(solanaAddress),
+                toPubkey: recipientPubKey,
+                lamports: 0.01 * LAMPORTS_PER_SOL,
+            });
+
+            const transaction = new Transaction().add(instruction);
+            const { blockhash } = await connection.getLatestBlockhash();
+            transaction.recentBlockhash = blockhash;
+            transaction.feePayer = new PublicKey(solanaAddress);
+
+            const signedTx = await (program.provider as any).wallet.signTransaction(transaction);
+            const signature = await connection.sendRawTransaction(signedTx.serialize());
+            
+            await connection.confirmTransaction(signature, 'confirmed');
+
+            const res = await fetch(`${process.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app'}/api/posts/${post.id}/fund`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-PAYMENT-SIGNATURE': signature
+                }
+            });
+
+            if (res.ok) {
+                showModal('success', 'FUNDING_VERIFIED', 'Your 1.0 USDC contribution has been proven on-chain. Thank you for supporting open research!');
+            } else {
+                const errData = await res.json();
+                throw new Error(errData.detail || 'Backend failed to verify funding');
+            }
+        } catch (error: any) {
+            console.error('Funding failed', error);
+            showModal('error', 'CONTRIBUTION_FAILED', error.message || 'We encountered an error during on-chain verification.');
+        } finally {
+            setIsFunding(false);
+        }
     };
 
     const handleAddComment = () => {
@@ -37,8 +108,18 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         setNewComment('');
     };
 
+    const fundingPercentage = Math.min(((post.fundUSDC || 0) / (post.fundingGoal || 100)) * 100, 100);
+
     return (
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-700">
+            <SystemModal 
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                type={modalConfig.type}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
+
             {/* ... Rest of Top Action Row ... */}
             <div className="flex items-center justify-between">
                 <button 
@@ -93,19 +174,19 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             </div>
 
             {/* ── Simulator CTA Banner with Dropdown ── */}
-            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col md:flex-row items-center justify-between gap-8 group relative z-[60]">
+            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col xl:flex-row items-center justify-between gap-8 group relative z-[60]">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#F6851B]/5 blur-[80px] -z-10 group-hover:bg-[#F6851B]/10 transition-all" />
                 <div className="flex items-center gap-6">
                     <div className="w-20 h-20 rounded-3xl bg-[#F6851B] flex items-center justify-center shadow-2xl group-hover:scale-105 transition-transform duration-500">
                         <Zap className="w-10 h-10 text-white fill-white animate-pulse" />
                     </div>
-                    <div>
+                    <div className="hidden md:block">
                         <h3 className="text-2xl font-bold tracking-tight text-white uppercase">AI Research Simulator</h3>
                         <p className="text-white/40 font-medium max-w-sm uppercase text-xs tracking-widest leading-relaxed">Execute this research context through our LLM simulation engine to predict impact and validity.</p>
                     </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row items-center gap-4 relative z-50 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-4 relative z-50 w-full xl:w-auto">
                     {/* Agent Selection Dropdown */}
                     <div className="relative w-full sm:w-64 z-50">
                          <button 
@@ -142,20 +223,49 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
                     <button 
                         onClick={() => navigate(`/node/${post.id}/simulate?lead=${selectedLeadAgent}`)}
-                        className="btn-metamask h-16 px-10 text-xs shadow-[0_0_30px_rgba(246,133,27,0.2)] whitespace-nowrap w-full sm:w-auto"
+                        className="flex-1 h-16 px-8 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/20 transition-all shadow-2xl"
                     >
-                        RUN SIMULATION <Play className="w-4 h-4 fill-white ml-2" />
+                        AUDIT
+                    </button>
+
+                    <button 
+                        onClick={handleFund}
+                        disabled={isFunding}
+                        className="btn-metamask h-16 px-10 text-[10px] uppercase font-black tracking-[0.2em] w-full sm:w-auto flex items-center justify-center gap-3"
+                    >
+                        {isFunding ? <Info className="w-4 h-4 animate-spin text-black" /> : <Coins className="w-4 h-4 text-black" />}
+                        SUPPORT NODE
                     </button>
                 </div>
             </div>
 
             {/* ── Abstract & Body ── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 relative z-0">
-                <div className="lg:col-span-2 space-y-10">
+                <div className="lg:col-span-2 space-y-12">
                     <div className="space-y-6">
                         <h4 className="text-xs font-bold text-[#F6851B] uppercase tracking-[0.3em]">Research Abstract</h4>
                         <div className="text-xl text-white/80 font-medium leading-relaxed uppercase tracking-tight">
                             {post.abstract}
+                        </div>
+                    </div>
+
+                    {/* Scientific Funding Progress - OWS Track */}
+                    <div className="glass-panel p-8 rounded-[32px] border border-white/5 space-y-6 bg-gradient-to-br from-white/5 to-transparent">
+                        <div className="flex justify-between items-end">
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Scientific Funding Program</p>
+                                <p className="text-3xl font-bold text-white">${post.fundUSDC?.toFixed(2) || '0.00'} <span className="text-sm opacity-30">/ ${post.fundingGoal || 100} GOAL</span></p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-2xl font-black text-[#F6851B]">{fundingPercentage.toFixed(0)}%</p>
+                                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{post.fundCount || 0} CONTRIBUTORS</p>
+                            </div>
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-gradient-to-r from-[#F6851B] via-orange-400 to-[#F6851B] animate-shimmer" 
+                                style={{ width: `${fundingPercentage}%`, backgroundSize: '200% 100%' }} 
+                            />
                         </div>
                     </div>
 

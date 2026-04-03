@@ -1,10 +1,28 @@
-# BIOTRY: The Universal Protocol for Open Science
+# BIOTRY: The Universal Protocol for Open Science (OWS Finalist)
 
-> **Decentralized Science (DeSci) protocol on Solana** — bridging fragmented scientific research and capital markets through a verifiable social graph, AI-driven trial simulations, and on-chain expertise metrics.
+> **Decentralized Science (DeSci) protocol on Solana** — bridging fragmented scientific research and capital markets through x402/MPP micropayments, AI-driven trial simulations, and on-chain expertise metrics.
 
 🔗 **Live Demo**: [https://biotry.vercel.app](https://biotry.vercel.app)  
+🔗 **OWS Hackathon Track**: [Pay-Per-Call Services & API Monetization](https://hackathon.openwallet.sh/)  
 🔗 **Contract (Devnet)**: [`2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y`](https://explorer.solana.com/address/2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y?cluster=devnet)  
-🔗 **Backend API**: [https://biotry-production.up.railway.app](https://biotry-production.up.railway.app)
+
+---
+
+## 🏆 OWS Hackathon: Pay-Per-Call Science
+
+Biotry targets the **Pay-Per-Call Services & API Monetization** track by wrapping scientific abstracts, dataset insights, and AI simulations behind **x402/MPP micropayments**. 
+
+### The Vision
+No API keys, no subscriptions—just a wallet and an HTTP request. In Biotry, every "Scientific Contribution" or "Simulation Call" is a micropayment event that flows directly to the researcher or the platform DAO.
+
+- **Dataset Monetization**: Institutions can wrap proprietary datasets behind x402. Pay $0.05 per data-call instead of $35,000 for a subscription.
+- **Pay-Per-Abstract**: Access the high-value "Editor's Insight" and "AI Viability Scan" for any research paper with a single click.
+- **On-Chain Proof**: Every call is verifiable via Solana Explorer.
+
+### Key OWS Integrations
+- **[Scientific Funding API (x402)](file:///server/src/index.ts)**: Our core endpoint `POST /api/posts/:id/fund` verifies on-chain transaction signatures before updating the global research graph.
+- **[On-Chain Payment Logic](file:///src/components/PostCard.tsx)**: Frontend implementation of the MPP (Micro-Payment Protocol) for 1-click scientific support.
+- **[MoonPay On-Ramping](file:///src/components/PostDetail.tsx)**: Integrating MoonPay enables researchers and institutions to easily acquire the USDC needed to participate in the scientific monetization track.
 
 ---
 
@@ -23,36 +41,36 @@ Biotry acts as a **fluid verification layer** where expertise is assetized and r
 
 ## Core Features
 
-### 1. 📰 On-Chain Research Journal
-Publish and discover peer-reviewed research stored and verified on Solana.
-- **Create Posts**: Publish research with title, abstract, DOI, topics, and PDF attachments.
+### 1. 📰 x402 Research Journal
+Publish and discover peer-reviewed research monetized via x402.
+- **Micropayment Access**: Scientific nodes can be supported via 1-click $USDC payments.
+- **Global Gauges**: Real-time funding progress bars synchronized across the platform via 
+`AppContext`.
 - **On-Chain Publication**: Research metadata published directly to the Solana Devnet via the `bio_dao` Anchor program.
-- **Journal Feed**: Full-featured backend API (Express + Prisma + PostgreSQL via Supabase) for persistent research storage.
-- **Post Detail View**: Rich markdown rendering with upvotes, comment counts, and research metadata.
 
 ### 2. 🤖 AI Research Simulator
 Predict research viability through a multi-agent AI "War Room" analysis.
-- **5 Specialized Agents**: Dr. Bio (DeSci Auditor), Solana Architect, ZK Shadow, Codama Bot, Colosseum Strategist.
-- **Dynamic Analysis**: Every analysis is generated from the actual research paper's content — title, abstract, research field, and topics.
-- **Colosseum Copilot Integration**: Optionally fetches real-world hackathon project data for competitive landscape analysis.
-- **Strategic Metrics**: Success Rate, Impact Score, Crowdedness Score, Actionability Index, Time-to-Market.
-- **Deep-Dive Reports**: Market Landscape, Concrete Problem, Quantified Impact, Revenue Model, GTM Strategy, Why Solana, Founder-Market Fit, and Risk Assessment — all derived from the research content.
+- **Specialized Agents**: Dr. Bio (DeSci Auditor), Solana Architect, ZK Shadow, etc.
+- **Strategic Metrics**: Success Rate, Impact Score, Crowdedness Score, Time-to-Market.
+- **Proven-On-Chain**: Simulation results and funding milestones are linked directly to [Solana Explorer](https://explorer.solana.com/).
 
 ### 3. 🔗 Social Graph (Discovery)
-A living ecosystem of scientific expertise relationships.
 - **Tapestry Integration**: Social graph mesh powered by Tapestry Protocol.
 - **Expert Profiles**: On-chain reputation scores and interaction history.
-- **Impact Metrics**: Quantifiable citation and collaboration metrics.
-
-### 4. 🏛️ DAO Governance
-Community-driven capital allocation and network evolution.
-- **Bio Protocol**: Milestone-based funding for verified scientific problems.
-- **Peer Review Bounties**: Qualified experts rewarded for verified critiques.
-- **Research Problem Bounties**: Investors spin up milestone-based bounties for specific scientific goals.
 
 ---
 
 ## Technical Architecture
+
+### Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Micropayments** | **OWS (x402/MPP)**, MoonPay (On-Ramp) |
+| **Frontend** | React 18, Vite, GSAP Animations, Tailwind CSS, Solana web3.js |
+| **Blockchain** | Solana (Devnet), Anchor Framework |
+| **Authentication** | Privy (embedded wallet + social login) |
+| **Backend** | Express.js, Prisma ORM, PostgreSQL (Supabase) |
 
 ### System Overview
 
@@ -61,89 +79,9 @@ Frontend (Vercel)              Backend (Railway)          Blockchain (Solana Dev
 ┌─────────────────────┐       ┌──────────────────────┐   ┌──────────────────────────┐
 │  React + Vite       │──────▶│  Express.js + Prisma │   │  bio_dao Anchor Program  │
 │  Privy Auth         │       │  PostgreSQL (Supabase)│   │  2BY4tpMZVrHtz...        │
-│  AI Simulator       │       │  /api/posts          │   │  MAX_TITLE_LEN: 200      │
-│  Solana web3.js     │──────▶│  /api/hubs           │   │  MAX_CONTENT_URI_LEN: 512│
-│  Anchor Framework   │       │  /api/editors        │   └──────────────────────────┘
-└─────────────────────┘       │  /api/leaderboard    │
-                               └──────────────────────┘
+│  OWS (x402)         │──────▶│  /api/posts/:id/fund │   └──────────────────────────┘
+└─────────────────────┘       └──────────────────────┘
 ```
-
-### Research Flow Sequence
-
-```mermaid
-sequenceDiagram
-    participant R as Researcher
-    participant B as Biotry (Solana)
-    participant S as AI Simulation Node
-    participant P as Peer Reviewers
-    participant D as Funding DAOs / Investors
-    
-    R->>B: Submits Research Logs & Metadata
-    B->>S: Triggers Methodology Simulation
-    S-->>B: Returns Predictive Viability Score
-    B-->>R: Assetizes Post & Mints Reputation
-    P->>B: Interacts & Reviews Research
-    B->>B: Calculates Impact Index & Reputation
-    B->>D: Exposes Verified Research Metrics
-    D->>B: Allocates Capital (Milestone-based)
-    B-->>R: Unlocks Funding based on Impact
-```
-
-### Smart Contract: `bio_dao`
-
-| Parameter | Value |
-|---|---|
-| **Program ID (Devnet)** | `2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y` |
-| **IDL Account** | `95wXeNbryA7VbsbUFbBDm52EdSofv4G29ko6aCDrx1JB` |
-| **MAX_TITLE_LEN** | `200` characters |
-| **MAX_CONTENT_URI_LEN** | `512` characters |
-| **Framework** | Anchor v0.32.1 |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| **Frontend** | React 18, Vite, TypeScript, GSAP Animations, Tailwind CSS |
-| **Blockchain** | Solana (Devnet), Anchor Framework, web3.js v1 |
-| **Authentication** | Privy (embedded wallet + social login) |
-| **Backend** | Express.js, Prisma ORM, PostgreSQL (Supabase), Node.js |
-| **Deployment** | Vercel (frontend), Railway (backend) |
-| **Social Graph** | Tapestry Protocol |
-| **AI Simulation** | Deterministic multi-agent engine + Colosseum Copilot API |
-
----
-
-## Environment Variables
-
-### Frontend (Vercel)
-```env
-VITE_API_URL=https://biotry-production.up.railway.app/api
-VITE_PRIVY_APP_ID=your_privy_app_id
-VITE_SOLANA_RPC_URL=https://api.devnet.solana.com
-VITE_COLOSSEUM_COPILOT_PAT=your_colosseum_pat  # Optional: enables real-world competitor data
-```
-
-### Backend (Railway)
-```env
-DATABASE_URL=postgresql://postgres.[ref]:[pass]@aws-0-[region].pooler.supabase.com:6543/postgres
-DIRECT_URL=postgresql://postgres:[pass]@db.[ref].supabase.co:5432/postgres
-PORT=8080
-```
-
----
-
-## Database Schema
-
-The backend uses PostgreSQL with Prisma ORM. Tables:
-
-| Table | Description |
-|---|---|
-| `Post` | Research publications with metadata, content, upvotes |
-| `Editor` | Platform editors and reviewers |
-| `Hub` | Research domain hubs (e.g., Genomics, Drug Discovery) |
-| `LeaderboardEntry` | Community reputation leaderboard |
 
 ---
 
@@ -151,83 +89,19 @@ The backend uses PostgreSQL with Prisma ORM. Tables:
 
 ### Prerequisites
 - Node.js 18+
-- Rust + Anchor CLI (for smart contract development)
-- Solana CLI
+- Solana CLI + Rust / Rust (for contract)
 
-### Frontend
+### Quick Start
 ```bash
-# Install dependencies
+# Install & Dev
 npm install
-
-# Start development server
 npm run dev
 
-# Build for production
-npm run build
-```
-
-### Backend
-```bash
+# Backend
 cd server
-
-# Install dependencies
 npm install
-
-# Generate Prisma client
-npx prisma generate
-
-# Start development server
 npm run dev
 ```
-
-### Smart Contract
-```bash
-cd contract
-
-# Build
-anchor build
-
-# Deploy to Devnet
-anchor deploy --provider.cluster devnet
-
-# Update IDL
-anchor idl upgrade --filepath target/idl/bio_dao.json \
-  2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y \
-  --provider.cluster devnet
-```
-
----
-
-## Recent Updates
-
-### v1.2 — AI Simulator Remaster (March 2026)
-- ✅ Remastered AI Simulator into full-screen immersive experience
-- ✅ 5 specialized AI agents with domain-specific analysis
-- ✅ Dynamic analysis generation based on actual research content (no longer hardcoded)
-- ✅ Integrated Colosseum Copilot API for competitive landscape data
-- ✅ New strategic metrics: Actionability Index, Crowdedness Score, Market Landscape
-
-### v1.1 — Smart Contract Expansion (March 2026)
-- ✅ Expanded `MAX_TITLE_LEN` to **200** and `MAX_CONTENT_URI_LEN` to **512**
-- ✅ Resolved `URITooLong` (Error 6003) on-chain publication error
-- ✅ Redeployed contract to Devnet with updated IDL
-
-### v1.0 — Production Launch (March 2026)
-- ✅ Full-stack deployment: Vercel (frontend) + Railway (backend)
-- ✅ PostgreSQL database via Supabase with connection pooling
-- ✅ CORS policy configured for cross-origin API access
-- ✅ SPA routing via `vercel.json` (no more 404 on page refresh)
-- ✅ Privy authentication with embedded wallet support
-
----
-
-## User Flow
-
-1. **Onboard**: Connect via Solana Wallet (Privy) and verify identity.
-2. **Discover**: Browse the research feed in the Journal.
-3. **Publish**: Submit research with title, abstract, DOI, and on-chain signature.
-4. **Simulate**: Select any research post and run the AI multi-agent analysis.
-5. **Govern**: Participate in DAO voting and milestone-based funding.
 
 ---
 

@@ -341,7 +341,57 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                 </div>
             </section>
 
-            {/* ── SECTION 3: TRUST & IDENTITY ── */}
+            {/* ── SECTION 3: OWS PAY-PER-CALL ── */}
+            <section id="monetization" className="py-40 px-6 relative overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[800px] bg-[#F6851B]/5 blur-[200px] -z-10 animate-pulse" />
+                <div className="max-w-7xl mx-auto space-y-24">
+                    <div className="reveal-section text-center space-y-8">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-[#F6851B]">
+                            <Zap className="w-3 h-3" /> OWS HACKATHON: PAY-PER-CALL TRACK
+                        </div>
+                        <h2 className="text-6xl md:text-[9rem] font-black tracking-tighter uppercase leading-[0.8] italic">
+                            MONETIZE <br /><span className="text-gradient-orange">INSIGHT.</span>
+                        </h2>
+                        <p className="text-xl text-white/40 font-medium uppercase tracking-tight max-w-2xl mx-auto">
+                            Wrap research abstracts, simulations, and datasets behind <span className="text-white">x402 Micropayments</span>. No API keys, no accounts — just a wallet and discovery.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div className="reveal-section glass-panel p-12 rounded-[40px] border-2 border-white/5 space-y-10 group hover:border-[#F6851B]/20 transition-all">
+                            <div className="w-20 h-20 rounded-3xl bg-[#F6851B]/10 flex items-center justify-center border border-[#F6851B]/20 group-hover:scale-110 transition-transform">
+                                <Coins className="w-10 h-10 text-[#F6851B]" />
+                            </div>
+                            <div className="space-y-6">
+                                <h3 className="text-4xl font-black uppercase italic">x402 / MPP PROTOCOL</h3>
+                                <p className="text-sm text-white/30 font-medium leading-relaxed uppercase tracking-tight">
+                                    Biotry utilizes the Open Wallet Stack (OWS) to assetize scientific knowledge. Every simulation call or abstract reveal is an MPP-powered transaction flowing directly to authors.
+                                </p>
+                                <div className="pt-4 flex items-center gap-4 text-[10px] font-black text-[#F6851B] uppercase tracking-widest">
+                                    [VERIFIED] [OWS_COMPLIANT] [ZERO_SUBSCRIPTION]
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="reveal-section glass-panel p-12 rounded-[40px] border-2 border-white/5 space-y-10 group hover:border-[#7C3AED]/20 transition-all">
+                            <div className="w-20 h-20 rounded-3xl bg-[#7C3AED]/10 flex items-center justify-center border border-[#7C3AED]/20 group-hover:scale-110 transition-transform">
+                                <Globe className="w-10 h-10 text-[#7C3AED]" />
+                            </div>
+                            <div className="space-y-6">
+                                <h3 className="text-4xl font-black uppercase italic">MOONPAY ON-RAMP</h3>
+                                <p className="text-sm text-white/30 font-medium leading-relaxed uppercase tracking-tight">
+                                    Seamlessly onboard traditional research institutions. Convert fiat to USDC instantly to fund research bounties or participate in the x402-monetized scientific discovery graph.
+                                </p>
+                                <div className="pt-4 flex items-center gap-4 text-[10px] font-black text-[#7C3AED] uppercase tracking-widest">
+                                    [INSTANT_FIAT] [USDC_NATIVE] [GLOBAL_ACCESS]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── SECTION 4: TRUST & IDENTITY ── */}
             <section id="identity" className="py-40 px-6 relative">
                  <div className="max-w-7xl mx-auto text-center space-y-20">
                     <div className="reveal-section space-y-6">

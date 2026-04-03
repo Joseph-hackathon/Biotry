@@ -116,7 +116,9 @@ export const analyzeResearchForSimulation = async (
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (signature) headers['X-PAYMENT-SIGNATURE'] = signature;
 
-            const backendRes = await fetch(`${API_BASE}/api/posts/${post.id}/audit`, { headers });
+            // Normalize baseUrl to handle cases where VITE_API_URL includes /api
+            const baseUrl = API_BASE.replace(/\/api$/, '');
+            const backendRes = await fetch(`${baseUrl}/api/posts/${post.id}/audit`, { headers });
             
             if (backendRes.status === 402) {
                 // x402 Challenge detected!

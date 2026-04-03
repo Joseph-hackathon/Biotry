@@ -100,10 +100,45 @@ const extractKeywords = (post: Post): string[] => {
     return techKeywords.filter(kw => text.includes(kw));
 };
 
+// Use VITE_API_URL for production (Railway/Vercel), fallback to local for dev
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export const analyzeResearchForSimulation = async (
     post: Post,
-    leadAgent?: string
+    leadAgent?: string,
+    signature?: string
 ): Promise<ResearchAnalysis> => {
+    // 1. Try to fetch from the x402-protected Backend for 'Pay-per-Call' Audit
+    if (post.id) {
+        try {
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (signature) headers['X-PAYMENT-SIGNATURE'] = signature;
+
+            const backendRes = await fetch(`${API_BASE}/api/posts/${post.id}/audit`, { headers });
+            
+            if (backendRes.status === 402) {
+                // x402 Challenge detected!
+                const paymentInfo = backendRes.headers.get('PAYMENT-REQUIRED');
+                throw { status: 402, paymentInfo, message: 'Strategic audit requires a 0.1 USDC micropayment.' };
+            }
+
+            if (backendRes.ok) {
+                const auditData = await backendRes.json();
+                // Merge backend precise metrics with simulation logic
+                const analysis = await generateSimulationResult(post, leadAgent, auditData);
+                return analysis;
+            }
+        } catch (error: any) {
+            if (error.status === 402) throw error;
+            console.error('Backend Audit Fetch Error (Falling back to local sim):', error);
+        }
+    }
+
+    // 2. Fallback to local simulation (un-monetized prototype)
+    return generateSimulationResult(post, leadAgent);
+};
+
+const generateSimulationResult = async (post: Post, leadAgent?: string, auditData?: any): Promise<ResearchAnalysis> => {
     const colosseumContext = await fetchColosseumStrategicAnalysis(post.abstract || post.title);
 
     const hasCompetitors = colosseumContext.projects.length > 0;
@@ -173,15 +208,15 @@ export const analyzeResearchForSimulation = async (
         steps: [
             { id: 'data-ingestion', title: 'LANDSCAPE SCAN', description: `Scanning for ${field} builders across ${colosseumContext.projects.length} hackathon projects...`, status: 'completed' },
             { id: 'modeling', title: 'GAP CLASSIFICATION', description: `Classifying ${hasArchives ? 'Partial' : 'Full'} scientific gap in [${topicList}].`, status: 'completed' },
-            { id: 'scenario-run', title: 'STRATEGIC RANKING', description: `Actionability Index: ${actionabilityIndex}%`, status: 'completed' },
+            { id: 'scenario-run', title: 'STRATEGIC RANKING', description: `Actionability Index: ${auditData?.metrics?.actionability || actionabilityIndex}%`, status: 'completed' },
             { id: 'validation', title: 'OUTCOME SIMULATION', description: 'Consensus synthesis finalized.', status: 'completed' }
         ],
         result: {
             successRate,
-            impactScore,
-            crowdednessScore: hasCompetitors ? 'Medium' : 'Low',
-            actionabilityIndex,
-            timeToMarket: hasCompetitors ? '1.2 Years' : '1.8 Years',
+            impactScore: auditData?.metrics?.impactScore || impactScore,
+            crowdednessScore: auditData?.metrics?.crowdedness || (hasCompetitors ? 'Medium' : 'Low'),
+            actionabilityIndex: auditData?.metrics?.actionability || actionabilityIndex,
+            timeToMarket: auditData?.metrics?.timeToMarket || (hasCompetitors ? '1.2 Years' : '1.8 Years'),
             keyInsight: hasCompetitors
                 ? `Strategic differentiation is key for "${post.title}". While ${colosseumContext.projects[0]?.name || 'similar projects'} exist, they lack deep ${field}-specific on-chain auditability. The Atomic Wedge is the unique combination of ${keywords.slice(0, 2).join(' + ') || 'the proposed methodology'} with Solana's architecture.`
                 : `"${post.title}" is an unprecedented opportunity in ${field} with zero direct hackathon competition. Establish a data-moat via early on-chain scientific attestations in [${topicList}] before incumbents pivot to this niche.`,

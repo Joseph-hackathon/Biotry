@@ -10,6 +10,8 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Post } from '../types';
 import { analyzeResearchForSimulation, ResearchAnalysis, SimulationStep, AgentReport } from '../lib/aiSimulator';
+import { useSolana } from '../context/SolanaContext';
+import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 
 interface SimulatePageProps {
     post: Post;
@@ -51,6 +53,12 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
     const [progress, setProgress] = useState(0);
     const [activeAgentIndex, setActiveAgentIndex] = useState(0);
     const [selectedAgent, setSelectedAgent] = useState<AgentReport | null>(null);
+    const [paymentRequired, setPaymentRequired] = useState<{ amount: string, recipient: string } | null>(null);
+    const [isPaying, setIsPaying] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [lastSignature, setLastSignature] = useState<string | null>(null);
+
+    const { connection, solanaAddress, isReady, program } = useSolana();
 
     const containerRef = useRef<HTMLDivElement>(null);
     const scanLineRef = useRef<HTMLDivElement>(null);
@@ -60,26 +68,87 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
 
     const leadAgent = new URLSearchParams(window.location.search).get('lead');
 
-    useEffect(() => {
+    const startAnalysis = async (signature?: string) => {
         if (analyzingRef.current) return;
         analyzingRef.current = true;
+        setIsPaying(!!signature);
 
-        const start = async () => {
-            try {
-                const result = await analyzeResearchForSimulation(
-                    post, 
-                    leadAgent || undefined
-                );
-                setAnalysis(result);
-                setPhase('simulating');
-            } catch (err) {
-                console.error("Simulation Start Error:", err);
-            } finally {
-                analyzingRef.current = false;
+        try {
+            const result = await analyzeResearchForSimulation(
+                post, 
+                leadAgent || undefined,
+                signature
+            );
+            setAnalysis(result);
+            setPhase('simulating');
+            setPaymentRequired(null);
+        } catch (err: any) {
+            if (err.status === 402) {
+                // Parse x402 headers (mocked for demo)
+                setPaymentRequired({ amount: '0.1', recipient: 'pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5' });
             }
-        };
-        start();
+            console.error("Simulation Start Error:", err);
+        } finally {
+            analyzingRef.current = false;
+            setIsPaying(false);
+        }
+    };
+
+    useEffect(() => {
+        startAnalysis();
     }, [post, leadAgent]);
+
+    const handlePayment = async () => {
+        if (!isReady || !solanaAddress || !program) {
+            alert("Please connect your Solana wallet first.");
+            return;
+        }
+
+        setIsPaying(true);
+        try {
+            // Real x402 Payment Logic (SOL Transfer for hackathon demo reliability)
+            // 0.001 SOL is ~0.1 USD, matching the 0.1 USDC requirement narrative
+            const recipientPubKey = new PublicKey(paymentRequired?.recipient || 'pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5');
+            const instruction = SystemProgram.transfer({
+                fromPubkey: new PublicKey(solanaAddress),
+                toPubkey: recipientPubKey,
+                lamports: 0.001 * LAMPORTS_PER_SOL,
+            });
+
+            const transaction = new Transaction().add(instruction);
+            const { blockhash } = await connection.getLatestBlockhash();
+            transaction.recentBlockhash = blockhash;
+            transaction.feePayer = new PublicKey(solanaAddress);
+
+            // Request signature from provider
+            const signedTx = await (program.provider as any).wallet.signTransaction(transaction);
+            const signature = await connection.sendRawTransaction(signedTx.serialize());
+            
+            console.log('[x402] Transaction Sent:', signature);
+            
+            // Wait for confirmation
+            await connection.confirmTransaction(signature, 'confirmed');
+            
+            setLastSignature(signature);
+            setShowSuccessModal(true);
+        } catch (error: any) {
+            console.error('Payment failed', error);
+            alert(`Payment failed: ${error.message || 'Check your wallet balance.'}`);
+        } finally {
+            setIsPaying(false);
+        }
+    };
+
+    const proceedAfterPayment = () => {
+        if (lastSignature) {
+            startAnalysis(lastSignature);
+            setShowSuccessModal(false);
+        }
+    };
+
+    const handleMoonPay = () => {
+        window.open('https://buy.moonpay.com?currencyCode=usdc_sol', '_blank');
+    };
 
     useEffect(() => {
         if (phase === 'simulating' && analysis) {
@@ -152,7 +221,7 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                      <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px] -z-10" />
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[#F6851B]/5 rounded-full blur-[150px] -z-10" />
 
-                     {phase === 'analyzing' && (
+                     {phase === 'analyzing' && !paymentRequired && (
                          <div className="mt-40 self-center relative w-80 h-96 glass-panel rounded-3xl flex flex-col items-center justify-center gap-8 group">
                              <div ref={scanLineRef} className="absolute top-0 left-0 w-full h-[2px] bg-[#F6851B] shadow-[0_0_20px_#F6851B] z-30 opacity-50" />
                              <div className="relative w-24 h-24">
@@ -164,6 +233,95 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                  <p className="text-[9px] text-white/30 font-mono">COPILOT_BOOTING...</p>
                              </div>
                          </div>
+                     )}
+
+                     {paymentRequired && (
+                        <div className="mt-20 self-center max-w-2xl w-full p-12 glass-panel rounded-[48px] border-2 border-[#F6851B]/30 shadow-[0_0_100px_rgba(246,133,27,0.15)] space-y-10 text-center animate-in zoom-in duration-500">
+                             <div className="mx-auto w-24 h-24 bg-[#F6851B] rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(246,133,27,0.4)]">
+                                 <DollarSign className="w-12 h-12 text-black" />
+                             </div>
+                             <div className="space-y-4">
+                                 <h2 className="text-4xl font-black uppercase italic tracking-tighter">Upgrade to Full Strategic Audit</h2>
+                                 <p className="text-xl text-white/50 max-w-lg mx-auto leading-relaxed">
+                                     This research node is protected by the <span className="text-white font-bold tracking-widest text-sm uppercase">Open Wallet x402 Protocol</span>.
+                                     Unlock deep multi-agent intelligence and scientific gap analysis.
+                                 </p>
+                             </div>
+                             
+                             <div className="grid grid-cols-2 gap-6 bg-white/5 p-8 rounded-3xl border border-white/10">
+                                 <div className="text-left space-y-1">
+                                     <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Protocol Header</p>
+                                     <p className="text-lg font-black text-[#F6851B] italic">HTTP 402 Required</p>
+                                 </div>
+                                 <div className="text-right space-y-1">
+                                     <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Micropayment</p>
+                                     <p className="text-2xl font-black text-white">{paymentRequired.amount} USDC</p>
+                                 </div>
+                             </div>
+
+                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                                 <button 
+                                    onClick={handlePayment}
+                                    disabled={isPaying}
+                                    className="flex-1 h-20 bg-[#F6851B] text-black font-black uppercase text-sm tracking-[0.4em] rounded-[24px] flex items-center justify-center gap-4 hover:shadow-[0_0_30px_#F6851B] transition-all disabled:opacity-50"
+                                 >
+                                     {isPaying ? <Activity className="w-6 h-6 animate-spin" /> : <Zap className="w-6 h-6" />}
+                                     PAY_WITH_WALLET
+                                 </button>
+                                 <button 
+                                    onClick={handleMoonPay}
+                                    className="px-8 h-20 bg-white/5 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest rounded-[24px] hover:bg-white/10 transition-all"
+                                 >
+                                     BUY_USDC_ON_MOONPAY
+                                 </button>
+                             </div>
+                             
+                             <p className="text-[9px] font-mono text-white/20 uppercase tracking-[0.4em]">No accounts. No API keys. Just a wallet and a request.</p>
+                        </div>
+                     )}
+
+                     {showSuccessModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-2xl bg-black/60">
+                             <div className="relative w-full max-w-xl p-1 bg-gradient-to-br from-[#F6851B]/40 via-white/5 to-transparent rounded-[48px] overflow-hidden shadow-[0_0_120px_rgba(246,133,27,0.15)] animate-in zoom-in duration-500">
+                                 <div className="bg-[#050505] rounded-[47px] p-12 space-y-10 text-center relative overflow-hidden">
+                                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#F6851B]/10 blur-[80px] rounded-full -mr-32 -mt-32" />
+                                     
+                                     <div className="relative mx-auto w-24 h-24 bg-[#F6851B] rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(246,133,27,0.5)]">
+                                         <CheckCircle2 className="w-12 h-12 text-black animate-pulse" />
+                                     </div>
+
+                                     <div className="space-y-4">
+                                         <h3 className="text-4xl font-black uppercase italic tracking-tighter">Payment Successful</h3>
+                                         <p className="text-xl text-white/50 leading-relaxed">
+                                             Audit for <span className="text-white font-bold">{post.title}</span> is now unlocked.
+                                         </p>
+                                     </div>
+
+                                     <div className="space-y-6 text-left">
+                                         <div className="p-8 bg-white/5 border border-white/10 rounded-3xl space-y-4 font-mono">
+                                             <div className="space-y-1">
+                                                 <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Transaction Signature</p>
+                                                 <p className="text-[11px] text-[#F6851B] break-all border-l-2 border-[#F6851B]/40 pl-4">{lastSignature}</p>
+                                             </div>
+                                             <div className="space-y-1">
+                                                 <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Settlement Wallet</p>
+                                                 <p className="text-[11px] text-white/60 break-all border-l-2 border-white/20 pl-4">{paymentRequired?.recipient}</p>
+                                             </div>
+                                         </div>
+                                     </div>
+
+                                     <button 
+                                        onClick={proceedAfterPayment}
+                                        className="w-full h-20 bg-white text-black font-black uppercase text-sm tracking-[0.4em] rounded-[24px] flex items-center justify-center gap-4 hover:bg-[#F6851B] hover:text-white transition-all group"
+                                     >
+                                         START_STRATEGIC_AUDIT
+                                         <Play className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                                     </button>
+
+                                     <p className="text-[10px] font-black uppercase tracking-widest text-[#F6851B]/60 animate-pulse">VERIFIED ON SOLANA DEVNET (MPP_X402)</p>
+                                 </div>
+                             </div>
+                        </div>
                      )}
 
                       {(phase === 'simulating' || phase === 'result') && (

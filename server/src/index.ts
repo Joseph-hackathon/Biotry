@@ -3,6 +3,8 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
+import { x402Middleware } from './middleware/x402';
+
 dotenv.config();
 
 const app = express();
@@ -12,9 +14,37 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-PAYMENT-SIGNATURE']
 }));
 app.use(express.json());
+
+// --- x402 PROTECTED AUDIT API ---
+app.get('/api/posts/:id/audit', x402Middleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await prisma.post.findUnique({ where: { id: id as string } });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    // In a real app, this would trigger the actual AI War Room simulation.
+    // For the hackathon demo, we return the high-value audit metrics.
+    res.json({
+      postId: id,
+      auditStatus: 'VERIFIED',
+      metrics: {
+        actionability: 94,
+        impactScore: 89,
+        crowdedness: 'Low',
+        timeToMarket: '1.5 Yrs'
+      },
+      agentReports: [
+        { agent: 'Dr. Bio', report: 'Positive gap analysis. Novel methodology in ZK-Graph.' },
+        { agent: 'Solana Architect', report: 'Efficient PDA structure. Gas optimized.' }
+      ]
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Audit failed' });
+  }
+});
 
 // --- POSTS ---
 app.get('/api/posts', async (req, res) => {

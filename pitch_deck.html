@@ -14,30 +14,37 @@
             --accent-glow: rgba(246, 133, 27, 0.4);
             --bg: #030303;
         }
+        html {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            scrollbar-gutter: stable;
+        }
         body {
             background-color: var(--bg);
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        h1, h2, h3 {
+        h1, h2, h3, h4 {
             font-family: 'Outfit', sans-serif;
             letter-spacing: -0.02em;
         }
         
         .slide-container {
             width: 100vw;
-            height: 56.25vw; /* 16:9 Aspect Ratio */
+            height: 56.25vw;
             max-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             page-break-after: always;
+            break-after: page;
             overflow: hidden;
             background-color: var(--bg);
         }
@@ -74,9 +81,8 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Official Branding Box (Website Authentic) */
         .bio-logo-box {
-            background: linear-gradient(135deg, #F6851B 0%, #FFAB5E 100%);
+            background: linear-gradient(135deg, #F6851B 0%, #FFAB5E 100%) !important;
             border-radius: 2.5rem;
             width: 320px;
             height: 320px;
@@ -87,8 +93,7 @@
         }
         .official-logo-img { width: 68%; height: 68%; object-fit: contain; filter: brightness(0) invert(1); }
 
-        /* Revenue Chart Styles */
-        .chart-bar { background: linear-gradient(to top, var(--accent), #FFB169); border-radius: 0.75rem 0.75rem 0.75rem 0.75rem; }
+        .chart-bar { background: linear-gradient(to top, #F6851B, #FFB169) !important; border-radius: 0.75rem; }
         .chart-line { border-top: 1.5px dashed rgba(255, 255, 255, 0.15); }
         .ascending-line { 
             stroke: #F6851B; 
@@ -98,27 +103,139 @@
             stroke-linecap: round;
         }
 
-        /* UI Card */
-        .ui-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2.5rem; backdrop-filter: blur(20px); }
+        /* UI Card - solid for print compatibility */
+        .ui-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 2.5rem;
+        }
 
         /* Comparison Table */
         .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0 0.8rem; }
-        .comparison-table th { padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.2); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .comparison-table td { padding: 1rem; background: rgba(255, 255, 255, 0.03); border-top: 1px solid rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; }
-        .comparison-table td:last-child { background: rgba(246, 133, 27, 0.1); color: var(--accent); font-weight: 800; border-top-right-radius: 1rem; border-bottom-right-radius: 1rem; }
+        .comparison-table th { padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+        .comparison-table td { padding: 1rem; background: rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.08); border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.85rem; color: #ffffff; }
+        .comparison-table td:last-child { background: rgba(246, 133, 27, 0.15) !important; color: #F6851B !important; font-weight: 800; border-top-right-radius: 1rem; border-bottom-right-radius: 1rem; }
 
         /* PDF / PRINT FIXES */
         @media print {
-            @page { size: landscape; margin: 0 !important; }
-            body { background-color: #000 !important; margin: 0 !important; }
-            .slide-container { width: 100vw !important; height: 100vh !important; margin: 0 !important; border: none !important; page-break-after: always; display: flex !important; }
-            .slide-content { transform: scale(0.95); transform-origin: center; }
-            .text-gradient, .text-gradient-orange { color: #ffffff !important; background: none !important; -webkit-text-fill-color: initial !important; }
-            .text-gradient-orange { color: #F6851B !important; }
-            .bio-logo-box { background: #F6851B !important; box-shadow: none !important; }
-            .ascending-line { stroke: #F6851B !important; filter: none !important; }
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+            @page { size: 1920px 1080px landscape; margin: 0 !important; }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                box-sizing: border-box !important;
+            }
+
+            html, body {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            .slide-container {
+                width: 100% !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                display: flex !important;
+                background-color: #030303 !important;
+                overflow: hidden !important;
+            }
+
+            .slide-content {
+                transform: scale(1);
+                transform-origin: center;
+                padding: 4rem;
+            }
+
+            /* Force gradient text to solid colors in print */
+            .text-gradient {
+                background: none !important;
+                -webkit-text-fill-color: #ffffff !important;
+                color: #ffffff !important;
+            }
+            .text-gradient-orange {
+                background: none !important;
+                -webkit-text-fill-color: #F6851B !important;
+                color: #F6851B !important;
+            }
+
+            /* UI Cards - solid bg for PDF */
+            .ui-card {
+                background-color: #1a1a1a !important;
+                border: 1px solid rgba(255,255,255,0.2) !important;
+                backdrop-filter: none !important;
+            }
+
+            /* Fix Tailwind opacity utilities in print */
+            [class*="bg-white/"] { background-color: rgba(255,255,255,0.08) !important; }
+            [class*="text-white/"] { color: rgba(255,255,255,0.6) !important; }
+            [class*="border-white/"] { border-color: rgba(255,255,255,0.2) !important; }
+
+            /* Traction slide images */
+            [class*="grayscale"] { filter: none !important; opacity: 1 !important; }
+
+            /* Chart bars */
+            .chart-bar {
+                background: linear-gradient(to top, #F6851B, #FFB169) !important;
+            }
+
+            /* Logo box */
+            .bio-logo-box {
+                background: #F6851B !important;
+                box-shadow: none !important;
+            }
+
+            /* SVG ascending line */
+            .ascending-line {
+                stroke: #F6851B !important;
+                filter: none !important;
+            }
+
+            /* Comparison table */
+            .comparison-table td {
+                background-color: rgba(255,255,255,0.05) !important;
+                color: #ffffff !important;
+            }
+            .comparison-table td:last-child {
+                background-color: rgba(246,133,27,0.2) !important;
+                color: #F6851B !important;
+            }
+
+            /* Border colors for agent cards */
+            [class*="border-t-blue"] { border-top-color: #60a5fa !important; }
+            [class*="border-t-green"] { border-top-color: #4ade80 !important; }
+            [class*="border-t-purple"] { border-top-color: #c084fc !important; }
+            [class*="border-t-yellow"] { border-top-color: #facc15 !important; }
+            [class*="border-l-blue"] { border-left-color: #60a5fa !important; }
+            [class*="border-l-green"] { border-left-color: #4ade80 !important; }
+            [class*="border-l-orange"], [class*="border-l-acc"] { border-left-color: #F6851B !important; }
+
+            /* Colored text classes */
+            .text-blue-400 { color: #60a5fa !important; }
+            .text-green-400 { color: #4ade80 !important; }
+            .text-purple-400 { color: #c084fc !important; }
+            .text-yellow-400 { color: #facc15 !important; }
+            .text-red-500 { color: #ef4444 !important; }
+
+            /* Colored backgrounds */
+            .bg-blue-500 { background-color: #3b82f6 !important; }
+            .bg-green-500 { background-color: #22c55e !important; }
+            .bg-purple-500 { background-color: #a855f7 !important; }
+            .bg-pink-500 { background-color: #ec4899 !important; }
+            .bg-yellow-500 { background-color: #eab308 !important; }
+
+            /* Animate pulse - stop for print */
+            .animate-pulse { animation: none !important; }
+
+            /* Blur effects - remove for print */
+            [class*="blur"] { filter: none !important; }
+            [class*="backdrop-blur"] { backdrop-filter: none !important; }
         }
     </style>
 </head>
@@ -174,16 +291,25 @@
                 </div>
                 <div class="ui-card p-12 space-y-8">
                     <div class="flex justify-between items-end border-b border-white/5 pb-4">
-                        <p class="text-xs font-black uppercase text-white/20 tracking-[0.3em]">Market Size</p>
-                        <p class="text-5xl font-black text-white">$20B+</p>
+                        <div>
+                            <p class="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">TAM — Total Addressable</p>
+                            <p class="text-lg font-bold text-white/60 lowercase">Global Scientific Publishing</p>
+                        </div>
+                        <p class="text-4xl font-black text-white">$20B+</p>
                     </div>
                     <div class="flex justify-between items-end border-b border-white/5 pb-4">
-                        <p class="text-xs font-black uppercase text-white/20 tracking-[0.3em]">Repro Crisis</p>
-                        <p class="text-5xl font-black text-red-500">50%+</p>
+                        <div>
+                            <p class="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">SAM — Serviceable Available</p>
+                            <p class="text-lg font-bold text-white/60 lowercase">Open Access & DeSci Sector</p>
+                        </div>
+                        <p class="text-4xl font-black text-[var(--accent)]">$2.1B</p>
                     </div>
                     <div class="flex justify-between items-end">
-                        <p class="text-xs font-black uppercase text-white/20 tracking-[0.3em]">Access Barrier</p>
-                        <p class="text-5xl font-black text-white">$12k / Paper</p>
+                        <div>
+                            <p class="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">SOM — Serviceable Obtainable</p>
+                            <p class="text-lg font-bold text-white/60 lowercase">Bioinformatics & AI Safety</p>
+                        </div>
+                        <p class="text-4xl font-black text-white">$180M</p>
                     </div>
                 </div>
             </div>
@@ -228,26 +354,58 @@
         </div>
     </section>
 
-    <!-- Slide 6: AI Simulator & Posts -->
+    <!-- Slide 6: AI War Room (5-Agent Simulator) -->
     <section class="slide-container" id="slide-5">
         <div class="slide-content">
-            <div class="w-full max-w-6xl text-center space-y-12">
-                <h2 class="text-5xl font-black text-gradient uppercase italic">AI Simulation & Post Streams.</h2>
-                <div class="grid grid-cols-3 gap-8 pt-6">
-                    <div class="ui-card p-10 space-y-4 text-left border-l-4 border-l-blue-400">
-                        <p class="text-xs font-mono text-blue-400">>> AI_SIMULATOR</p>
-                        <h4 class="font-bold text-white">Dynamic Sandbox</h4>
-                        <p class="text-white/30 text-xs text-pretty">Simulate research methodologies in real-time to verify reproducibility before on-chain minting.</p>
+            <div class="w-full max-w-7xl space-y-10">
+                <div class="text-center space-y-2">
+                    <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Multi-Agent Intelligence</p>
+                    <h2 class="text-5xl font-black text-gradient uppercase italic">The AI War Room.</h2>
+                    <p class="text-white/30 text-sm">5 specialized AI agents analyze every research node simultaneously — powered by Colosseum Copilot real-world data.</p>
+                </div>
+                <div class="grid grid-cols-5 gap-4">
+                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-blue-400">
+                        <p class="text-xs font-mono text-blue-400">AGENT_01</p>
+                        <h4 class="font-bold text-white text-sm">Dr. Bio</h4>
+                        <p class="text-white/30 text-xs">DeSci Auditor — 10x faster gap analysis & archive scan.</p>
                     </div>
-                    <div class="ui-card p-10 space-y-4 text-left bg-[var(--accent)]/5 border-l-4 border-l-[var(--accent)]">
-                        <p class="text-xs font-mono text-[var(--accent)]">>> TAPESTRY_SYNC</p>
-                        <h4 class="font-bold text-white">Agentic Feed</h4>
-                        <p class="text-white/60 text-xs">Live experiment logs and methodology posts streamed from professional social nodes.</p>
+                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-purple-400">
+                        <p class="text-xs font-mono text-purple-400">AGENT_02</p>
+                        <h4 class="font-bold text-white text-sm">Solana Architect</h4>
+                        <p class="text-white/30 text-xs">PDA structure & Anchor validation — instant on-chain audit.</p>
                     </div>
-                    <div class="ui-card p-10 space-y-4 text-left border-l-4 border-l-green-400">
-                        <p class="text-xs font-mono text-green-400">>> ZK_PROOF</p>
-                        <h4 class="font-bold text-white">Verifiable History</h4>
-                        <p class="text-white/30 text-xs">Every simulation result is cryptographically signed, creating a liquid reputation asset.</p>
+                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-green-400">
+                        <p class="text-xs font-mono text-green-400">AGENT_03</p>
+                        <h4 class="font-bold text-white text-sm">ZK Shadow</h4>
+                        <p class="text-white/30 text-xs">Privacy layer & ZK-audit — 99.9% data integrity guaranteed.</p>
+                    </div>
+                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-yellow-400">
+                        <p class="text-xs font-mono text-yellow-400">AGENT_04</p>
+                        <h4 class="font-bold text-white text-sm">Codama Bot</h4>
+                        <p class="text-white/30 text-xs">SDK generation — sub-second type-safe client rendering.</p>
+                    </div>
+                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-[var(--accent)]">
+                        <p class="text-xs font-mono text-[var(--accent)]">AGENT_05</p>
+                        <h4 class="font-bold text-white text-sm">Strategist</h4>
+                        <p class="text-white/30 text-xs">Competitive scanner — real-world trend & signals filtering.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-6 mt-4">
+                    <div class="ui-card p-5 text-center space-y-1">
+                        <p class="text-2xl font-black text-white">92%</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Actionability</p>
+                    </div>
+                    <div class="ui-card p-5 text-center space-y-1">
+                        <p class="text-2xl font-black text-[var(--accent)]">Low</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Crowdedness</p>
+                    </div>
+                    <div class="ui-card p-5 text-center space-y-1">
+                        <p class="text-2xl font-black text-white">87%</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Impact Score</p>
+                    </div>
+                    <div class="ui-card p-5 text-center space-y-1">
+                        <p class="text-2xl font-black text-white">1.8 Yrs</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Time-to-Market</p>
                     </div>
                 </div>
             </div>
@@ -335,7 +493,7 @@
                             <tr>
                                 <td class="font-bold">Verification</td>
                                 <td>Social Voting (Majority Bias)</td>
-                                <td>Weighted ZK-Graph Reputation</td>
+                                <td>Weighted ZK-Graph Reputation (Privacy-First)</td>
                             </tr>
                             <tr>
                                 <td class="font-bold">Monetization</td>
@@ -349,27 +507,50 @@
         </div>
     </section>
 
-    <!-- Slide 10: Traction (DEDICATED) -->
+    <!-- Slide 10: Traction & Founder -->
     <section class="slide-container" id="slide-9">
         <div class="slide-content">
-            <div class="w-full max-w-6xl text-center space-y-12">
-                <div class="space-y-4">
-                    <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">Market Traction</p>
-                    <h2 class="text-6xl font-black text-white uppercase italic tracking-tighter underline decoration-[var(--accent)] decoration-8">Verified Momentum.</h2>
+            <div class="w-full max-w-7xl space-y-8">
+                <div class="text-center space-y-2">
+                    <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">Momentum & Leadership</p>
+                    <h2 class="text-5xl font-black text-white uppercase italic tracking-tighter">Verified Traction.</h2>
                 </div>
-                <div class="grid grid-cols-12 gap-12 items-center">
-                    <div class="col-span-12 bg-white/5 border border-white/10 rounded-[3rem] p-16 flex flex-col items-center justify-center gap-10">
-                        <img src="C:\Users\PC_1M\.gemini\antigravity\brain\a7982fc5-ec3f-4f42-84f7-b714fd0a2090\media__1774261600205.png" alt="Tapestry Logo" class="w-32">
-                        <div class="space-y-6">
-                            <h3 class="text-5xl font-black uppercase text-gradient">Hackathon Winner</h3>
-                            <div class="px-10 py-4 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-full inline-block">
-                                <p class="text-2xl font-black text-white uppercase tracking-tighter">1ST PLACE | TAPESTRY TRACK</p>
+                <div class="grid grid-cols-2 gap-8 items-stretch">
+                    <!-- Founder Profile -->
+                    <div class="ui-card p-10 space-y-6 border-l-4 border-l-[var(--accent)]">
+                        <div class="flex items-center gap-6">
+                            <div class="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                <span class="text-4xl font-black text-white">J</span>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-black text-white uppercase">Joseph</h3>
+                                <p class="text-[var(--accent)] font-bold text-xs tracking-widest uppercase">Founder / Lead Engineer</p>
                             </div>
                         </div>
+                        <ul class="space-y-4 text-sm text-white/50">
+                            <li class="flex gap-4">
+                                <span class="text-[var(--accent)] text-lg">✦</span>
+                                <span><b>1 Year AI Security Engineer</b> — Specialized in adversarial defense.</span>
+                            </li>
+                            <li class="flex gap-4">
+                                <span class="text-[var(--accent)] text-lg">✦</span>
+                                <span><b>2 Years Web3 Product Manager</b> — Scaled decentralized infra.</span>
+                            </li>
+                            <li class="flex gap-4">
+                                <span class="text-[var(--accent)] text-lg">✦</span>
+                                <span><b>10+ Hackathon Wins</b> — Proven track record in rapid delivery.</span>
+                            </li>
+                        </ul>
                     </div>
-                </div>
-                <div class="flex justify-center pt-4">
-                    <img src="C:\Users\PC_1M\.gemini\antigravity\brain\a7982fc5-ec3f-4f42-84f7-b714fd0a2090\media__1774261737379.jpg" class="max-w-xl rounded-2xl border border-white/10 opacity-60 grayscale hover:grayscale-0 transition-all" alt="Biotry Hackathon Display">
+                    <!-- Hackathon Wins -->
+                    <div class="ui-card p-10 flex flex-col justify-between items-center text-center space-y-4 bg-white/5">
+                        <img src="C:\Users\PC_1M\.gemini\antigravity\brain\a7982fc5-ec3f-4f42-84f7-b714fd0a2090\media__1774261600205.png" alt="Tapestry Logo" class="h-16">
+                        <div class="space-y-2">
+                            <h4 class="text-2xl font-black text-white uppercase tracking-tighter">Hackathon Winner</h4>
+                            <p class="text-xs font-bold text-[var(--accent)] uppercase tracking-widest">1ST PLACE | TAPESTRY TRACK</p>
+                        </div>
+                        <img src="C:\Users\PC_1M\.gemini\antigravity\brain\a7982fc5-ec3f-4f42-84f7-b714fd0a2090\media__1774261737379.jpg" class="h-32 object-contain rounded-xl opacity-60 grayscale hover:grayscale-0 transition-all" alt="Biotry Hackathon Display">
+                    </div>
                 </div>
             </div>
         </div>
@@ -378,28 +559,28 @@
     <!-- Slide 11: Business Revenue Model (DEDICATED & IMPROVED GRAPH) -->
     <section class="slide-container" id="slide-10">
         <div class="slide-content">
-            <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-16">
-                <div class="col-span-5 space-y-8 text-left">
+            <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-12">
+                <div class="col-span-4 space-y-8 text-left">
                     <div class="space-y-4">
                         <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Monetization</p>
-                        <h2 class="text-6xl font-black text-white leading-none italic uppercase">Revenue <br/><span class="text-gradient-orange">Architecture.</span></h2>
+                        <h2 class="text-4xl font-black text-white leading-[1.1] italic uppercase tracking-tighter">Revenue <br/><span class="text-gradient-orange">Architecture.</span></h2>
                     </div>
                     <div class="space-y-4">
                         <div class="p-5 bg-white/5 border border-white/10 rounded-2xl flex gap-6 items-center">
-                            <div class="w-12 h-12 rounded-xl bg-[var(--accent)] flex items-center justify-center font-black text-black">01</div>
-                            <p class="font-bold text-white/60">SIM_NODE / AI Simulation Fees</p>
+                            <div class="w-12 h-12 rounded-xl bg-[var(--accent)] flex items-center justify-center font-black text-black text-xs">01</div>
+                            <p class="text-xs font-bold text-white/60 leading-tight">SIM_NODE / AI Simulation Fees <br/><span class="text-[10px] opacity-40 font-normal italic">On-demand data audit streams</span></p>
                         </div>
                         <div class="p-5 bg-white/5 border border-white/10 rounded-2xl flex gap-6 items-center">
-                            <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center font-black text-black">02</div>
-                            <p class="font-bold text-white/60">Protocol Settlement Tax (2%)</p>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center font-black text-black text-xs">02</div>
+                            <p class="text-xs font-bold text-white/60 leading-tight">Protocol Settlement Tax (2%) <br/><span class="text-[10px] opacity-40 font-normal italic">On-chain IP-NFT sales & swaps</span></p>
                         </div>
                         <div class="p-5 bg-white/5 border border-white/10 rounded-2xl flex gap-6 items-center">
-                            <div class="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center font-black text-black">03</div>
-                            <p class="font-bold text-white/60">Scientific Data B2B Licensing</p>
+                            <div class="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center font-black text-black text-xs">03</div>
+                            <p class="text-xs font-bold text-white/60 leading-tight">B2B Scientific Data Licensing <br/><span class="text-[10px] opacity-40 font-normal italic">Metadata for Pharma R&D & AI training</span></p>
                         </div>
                     </div>
                 </div>
-                <div class="col-span-7 h-[480px] ui-card p-12 flex flex-col justify-between relative overflow-hidden">
+                <div class="col-span-8 h-[480px] ui-card p-12 flex flex-col justify-between relative overflow-hidden">
                     <div class="flex justify-between items-center text-[10px] font-black tracking-[0.3em] text-white/20 uppercase z-10">
                         <p>Projected Market Impact ($M)</p>
                         <p>FY 2026 - 28</p>
@@ -421,7 +602,9 @@
                                     <stop offset="100%" stop-color="#FFAB5E" stop-opacity="1" />
                                 </linearGradient>
                             </defs>
-                            <path d="M 0 350 C 150 340, 300 200, 560 60" class="ascending-line" stroke="url(#lineGrad)" />
+                            <path d="M 55 270 C 200 255, 340 145, 530 20" class="ascending-line" stroke="url(#lineGrad)" />
+
+
                         </svg>
                         
                         <!-- Bar 1 -->
@@ -473,21 +656,113 @@
         </div>
     </section>
 
-    <!-- Slide 13: Vision & Closing -->
+    <!-- Slide 13: Roadmap & Closing -->
     <section class="slide-container" id="slide-12">
         <div class="slide-content">
-            <div class="max-w-5xl text-center space-y-12">
-                <h2 class="text-8xl font-black tracking-tighter leading-none text-white uppercase italic">Recode the <br/><span class="text-gradient-orange uppercase">Simulation.</span></h2>
-                <div class="pt-12 grid grid-cols-2 gap-16 text-left">
-                    <div class="space-y-4">
-                        <p class="text-xs font-black uppercase tracking-[0.5em] text-white/20">Phase 01 Roadmap</p>
-                        <p class="text-sm font-black text-white uppercase italic">Genesis Node Launch (Q4 2024)</p>
-                        <p class="text-sm text-white/30 border-l border-white/10 pl-4">Onboarding 50 Verified Research Labs via Tapestry Tracks.</p>
+            <div class="max-w-6xl w-full space-y-12">
+                <div class="text-center space-y-2">
+                    <h2 class="text-7xl font-black tracking-tighter leading-none text-white uppercase italic">Recode the <span class="text-gradient-orange uppercase">Simulation.</span></h2>
+                </div>
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="ui-card p-8 space-y-4 border-l-4 border-l-green-400">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            <p class="text-xs font-black uppercase tracking-widest text-green-400">Phase 01 — Complete ✓</p>
+                        </div>
+                        <h4 class="font-black text-white">Genesis Launch</h4>
+                        <ul class="text-xs text-white/40 space-y-2">
+                            <li>✓ On-chain Research Journal (Solana Devnet)</li>
+                            <li>✓ 5-Agent AI War Room (Dynamic Analysis)</li>
+                            <li>✓ Full-Stack Production Deployment</li>
+                            <li>✓ Tapestry Social Graph Integration</li>
+                            <li>✓ Privy Embedded Wallet Auth</li>
+                        </ul>
                     </div>
-                    <div class="space-y-4">
+                    <div class="ui-card p-8 space-y-4 border-l-4 border-l-[var(--accent)]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full bg-[var(--accent)] animate-pulse"></div>
+                            <p class="text-xs font-black uppercase tracking-widest text-[var(--accent)]">Phase 02 — In Progress</p>
+                        </div>
+                        <h4 class="font-black text-white">Ecosystem Growth</h4>
+                        <ul class="text-xs text-white/40 space-y-2">
+                            <li>→ Mainnet deployment & smart contract audit</li>
+                            <li>→ DAO governance & milestone funding</li>
+                            <li>→ IP-NFT fractionalization</li>
+                            <li>→ Colosseum Copilot deep integration</li>
+                            <li>→ 50+ Research Lab partnerships</li>
+                        </ul>
+                    </div>
+                    <div class="ui-card p-8 space-y-4 border-l-4 border-l-white/20">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full bg-white/20"></div>
+                            <p class="text-xs font-black uppercase tracking-widest text-white/30">Phase 03 — Horizon</p>
+                        </div>
+                        <h4 class="font-black text-white">Liquid Science Economy</h4>
+                        <ul class="text-xs text-white/40 space-y-2">
+                            <li>→ Research as tradeable asset class</li>
+                            <li>→ B2B scientific data licensing</li>
+                            <li>→ Cross-chain DeSci interoperability</li>
+                            <li>→ $85M+ ARR target (Year 3)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex justify-center items-center gap-48 pt-4">
+                    <div class="text-center">
+                        <p class="text-xs font-black uppercase tracking-[0.5em] text-white/20">Live Now</p>
+                        <a href="https://biotry.vercel.app/" target="_blank" class="text-lg font-black text-[var(--accent)] uppercase hover:underline">biotry.vercel.app</a>
+                    </div>
+                    <div class="text-center">
                         <p class="text-xs font-black uppercase tracking-[0.5em] text-white/20">Connect</p>
-                        <p class="text-sm font-black text-[var(--accent)] uppercase"><a href="https://biotry.vercel.app/" target="_blank">biotry.vercel.app</a></p>
-                        <p class="text-sm font-black text-[var(--accent)] uppercase"><a href="https://x.com/BiotryApp" target="_blank">@BiotryApp</a></p>
+                        <a href="https://x.com/BiotryApp" target="_blank" class="text-lg font-black text-[var(--accent)] uppercase hover:underline">@BiotryApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 14: The Liquid API Economy (Open Wallet Standard) -->
+    <section class="slide-container" id="slide-13">
+        <div class="slide-content">
+            <div class="w-full max-w-7xl grid grid-cols-2 gap-16 items-center">
+                <div class="space-y-8 text-left">
+                    <div class="space-y-4">
+                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Hackathon Track: Pay-Per-Call</p>
+                        <h2 class="text-6xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">The Liquid <br/><span class="text-gradient-orange">Science API.</span></h2>
+                    </div>
+                    <p class="text-xl text-white/40 leading-relaxed">Wrapping scientific datasets and AI War Room audits behind <b>x402 Micropayments</b>. No accounts, no subscriptions, just instant peer-review.</p>
+                    
+                    <div class="space-y-4 pt-6">
+                        <div class="flex items-center gap-4 text-white/60">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+                            <p class="text-sm font-bold uppercase tracking-widest">Micropayment Protocol (MPP) Ready</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-white/60">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+                            <p class="text-sm font-bold uppercase tracking-widest">USDC native on Solana Devnet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ui-card p-12 bg-gradient-to-br from-zinc-800 to-black space-y-8 border-2 border-[#F6851B]/30 shadow-[0_0_80px_rgba(246,133,27,0.1)]">
+                    <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/30">
+                        <p>Request: GET /api/audit</p>
+                        <p class="text-[#F6851B]">402 Payment Required</p>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="p-6 bg-black rounded-2xl font-mono text-xs text-white/80 space-y-2">
+                            <p class="text-blue-400">PAYMENT-REQUIRED:</p>
+                            <p>network=solana:devnet;</p>
+                            <p>amount=0.1; recipient=pvK3...</p>
+                            <p>token=USDC;</p>
+                        </div>
+                        <div class="h-px bg-white/10 w-full"></div>
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-1">
+                                <p class="text-2xl font-black text-white">$0.10</p>
+                                <p class="text-[9px] text-white/30 uppercase font-black tracking-widest uppercase">Vs $35.00 Traditional</p>
+                            </div>
+                            <div class="px-6 py-2.5 bg-[#F6851B] rounded-full text-black font-black text-[10px] uppercase tracking-widest italic animate-pulse">Live API Economy</div>
+                        </div>
                     </div>
                 </div>
             </div>

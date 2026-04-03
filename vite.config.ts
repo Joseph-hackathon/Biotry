@@ -8,8 +8,12 @@ export default defineConfig({
         port: 5173,
         strictPort: true,
         proxy: {
+            '/api': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
             '/api-colosseum': {
-                target: 'https://copilot.colosseum.com',
+                target: 'https://api.colosseum.com',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api-colosseum/, '')
             }

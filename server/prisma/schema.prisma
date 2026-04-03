@@ -30,6 +30,9 @@ model Post {
   image         String?
   pdfUrl        String?
   pdfName       String?
+  fundingGoal   Float?    @default(100.0)
+  fundUSDC      Float     @default(0.0)
+  fundCount     Int       @default(0)
 }
 
 model Editor {

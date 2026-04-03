@@ -18,6 +18,9 @@ export interface Post {
     isNsfw?: boolean;
     pdfUrl?: string;
     pdfName?: string;
+    fundingGoal?: number;
+    fundUSDC?: number;
+    fundCount?: number;
     attachedLinks?: string[];
     topics?: string[];
     license?: string;

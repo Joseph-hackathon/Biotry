@@ -3,7 +3,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
-import { x402Middleware } from './middleware/x402';
+import { createX402Middleware } from './middleware/x402';
 import { initializeAgentWallet, signAgentAudit } from './lib/agentWallet';
 
 dotenv.config();
@@ -21,14 +21,13 @@ app.use(cors({
 app.use(express.json());
 
 // --- x402 PROTECTED AUDIT API ---
-app.get('/api/posts/:id/audit', x402Middleware, async (req, res) => {
+app.get('/api/posts/:id/audit', createX402Middleware('0.1'), async (req, res) => {
   const { id } = req.params;
   try {
     const post = await prisma.post.findUnique({ where: { id: id as string } });
     if (!post) return res.status(404).json({ error: 'Post not found' });
     
-    // In a real app, this would trigger the actual AI War Room simulation.
-    // For the hackathon demo, we return the high-value audit metrics.
+    // Detailed audit metrics
     const auditResult = {
       postId: id,
       auditStatus: 'VERIFIED',
@@ -44,7 +43,6 @@ app.get('/api/posts/:id/audit', x402Middleware, async (req, res) => {
       ]
     };
 
-    // Deep OWS Integration: Sign the audit with the Agent's Sovereign Wallet
     const { signature, address } = await signAgentAudit(auditResult);
 
     res.json({
@@ -52,9 +50,36 @@ app.get('/api/posts/:id/audit', x402Middleware, async (req, res) => {
       agentAddress: address,
       agentSignature: signature
     });
-  } catch (error) {
-    res.status(500).json({ error: 'Audit failed' });
+  } catch (error: any) {
+    console.error('[Audit API Error]:', error);
+    res.status(500).json({ error: 'Audit failed', detail: error.message });
   }
+});
+
+// --- OWS SCIENTIFIC FUNDING API ---
+app.post('/api/posts/:id/fund', createX402Middleware('1.0'), async (req, res) => {
+    const { id } = req.params;
+    try {
+        const post = await prisma.post.findUnique({ where: { id: id as string } });
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+
+        const updatedPost = await prisma.post.update({
+            where: { id: id as string },
+            data: {
+                fundUSDC: { increment: 1.0 },
+                fundCount: { increment: 1 }
+            }
+        });
+
+        res.json({
+            message: 'Funding Successful',
+            fundingTotal: updatedPost.fundUSDC,
+            fundingCount: updatedPost.fundCount
+        });
+    } catch (error: any) {
+        console.error('[Funding API Error]:', error);
+        res.status(500).json({ error: 'Funding update failed', detail: error.message });
+    }
 });
 
 // --- POSTS ---

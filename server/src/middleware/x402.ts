@@ -95,8 +95,15 @@ export const x402Middleware = async (req: Request, res: Response, next: NextFunc
     // Payment verified!
     console.log(`[x402] Payment Verified for signature: ${paymentSignature}`);
     next();
-  } catch (error) {
-    console.error('[x402] Verification Error:', error);
-    res.status(500).json({ error: 'Verification failed', detail: 'On-chain verification error. Ensure signature is valid.' });
+  } catch (error: any) {
+    console.error('[x402] Verification Catch Error:', {
+      message: error.message,
+      stack: error.stack,
+      signature: paymentSignature
+    });
+    res.status(500).json({ 
+      error: 'Verification failed', 
+      detail: `On-chain verification error: ${error.message || 'Unknown error'}. Ensure the signature '${paymentSignature}' is valid on Devnet.` 
+    });
   }
 };

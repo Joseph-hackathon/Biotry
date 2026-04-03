@@ -301,7 +301,14 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                          <div className="p-8 bg-white/5 border border-white/10 rounded-3xl space-y-4 font-mono">
                                              <div className="space-y-1">
                                                  <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Transaction Signature</p>
-                                                 <p className="text-[11px] text-[#F6851B] break-all border-l-2 border-[#F6851B]/40 pl-4">{lastSignature}</p>
+                                                                                                   <a 
+                                                    href={`https://solscan.io/tx/${lastSignature}?cluster=devnet`} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="block text-[11px] text-[#F6851B] break-all border-l-2 border-[#F6851B]/40 pl-4 hover:underline"
+                                                  >
+                                                    {lastSignature}
+                                                  </a>
                                              </div>
                                              <div className="space-y-1">
                                                  <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Settlement Wallet</p>

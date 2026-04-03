@@ -249,6 +249,8 @@ const DeSciDashboard: React.FC = () => {
                 <p className="text-base font-medium text-white/40 uppercase tracking-tight max-w-3xl leading-relaxed">
                     Visualizing the relationships, citations, and authorship network across the Biotry ecosystem. Metadata derived from Solana activity logs.
                 </p>
+
+
             </div>
 
             {/* Social Graph Section */}

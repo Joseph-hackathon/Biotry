@@ -1,0 +1,20 @@
+{
+  "name": "biotry-hype-video",
+  "version": "1.0.0",
+  "description": "Biotry Hackathon Hype Video - 30 seconds",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render BiotryHype out/biotry-hype.mp4 --codec=h264"
+  },
+  "dependencies": {
+    "remotion": "4.0.443",
+    "@remotion/cli": "4.0.443",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.5.4"
+  }
+}

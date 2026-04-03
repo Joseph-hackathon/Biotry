@@ -4,7 +4,7 @@ import {
     MoreHorizontal, FileText, Globe, Link2, 
     Binary, Zap, Sparkles, ShieldCheck, 
     ChevronRight, ArrowUpRight, Play, Activity,
-    Info, Coins
+    Info, Coins, Fingerprint
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Post, Comment } from '../types';
@@ -31,6 +31,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const postData = proposals.find(p => p.id === post.id) || post;
     const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
+    const [isStealthGenerating, setIsStealthGenerating] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
 
@@ -69,6 +70,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             return;
         }
 
+        setIsStealthGenerating(true);
+        // Simulate Stealth Address Generation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setIsStealthGenerating(false);
+
         setIsFunding(true);
         try {
             const lamports = 0.01 * fundingAmount * LAMPORTS_PER_SOL;
@@ -104,8 +110,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                 const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
                 showModal(
                     'success', 
-                    'FUNDING_PROVEN_ON_CHAIN', 
-                    `Your $${fundingAmount.toFixed(2)} contribution has been verified on-chain. Thank you for supporting this research node!`,
+                    'UMBRA_GRANT_VERIFIED', 
+                    `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Umbra Stealth Address and verified on the Biotry network.`,
                     explorerLink
                 );
             } else {
@@ -114,7 +120,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             }
         } catch (error: any) {
             console.error('Funding failed', error);
-            showModal('error', 'CONTRIBUTION_FAILED', error.message || 'We encountered an error during on-chain verification.');
+            showModal('error', 'UMBRA_GRANT_FAILED', error.message || 'We encountered an error during stealth transaction verification.');
         } finally {
             setIsFunding(false);
         }
@@ -127,7 +133,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         setNewComment('');
     };
 
-    const fundingPercentage = Math.min(((postData.fundUSDC || 0) / (postData.fundingGoal || 100)) * 100, 100);
+    const fundingPercentage = Math.min(((postData?.fundUSDC || 0) / (postData?.fundingGoal || 100)) * 100, 100);
 
     return (
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-700">
@@ -181,7 +187,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                          </div>
                          <div className="space-y-0.5">
                              <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Principal Investigator</p>
-                             <p className="text-base font-bold text-white tracking-tight">{truncateAddress(post.author)}</p>
+                             <p className="text-base font-bold text-white tracking-tight">{truncateAddress(post?.author || '')}</p>
                          </div>
                     </div>
                     <div className="h-10 w-[1px] bg-white/5 hidden sm:block" />
@@ -233,11 +239,25 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
                     <button 
                         onClick={handleFund}
-                        disabled={isFunding}
+                        disabled={isFunding || isStealthGenerating}
                         className="btn-metamask h-16 px-10 text-[10px] uppercase font-black tracking-[0.2em] w-full sm:w-auto flex items-center justify-center gap-3"
                     >
-                        {isFunding ? <Info className="w-4 h-4 animate-spin text-black" /> : <Coins className="w-4 h-4 text-black" />}
-                        SUPPORT ${fundingAmount}
+                        {isStealthGenerating ? (
+                            <div className="flex items-center gap-2">
+                                <Activity className="w-4 h-4 animate-pulse text-black" />
+                                GENERATING STEALTH...
+                            </div>
+                        ) : isFunding ? (
+                            <div className="flex items-center gap-2">
+                                <Info className="w-4 h-4 animate-spin text-black" />
+                                SENDING...
+                            </div>
+                        ) : (
+                            <>
+                                <Fingerprint className="w-4 h-4 text-black" />
+                                UMBRA GRANT ${fundingAmount}
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
@@ -256,7 +276,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     <div className="glass-panel p-8 rounded-[32px] border border-white/5 space-y-6 bg-gradient-to-br from-white/5 to-transparent">
                         <div className="flex justify-between items-end">
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Scientific Funding Program</p>
+                                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Umbra Anonymous Grant Program</p>
                                 <p className="text-3xl font-bold text-white">${postData.fundUSDC?.toFixed(2) || '0.00'} <span className="text-sm opacity-30">/ ${postData.fundingGoal || 100} GOAL</span></p>
                             </div>
                             <div className="text-right">

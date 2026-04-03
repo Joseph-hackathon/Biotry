@@ -6,11 +6,27 @@ import {
     Binary, Server, Trophy, TrendingUp, Sparkles, MoveRight, Coins, Zap, ArrowUpRight
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
-import { EDITORIAL_BOARD, FEATURED_HUBS, TOP_CONTRIBUTORS } from '../constants/mockData';
+const EDITORIAL_BOARD = [
+    { id: '1', name: 'Dr. Sarah Chen', role: 'Genetics Lead', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
+    { id: '2', name: 'Prof. James Wilson', role: 'Neuroscience', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James' },
+    { id: '3', name: 'Dr. Elena Rossi', role: 'Longevity Research', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elena' }
+];
+
+const FEATURED_HUBS = [
+    { id: '1', name: 'Longevity', icon: 'zap', count: 124 },
+    { id: '2', name: 'Neurotech', icon: 'binary', count: 89 },
+    { id: '3', name: 'Synthetic Bio', icon: 'flask', count: 56 }
+];
+
+const TOP_CONTRIBUTORS = [
+    { id: '1', name: 'quantum_doc', points: 1240, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=quantum' },
+    { id: '2', name: 'bio_hacker', points: 980, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hacker' },
+    { id: '3', name: 'longevity_insider', points: 850, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=insider' }
+];
 import PostCard from './PostCard';
 import { clsx } from 'clsx';
 import { useNavigate } from 'react-router-dom';
-import { useSolana } from '../context/useSolana';
+import { useSolana } from '../context/SolanaContext';
 
 type JournalTab = 'All' | 'In-Review' | 'Published' | 'About';
 
@@ -41,7 +57,7 @@ const JournalView: React.FC = () => {
     const stats = [
         { label: 'Network Nodes', value: '1,284', icon: Binary, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
         { label: 'Active Scientists', value: '542', icon: Users, color: 'text-[#F6851B]', bg: 'bg-[#F6851B]/10' },
-        { label: 'BioCoin Reserves', value: '12.4M', icon: Coins, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
+        { label: 'Discovery Credits', value: '12.4M', icon: Coins, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
     ];
 
     const hubIcons: Record<string, any> = {
@@ -60,14 +76,16 @@ const JournalView: React.FC = () => {
                 <div className="relative z-10 lg:flex items-center gap-16 p-10 md:p-16">
                     <div className="flex-1 space-y-8">
                         <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-[#F6851B] uppercase tracking-[0.5em] backdrop-blur-md">
-                            <Sparkles className="w-4 h-4" /> DeSci Network v2
+                            <Sparkles className="w-4 h-4" /> Biotry Network v1.0
                         </div>
                         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-white uppercase leading-none">
-                            ORBIT <span className="text-gradient-orange">OPEN SCIENCE.</span>
+                            DISCOVERY <span className="text-gradient-orange">JOURNAL.</span>
                         </h1>
                         <p className="text-base md:text-lg font-medium text-white/40 uppercase tracking-tight leading-relaxed max-w-xl">
-                            The decentralized hub for peer-reviewed research, open-access data sets, and cryptographic scientific verification.
+                            The high-performance network for liquefying knowledge, sovereign research verification, and privacy-preserved funding.
                         </p>
+
+
                         <div className="flex flex-wrap gap-6 pt-4">
                             <button
                                 onClick={() => navigate('/studio')}
@@ -138,7 +156,7 @@ const JournalView: React.FC = () => {
                     </button>
                 </div>
                 <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 mask-fade-right">
-                    {FEATURED_HUBS.map((hub) => {
+                    {FEATURED_HUBS.map((hub: any) => {
                         const Icon = hubIcons[hub.icon] || Globe;
                         const isActive = selectedHub === hub.name;
                         return (
@@ -251,7 +269,7 @@ const JournalView: React.FC = () => {
                             <h3 className="text-sm font-bold text-white uppercase tracking-widest">Network Leaders</h3>
                         </div>
                         <div className="space-y-6">
-                            {TOP_CONTRIBUTORS.map((user, i) => (
+                            {TOP_CONTRIBUTORS.map((user: any, i: number) => (
                                 <div key={user.id} className="flex items-center gap-4 group cursor-pointer">
                                     <div className="relative shrink-0">
                                         <div className="w-12 h-12 rounded-2xl border-2 border-white/ object-cover shadow-2xl overflow-hidden group-hover:border-[#F6851B]/50 transition-all duration-500">
@@ -280,8 +298,8 @@ const JournalView: React.FC = () => {
                             <Zap className="w-8 h-8 font-bold" />
                         </div>
                         <div className="space-y-2">
-                             <h4 className="text-xl font-bold text-white uppercase tracking-tight leading-tight">BioCoin Reward Protocol</h4>
-                             <p className="text-xs font-medium text-white/40 uppercase tracking-tight leading-relaxed">Perform validated peer reviews and earn network incentives in BioCoin.</p>
+                             <h4 className="text-xl font-bold text-white uppercase tracking-tight leading-tight">Umbra Stealth Protocol</h4>
+                             <p className="text-xs font-medium text-white/40 uppercase tracking-tight leading-relaxed">Fund high-impact research anonymously using one-time stealth addresses.</p>
                         </div>
                         <button
                             onClick={() => showSystemModal({

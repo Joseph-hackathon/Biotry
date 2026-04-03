@@ -4,7 +4,7 @@ import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { useSolana } from '../context/useSolana';
+import { useSolana } from '../context/SolanaContext';
 import { initializeDao, findDaoConfigPDA, createProfile } from '../lib/program';
 import { PublicKey } from '@solana/web3.js';
 import { Shield, AlertCircle, History, ExternalLink, Clock } from 'lucide-react';
@@ -24,7 +24,7 @@ const ProfileView: React.FC = () => {
     const { program, solanaAddress, availableWallets, setActiveAddress, balance, refreshBalance, hasProfile, refreshProfile, memberProfile, showTransactionModal, showSystemModal } = useSolana();
     const navigate = useNavigate();
     const [isInitializing, setIsInitializing] = useState(false);
-    const [daoStatus, setDaoStatus] = useState<'checking' | 'initialized' | 'not-initialized'>('checking');
+    const [protocolStatus, setProtocolStatus] = useState<'checking' | 'initialized' | 'not-initialized'>('checking');
     const [history, setHistory] = useState<any[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -34,20 +34,20 @@ const ProfileView: React.FC = () => {
     const myAuthorTag = activeAddress ? truncateAddress(activeAddress) : null;
 
     React.useEffect(() => {
-        const checkDaoStatus = async () => {
+        const checkProtocolStatus = async () => {
             if (!program) {
-                setDaoStatus('checking');
+                setProtocolStatus('checking');
                 return;
             }
             try {
                 const [configPDA] = findDaoConfigPDA();
                 const account = await (program.account as any).daoConfig.fetch(configPDA);
-                if (account) setDaoStatus('initialized');
+                if (account) setProtocolStatus('initialized');
             } catch (e) {
-                setDaoStatus('not-initialized');
+                setProtocolStatus('not-initialized');
             }
         };
-        checkDaoStatus();
+        checkProtocolStatus();
     }, [program, activeAddress]);
 
     const fetchHistory = React.useCallback(async () => {
@@ -66,7 +66,7 @@ const ProfileView: React.FC = () => {
                     let category = 'NETWORK_INTERACTION';
                     if (tx && tx.meta && tx.meta.logMessages) {
                         const logs = tx.meta.logMessages.join(' ');
-                        if (logs.includes('Instruction: CreateProfile')) category = 'DAO_INITIAL_ONBOARD';
+                        if (logs.includes('Instruction: CreateProfile')) category = 'NETWORK_ONBOARD';
                         else if (logs.includes('Instruction: VoteOnProposal')) category = 'RESEARCH_UPVOTE';
                         else if (logs.includes('Instruction: SubmitProposal')) category = 'NODE_PUBLICATION';
                         else if (logs.includes('Instruction: InitializeDao')) category = 'PROTOCOL_INIT';
@@ -92,42 +92,44 @@ const ProfileView: React.FC = () => {
     const myPosts = myAuthorTag ? posts.filter(p => p.author === myAuthorTag) : [];
     const totalUpvotes = myPosts.reduce((sum, p) => sum + p.upvotes, 0);
 
-    const handleJoinDao = async () => {
+    const handleActivateIdentity = async () => {
         if (!program || !activeAddress || isInitializing) return;
         const username = prompt('Enter Network Handle:', '') || '';
         const bio = prompt('Enter Biography Summary:', '') || '';
         if (!username) {
-            showSystemModal({ type: 'error', title: 'Action Required', message: 'A username is required to synchronize with the DAO.' });
+            showSystemModal({ type: 'error', title: 'Action Required', message: 'A username is required to activate your network identity.' });
             return;
         }
         setIsInitializing(true);
         try {
             const { tx } = await createProfile(program, { owner: new PublicKey(activeAddress), username, bio });
-            showTransactionModal({ status: 'success', category: 'DAO_JOIN', txId: tx });
+            showTransactionModal({ status: 'success', category: 'NETWORK_IDENTITY', txId: tx });
             await refreshProfile();
             fetchHistory();
         } catch (err: any) {
-            showTransactionModal({ status: 'error', category: 'DAO_JOIN', message: err.message || String(err) });
+            showTransactionModal({ status: 'error', category: 'NETWORK_IDENTITY', message: err.message || String(err) });
         } finally {
             setIsInitializing(false);
         }
     };
 
-    const handleInitializeDao = async () => {
+    const handleInitializeProtocol = async () => {
         if (!program || !activeAddress || isInitializing) return;
         if (activeAddress.length < 32) {
-            showTransactionModal({ status: 'error', category: 'DAO_INIT', message: `Invalid identifier (${activeAddress}).` });
+            showTransactionModal({ status: 'error', category: 'PROTOCOL_INIT', message: `Invalid identifier (${activeAddress}).` });
             return;
         }
         setIsInitializing(true);
         try {
-            const daoName = prompt('Enter Protocol Name:', 'Biotry DeSci Protocol') || 'Biotry DeSci Protocol';
+            const daoName = prompt('Enter Protocol Name:', 'Biotry Network') || 'Biotry Network';
+
+
             const { tx } = await initializeDao(program, daoName, new PublicKey(activeAddress));
-            showTransactionModal({ status: 'success', category: 'DAO_INIT', txId: tx });
-            setDaoStatus('initialized');
+            showTransactionModal({ status: 'success', category: 'PROTOCOL_INIT', txId: tx });
+            setProtocolStatus('initialized');
             fetchHistory();
         } catch (err: any) {
-            showTransactionModal({ status: 'error', category: 'DAO_INIT', message: err.message || String(err) });
+            showTransactionModal({ status: 'error', category: 'PROTOCOL_INIT', message: err.message || String(err) });
         } finally {
             setIsInitializing(false);
         }
@@ -166,7 +168,7 @@ const ProfileView: React.FC = () => {
                 refreshBalance={refreshBalance}
                 logout={logout}
                 navigate={navigate}
-                daoStatus={daoStatus}
+                protocolStatus={protocolStatus}
                 hasProfile={hasProfile}
                 memberProfile={memberProfile}
                 programReady={!!program}
@@ -201,8 +203,8 @@ const ProfileView: React.FC = () => {
                      </div>
                      <div className="flex gap-4">
                          {!hasProfile && (
-                            <button onClick={handleJoinDao} disabled={isInitializing} className="h-10 px-6 bg-[#F6851B] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl transition-all">
-                                {isInitializing ? 'BUFFERING...' : 'SYNC_IDENTITY_TO_DAO'}
+                            <button onClick={handleActivateIdentity} disabled={isInitializing} className="h-10 px-6 bg-[#F6851B] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl transition-all">
+                                {isInitializing ? 'BUFFERING...' : 'ACTIVATE_NETWORK_IDENTITY'}
                             </button>
                          )}
                          <button onClick={() => navigate('/studio')} className="h-10 px-6 bg-white border border-white rounded-xl text-[10px] font-black uppercase tracking-widest text-black hover:bg-white/90 transition-all">

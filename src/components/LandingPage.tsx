@@ -215,6 +215,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                     </div>
                     <span className="text-2xl font-bold tracking-tighter uppercase">BIOTRY<span className="text-[#F6851B]">.</span></span>
                 </div>
+
                 <div className="flex items-center gap-8">
                     <div className="hidden md:flex gap-10">
                         {['Discovery', 'Simulation', 'Identity', 'Governance'].map(l => (
@@ -228,20 +229,20 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
             {/* ── HERO ── */}
             <section className="relative min-h-screen flex flex-col items-center justify-center px-6" style={{ maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)' }}>
                 <div className="hero-reveal text-center max-w-5xl space-y-10 z-10 relative">
-                    <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-[11px] font-black uppercase tracking-[0.4em] backdrop-blur-xl mb-4">
-                        <Sparkles className="w-4 h-4 text-[#F6851B]" /> The On-Chain Discovery Network
+                    <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-[11px] font-black uppercase tracking-[0.4em] backdrop-blur-xl mb-4 text-[#F6851B]">
+                        <Zap className="w-4 h-4 fill-current" /> Liquid Discovery Protocol
                     </div>
                     
                     <h1 className="text-7xl md:text-[10rem] font-black tracking-tighter leading-[0.8] text-white uppercase italic">
-                        RECODE <br />
-                        <span className="text-gradient-orange">SCIENCE.</span>
+                        LIQUEFYING <br />
+                        <span className="text-gradient-orange">KNOWLEDGE.</span>
                     </h1>
                     
                     <p className="text-xl md:text-2xl text-white/40 max-w-4xl mx-auto font-medium leading-[1.6] tracking-tight">
-                        Science is fragmented. <br />
-                        Biotry builds a <span className="text-white font-bold">fluid verification layer</span> <br />
-                        where expertise is <span className="text-[#A78BFA] font-bold italic">assetized</span> and <span className="relative inline-block text-white font-bold px-2"><span className="absolute inset-0 bg-[#F6851B]/20 blur-sm rounded-lg -z-10" />research is simulated</span>.
+                        Biotry is the high-performance discovery network where science is no longer static. <br />
+                        A living protocol for <span className="text-white font-bold">sovereign research</span>, <span className="text-[#F6851B] font-bold">instant verification</span>, and <span className="text-[#A78BFA] font-bold">privacy-preserved funding</span>.
                     </p>
+
 
                     <div className="flex flex-wrap justify-center gap-8 pt-6">
                         <button onClick={onLaunch} className="btn-metamask py-6 px-16 text-lg group">
@@ -269,10 +270,10 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                 <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                     <div className="reveal-section space-y-10">
                         <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">
-                            THE SOCIAL <br /><span className="text-gradient-purple">MESH.</span>
+                            NO MORE <br /><span className="text-gradient-purple">SILOS.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight leading-relaxed max-w-xl">
-                            Visualizing the relationship between scientists, citations, and funding in real-time. A living ecosystem of expertise.
+                            Science today is locked behind paywalls and static PDFs. Biotry weaves research into a real-time social mesh of citations, credits, and active collaboration.
                         </p>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="p-8 glass-panel border border-white/10 rounded-3xl space-y-4">
@@ -293,7 +294,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             <div className="relative w-full h-full border border-dashed border-white/10 rounded-full animate-spin-slow" />
                             <div className="absolute w-2/3 h-2/3 border border-dotted border-[#F6851B]/20 rounded-full animate-spin-reverse" />
                             <div className="absolute w-32 h-32 bg-gradient-to-br from-[#F6851B] to-[#7C3AED] rounded-3xl group-hover:scale-110 transition-transform shadow-[0_0_100px_rgba(246,133,27,0.3)] flex items-center justify-center p-6">
-                                <img src="/biotry-logo.png" className="w-full h-full object-contain brightness-0 invert" />
+                                <img src="/biotry-logo.png" className="w-full h-full object-contain brightness-0 invert" alt="Biotry" />
                             </div>
                         </div>
                     </div>
@@ -329,10 +330,10 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                     </div>
                     <div className="reveal-section order-1 lg:order-2 space-y-12">
                         <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">
-                            AI-BASED <br /><span className="text-gradient-purple">TRIAL.</span>
+                            INSTANT <br /><span className="text-gradient-purple">PROOF.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight leading-relaxed max-w-xl">
-                            Traditional peer review is ancient. We execute the research in a sandbox environment before a single drop hits the pipette.
+                            Traditional peer review takes months. We execute methodologies in sovereign AI sandboxes, predicting viability before a single drop hits the pipette.
                         </p>
                         <button onClick={onLaunch} className="btn-metamask py-5 px-14 text-sm group">
                             SIMULATE NOW <Zap className="w-5 h-5 ml-2 fill-current" />
@@ -350,10 +351,10 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             <Zap className="w-3 h-3" /> NATIVE MICROPAYMENT ENGINE
                         </div>
                         <h2 className="text-6xl md:text-[9rem] font-black tracking-tighter uppercase leading-[0.8] italic text-white/90">
-                            ASSETIZE <br /><span className="text-gradient-orange">DISCOVERY.</span>
+                            SOVEREIGN <br /><span className="text-gradient-orange">FLOW.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight max-w-2xl mx-auto leading-relaxed">
-                            Biotry democratizes scientific information by wrapping research abstracts and AI simulations behind <span className="text-white">x402 Micropayments</span>. Fluid capital for the decentralized frontier.
+                            Scientific capital is no longer trapped. Assetize every discovery via instant <span className="text-white">x402 Micropayments</span> and privacy-preserved <span className="text-[#F6851B]">Anonymous Grants</span>.
                         </p>
                     </div>
 
@@ -365,7 +366,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             <div className="space-y-6">
                                 <h3 className="text-4xl font-black uppercase italic tracking-tighter">THE x402 PROTOCOL</h3>
                                 <p className="text-sm text-white/30 font-medium leading-relaxed uppercase tracking-tight">
-                                    Our native Micro-Payment Protocol (MPP) ensures researchers are rewarded instantly. Every simulation call or data reveal flows directly to the contributors—eliminating gatekeepers and subscriptions.
+                                    Instant rewards for every simulation or data reveal. A gateway-less protocol ensuring fluid transfer of value between researchers.
                                 </p>
                                 <div className="pt-4 flex items-center gap-4 text-[10px] font-black text-[#F6851B] uppercase tracking-[0.2em]">
                                     [INSTANT_SETTLEMENT] [FLUID_CAPITAL] [GATEWAY_LESS]
@@ -380,7 +381,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             <div className="space-y-6">
                                 <h3 className="text-4xl font-black uppercase italic tracking-tighter">MOONPAY ON-RAMP</h3>
                                 <p className="text-sm text-white/30 font-medium leading-relaxed uppercase tracking-tight">
-                                    Bridges the gap for traditional scientific institutions. Instant fiat-to-USDC conversion allows foundations and laboratories to fuel the discovery graph and participate in the research economy with a single click.
+                                    The institutional bridge. Convert fiat to discovery assets with a single click to fuel the global research economy.
                                 </p>
                                 <div className="pt-4 flex items-center gap-4 text-[10px] font-black text-[#7C3AED] uppercase tracking-[0.2em]">
                                     [GLOBAL_BRIDGE] [USDC_NATIVE] [INSTANT_ONBOARD]
@@ -422,8 +423,8 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#F6851B]/5 to-transparent opacity-50" />
                 <div className="max-w-7xl mx-auto space-y-24">
                      <div className="reveal-section text-center md:text-left grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
-                        <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">OPEN <span className="text-gradient-purple">LAYER.</span></h2>
-                        <p className="text-xl text-white/40 font-medium uppercase tracking-tight max-w-xl pb-2">Biotry is not just a platform; it's a protocol. Build your own DeSci apps using our social graph API.</p>
+                        <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">OPEN <span className="text-gradient-purple">CORE.</span></h2>
+                        <p className="text-xl text-white/40 font-medium uppercase tracking-tight max-w-xl pb-2">Biotry is more than a platform; it's an open framework for decentralized science. Build on our social graph and modular privacy layers.</p>
                      </div>
 
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -456,7 +457,8 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             </div>
                             <span className="text-4xl font-black tracking-tighter uppercase italic">BIOTRY<span className="text-[#F6851B]">.</span></span>
                         </div>
-                        <p className="text-xs font-bold text-white/20 uppercase tracking-[0.5em]">The Universal Protocol for Open Science.</p>
+                        <p className="text-xs font-bold text-white/20 uppercase tracking-[0.5em]">The High-Performance Protocol for Science.</p>
+
                      </div>
 
                       <div className="flex flex-wrap justify-center gap-16 text-[10px] font-black uppercase tracking-[0.4em] text-white/30">
@@ -468,7 +470,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                      <button onClick={onLaunch} className="btn-metamask h-16 px-16 shadow-2xl text-xs font-black uppercase tracking-widest">LAUNCH APP</button>
                 </div>
                 <div className="mt-20 text-center">
-                    <p className="text-[10px] font-bold text-white/10 uppercase tracking-[0.6em]">© 2026 BIOTRY SYSTEMS // DISTRIBUTED VIA SOLANA & AI</p>
+                    <p className="text-[10px] font-bold text-white/10 uppercase tracking-[0.6em]">© 2026 BIOTRY SYSTEMS // LIQUID DISCOVERY ON SOLANA</p>
                 </div>
             </footer>
         </div>

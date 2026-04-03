@@ -3,7 +3,7 @@ import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, Idl } from '@coral-xyz/anchor';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useStandardWallets } from '@privy-io/react-auth/solana';
-import { buildBioDAOProgram, fetchMemberProfile, isProfileInitialized } from '../lib/program';
+import { buildBiotryProgram, fetchMemberProfile, isProfileInitialized } from '../lib/program';
 import idl from '../lib/bio_dao_idl.json';
 import TransactionModal, { TransactionCategory } from '../components/TransactionModal';
 import SystemModal, { SystemModalType } from '../components/SystemModal';
@@ -24,7 +24,7 @@ interface SolanaContextValue {
     memberProfile: any | null;
     hasProfile: boolean;
     refreshProfile: () => Promise<void>;
-    hasDaoConfig: boolean;
+    hasProtocolConfig: boolean;
     initializeHub: () => Promise<void>;
     showTransactionModal: (params: {
         status: 'success' | 'error';
@@ -71,7 +71,7 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [balance, setBalance] = useState<number | null>(null);
     const [memberProfile, setMemberProfile] = useState<any | null>(null);
     const [hasProfile, setHasProfile] = useState(false);
-    const [hasDaoConfig, setHasDaoConfig] = useState(false);
+    const [hasProtocolConfig, setHasProtocolConfig] = useState(false);
     const [isReady, setIsReady] = useState(false);
 
     // Modal State
@@ -132,15 +132,15 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     };
 
-    const checkDaoConfig = async () => {
+    const checkProtocolConfig = async () => {
         if (!program) return;
         try {
             const { findDaoConfigPDA } = await import('../lib/program');
             const [configPDA] = findDaoConfigPDA();
             const accountInfo = await connection.getAccountInfo(configPDA);
-            setHasDaoConfig(accountInfo !== null);
+            setHasProtocolConfig(accountInfo !== null);
         } catch (e) {
-            setHasDaoConfig(false);
+            setHasProtocolConfig(false);
         }
     };
 
@@ -148,9 +148,9 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (!program || !solanaAddress) return;
         try {
             const { initializeDao } = await import('../lib/program');
-            const { tx } = await initializeDao(program, "Biotry DeSci Hub", new PublicKey(solanaAddress));
-            showTransactionModal({ status: 'success', category: 'GENERIC', txId: tx, message: 'DeSci Hub Initialized Successfully' });
-            setHasDaoConfig(true);
+            const { tx } = await initializeDao(program, "Biotry Network Hub", new PublicKey(solanaAddress));
+            showTransactionModal({ status: 'success', category: 'GENERIC', txId: tx, message: 'Biotry Network Initialized Successfully' });
+            setHasProtocolConfig(true);
         } catch (e: any) {
             showTransactionModal({ status: 'error', category: 'GENERIC', message: e.message || String(e) });
         }
@@ -244,13 +244,13 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     }
                 };
 
-                const bioProgram = buildBioDAOProgram(anchorWallet, idl as unknown as Idl, connection);
-                setProgram(bioProgram);
+                const biotryProgram = buildBiotryProgram(anchorWallet, idl as unknown as Idl, connection);
+                setProgram(biotryProgram);
                 setIsReady(true);
                 console.log('[Solana] Program Ready');
                 refreshBalance();
                 refreshProfile();
-                checkDaoConfig();
+                checkProtocolConfig();
             } catch (err) {
                 console.error('[Solana] Init failed:', err);
                 setIsReady(false);
@@ -282,10 +282,10 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         solanaAddress, availableWallets, setActiveAddress: setSolanaAddress,
         balance, refreshBalance,
         memberProfile, hasProfile, refreshProfile,
-        hasDaoConfig, initializeHub,
+        hasProtocolConfig, initializeHub,
         showTransactionModal,
         showSystemModal
-    }), [connection, program, network, isReady, solanaAddress, availableWallets, balance, memberProfile, hasProfile, hasDaoConfig]);
+    }), [connection, program, network, isReady, solanaAddress, availableWallets, balance, memberProfile, hasProfile, hasProtocolConfig]);
 
     return (
         <SolanaContext.Provider value={value}>

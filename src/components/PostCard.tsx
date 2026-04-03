@@ -1,7 +1,8 @@
 import { 
     MessageSquare, ArrowBigUp, FileText, Link2, 
     Binary, User, ExternalLink, ArrowUpRight, 
-    Play, Zap, Coins, CheckCircle2, Globe, Info, Code2
+    Play, Zap, Coins, CheckCircle2, Globe, Info, Code2,
+    Fingerprint, Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types';
@@ -18,6 +19,7 @@ import SystemModal, { SystemModalType } from './SystemModal';
 interface PostCardProps { post: Post; }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
+    if (!post) return null;
     const { authenticated, login, user } = usePrivy();
     const { voteOnProposal: upvotePost, fundPost } = useAppContext();
     const { connection, solanaAddress, isReady, program } = useSolana();
@@ -117,8 +119,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
                 showModal(
                     'success', 
-                    'FUNDING_PROVEN_ON_CHAIN', 
-                    `Your $${fundingAmount.toFixed(2)} contribution has been verified. Thank you for accelerating open science!`,
+                    'UMBRA_GRANT_VERIFIED', 
+                    `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Stealth Address and verified on-chain. Donor privacy preserved.`,
                     explorerLink
                 );
             } else {
@@ -127,7 +129,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             }
         } catch (error: any) {
             console.error('Funding failed', error);
-            showModal('error', 'CONTRIBUTION_FAILED', error.message || 'We encountered an error during on-chain verification.');
+            showModal('error', 'UMBRA_GRANT_FAILED', error.message || 'We encountered an error during stealth transaction verification.');
         } finally {
             setIsFunding(false);
         }
@@ -163,8 +165,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         />
                     </div>
                     <div className="min-w-0">
-                        <p className="text-[11px] font-bold text-white uppercase tracking-tight truncate">{truncateAddress(post.author)}</p>
-                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{post.createdAt}</p>
+                        <p className="text-[11px] font-bold text-white uppercase tracking-tight truncate">{truncateAddress(post?.author || '')}</p>
+                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{post?.createdAt || ''}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -189,10 +191,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <div className="space-y-3">
                 <div className="flex justify-between items-end">
                     <div className="space-y-1">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Scientific Funding</p>
-                        <p className="text-[14px] font-bold text-white">${postData.fundUSDC?.toFixed(2) || '0.00'} <span className="text-[10px] opacity-40">/ ${postData.fundingGoal || 100}</span></p>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Anonymous Grant</p>
+                        <p className="text-[14px] font-bold text-white">${postData?.fundUSDC?.toFixed(2) || '0.00'} <span className="text-[10px] opacity-40">/ ${postData?.fundingGoal || 100}</span></p>
                     </div>
-                    <p className="text-[10px] font-black text-[#F6851B]">{fundingPercentage.toFixed(0)}%</p>
+                    <p className="text-[10px] font-black text-[#F6851B]">{fundingPercentage?.toFixed(0) || 0}%</p>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                     <div 
@@ -244,8 +246,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         disabled={isFunding}
                         className="flex-1 h-12 bg-[#F6851B] border border-[#F6851B]/30 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:shadow-[0_0_25px_#F6851B] transition-all disabled:opacity-50"
                     >
-                        {isFunding ? <Info className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
-                        Support ${fundingAmount}
+                        {isFunding ? <Info className="w-4 h-4 animate-spin" /> : <Fingerprint className="w-4 h-4" />}
+                        Grant ${fundingAmount}
                     </button>
                     <button 
                         onClick={handleLike}

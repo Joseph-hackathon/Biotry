@@ -11,7 +11,7 @@ interface ProfileHeroProps {
     refreshBalance: () => void;
     logout: () => void;
     navigate: (path: string) => void;
-    daoStatus: 'checking' | 'initialized' | 'not-initialized';
+    protocolStatus: 'checking' | 'initialized' | 'not-initialized';
     hasProfile: boolean;
     memberProfile: any;
     programReady: boolean;
@@ -25,7 +25,7 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({
     refreshBalance,
     logout,
     navigate,
-    daoStatus,
+    protocolStatus,
     hasProfile,
     memberProfile,
     programReady
@@ -128,9 +128,9 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({
                                     {programReady ? 'Sync_Stable' : 'Initializing_Node'}
                                 </div>
 
-                                {daoStatus === 'initialized' && (
+                                {protocolStatus === 'initialized' && (
                                     <div className="px-3.5 py-1.5 bg-[#F6851B]/10 border border-[#F6851B]/20 text-[#F6851B] rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl flex items-center gap-1.5">
-                                        <Shield className="w-3 h-3" /> DAO ACTIVE
+                                        <Shield className="w-3 h-3" /> NETWORK ACTIVE
                                     </div>
                                 )}
                                 

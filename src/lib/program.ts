@@ -55,7 +55,7 @@ export const findVoteRecordPDA = (proposal: PublicKey, voter: PublicKey): [Publi
 /**
  * Build an Anchor Program instance from a Privy-connected wallet.
  */
-export const buildBioDAOProgram = (walletProvider: any, idl: Idl, connection: Connection): Program => {
+export const buildBiotryProgram = (walletProvider: any, idl: Idl, connection: Connection): Program => {
     const provider = new AnchorProvider(connection, walletProvider, {
         commitment: 'confirmed',
     });

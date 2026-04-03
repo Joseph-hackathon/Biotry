@@ -8,7 +8,7 @@ import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { useSolana } from '../context/useSolana';
+import { useSolana } from '../context/SolanaContext';
 import { submitProposal } from '../lib/program';
 import { PublicKey } from '@solana/web3.js';
 
@@ -33,7 +33,7 @@ const ResearchEditor = () => {
     const { authenticated, login } = usePrivy();
     const { addProposal } = useAppContext();
     const navigate = useNavigate();
-    const { program, solanaAddress, showTransactionModal, showSystemModal, hasDaoConfig, initializeHub } = useSolana();
+    const { program, solanaAddress, showTransactionModal, showSystemModal, hasProtocolConfig, initializeHub } = useSolana();
     const activeAddress = solanaAddress || '';
 
     const [type, setType] = useState<'Research' | 'Critique' | 'Investigation'>('Research');
@@ -188,17 +188,17 @@ const ResearchEditor = () => {
             </div>
 
             {/* Initialize HUB if needed */}
-            {!hasDaoConfig && (
+            {!hasProtocolConfig && (
                 <div className="glass-panel p-10 rounded-[32px] border-[#F6851B]/20 bg-[#F6851B]/5 space-y-6 animate-in fade-in slide-in-from-top-4">
                      <div className="flex items-center gap-4">
                         <Zap className="w-8 h-8 text-[#F6851B]" />
-                        <h3 className="text-xl font-bold uppercase text-white tracking-tight">DeSci Hub Initialized Not Found</h3>
+                        <h3 className="text-xl font-bold uppercase text-white tracking-tight">Biotry Network Hub Not Initialized</h3>
                      </div>
                      <p className="text-xs font-medium text-white/40 uppercase tracking-tight leading-relaxed max-w-xl">
-                        The smart contract environment for this network has not been initialized. You must initialize the core DAO config before you can publish research nodes.
+                        The smart contract environment for this network has not been initialized. You must initialize the core Biotry config before you can publish research nodes.
                      </p>
                      <button onClick={initializeHub} className="btn-metamask h-14 px-10 text-[10px] font-black uppercase tracking-widest shadow-2xl">
-                        INITIALIZE DESCI HUB
+                        INITIALIZE BIOTRY HUB
                      </button>
                 </div>
             )}

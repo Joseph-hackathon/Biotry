@@ -1,7 +1,23 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { apiClient } from '../lib/api';
-// AppContext.tsx
 import type { Post, Comment } from '../types';
+
+const EDITORIAL_BOARD = [
+    { id: '1', name: 'Dr. Sarah Chen', role: 'Genetics Lead', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
+    { id: '2', name: 'Prof. James Wilson', role: 'Neuroscience', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James' },
+    { id: '3', name: 'Dr. Elena Rossi', role: 'Longevity Research', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elena' }
+];
+
+const FEATURED_HUBS = [
+    { id: '1', name: 'Longevity', icon: 'zap', count: 124 },
+    { id: '2', name: 'Neurotech', icon: 'binary', count: 89 },
+    { id: '3', name: 'Synthetic Bio', icon: 'flask', count: 56 }
+];
+
+const TOP_CONTRIBUTORS = [
+    { id: '1', name: 'quantum_doc', points: 1240, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=quantum' },
+    { id: '2', name: 'bio_hacker', points: 980, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hacker' },
+    { id: '3', name: 'longevity_insider', points: 850, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=insider' }
+];
 
 interface AppContextValue {
     proposals: Post[];
@@ -26,26 +42,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [comments, setComments] = useState<Record<string, Comment[]>>({});
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const posts = await apiClient.getPosts();
-                setProposals(posts);
-            } catch (err) {
-                console.error("Failed to load posts:", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadData();
+        setIsLoading(false);
     }, []);
 
-    const addProposal = useCallback(async (proposalData: Partial<Post>) => {
-        try {
-            const newPost = await apiClient.createPost(proposalData);
-            setProposals(prev => [newPost, ...prev]);
-        } catch (err) {
-            console.error("Failed to add proposal:", err);
-        }
+    const addProposal = useCallback((proposalData: Post) => {
+        setProposals(prev => [proposalData, ...prev]);
     }, []);
 
     const addComment = useCallback((postId: string, author: string, content: string) => {

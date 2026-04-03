@@ -8,7 +8,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { useAppContext } from '../context/AppContext';
-import { useSolana } from '../context/useSolana';
+import { useSolana } from '../context/SolanaContext';
 import { truncateAddress } from '../utils/address';
 
 interface LayoutProps { children: React.ReactNode; currentView: string; }

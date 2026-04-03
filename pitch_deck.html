@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biotry Pitch Deck | Recoding Science</title>
+    <title>Biotry Pitch Deck | Recoding Science with Umbra Privacy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,162 +93,73 @@
         }
         .official-logo-img { width: 68%; height: 68%; object-fit: contain; filter: brightness(0) invert(1); }
 
-        .chart-bar { background: linear-gradient(to top, #F6851B, #FFB169) !important; border-radius: 0.75rem; }
-        .chart-line { border-top: 1.5px dashed rgba(255, 255, 255, 0.15); }
-        .ascending-line { 
-            stroke: #F6851B; 
-            stroke-width: 6; 
-            fill: none; 
-            filter: drop-shadow(0 0 20px rgba(246, 133, 27, 0.7));
-            stroke-linecap: round;
-        }
-
-        /* UI Card - solid for print compatibility */
         .ui-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 2.5rem;
         }
 
-        /* Comparison Table */
         .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0 0.8rem; }
         .comparison-table th { padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
         .comparison-table td { padding: 1rem; background: rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.08); border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.85rem; color: #ffffff; }
         .comparison-table td:last-child { background: rgba(246, 133, 27, 0.15) !important; color: #F6851B !important; font-weight: 800; border-top-right-radius: 1rem; border-bottom-right-radius: 1rem; }
 
-        /* PDF / PRINT FIXES */
         @media print {
-            @page { size: 1920px 1080px landscape; margin: 0 !important; }
-
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                box-sizing: border-box !important;
+            @page { 
+                size: landscape; 
+                margin: 0 !important; 
             }
-
             html, body {
                 width: 100% !important;
+                height: 100% !important;
+                background-color: #030303 !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
-
-            .slide-container {
-                width: 100% !important;
+            .slide-container { 
+                width: 100vw !important;
                 height: 100vh !important;
-                max-height: 100vh !important;
+                page-break-after: always !important; 
+                break-after: page !important; 
+                display: flex !important; 
+                align-items: center !important;
+                justify-content: center !important;
+                background-color: #030303 !important; 
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
-                page-break-after: always !important;
-                break-after: page !important;
-                display: flex !important;
-                background-color: #030303 !important;
+                position: relative !important;
                 overflow: hidden !important;
+                break-inside: avoid !important;
             }
-
             .slide-content {
-                transform: scale(1);
-                transform-origin: center;
-                padding: 4rem;
+                padding: 5rem !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-sizing: border-box !important;
             }
-
-            /* Force gradient text to solid colors in print */
-            .text-gradient {
-                background: none !important;
-                -webkit-text-fill-color: #ffffff !important;
-                color: #ffffff !important;
-            }
-            .text-gradient-orange {
-                background: none !important;
-                -webkit-text-fill-color: #F6851B !important;
-                color: #F6851B !important;
-            }
-
-            /* UI Cards - solid bg for PDF */
-            .ui-card {
-                background-color: #1a1a1a !important;
-                border: 1px solid rgba(255,255,255,0.2) !important;
-                backdrop-filter: none !important;
-            }
-
-            /* Fix Tailwind opacity utilities in print */
-            [class*="bg-white/"] { background-color: rgba(255,255,255,0.08) !important; }
-            [class*="text-white/"] { color: rgba(255,255,255,0.6) !important; }
-            [class*="border-white/"] { border-color: rgba(255,255,255,0.2) !important; }
-
-            /* Traction slide images */
-            [class*="grayscale"] { filter: none !important; opacity: 1 !important; }
-
-            /* Chart bars */
-            .chart-bar {
-                background: linear-gradient(to top, #F6851B, #FFB169) !important;
-            }
-
-            /* Logo box */
-            .bio-logo-box {
-                background: #F6851B !important;
-                box-shadow: none !important;
-            }
-
-            /* SVG ascending line */
-            .ascending-line {
-                stroke: #F6851B !important;
-                filter: none !important;
-            }
-
-            /* Comparison table */
-            .comparison-table td {
-                background-color: rgba(255,255,255,0.05) !important;
-                color: #ffffff !important;
-            }
-            .comparison-table td:last-child {
-                background-color: rgba(246,133,27,0.2) !important;
-                color: #F6851B !important;
-            }
-
-            /* Border colors for agent cards */
-            [class*="border-t-blue"] { border-top-color: #60a5fa !important; }
-            [class*="border-t-green"] { border-top-color: #4ade80 !important; }
-            [class*="border-t-purple"] { border-top-color: #c084fc !important; }
-            [class*="border-t-yellow"] { border-top-color: #facc15 !important; }
-            [class*="border-l-blue"] { border-left-color: #60a5fa !important; }
-            [class*="border-l-green"] { border-left-color: #4ade80 !important; }
-            [class*="border-l-orange"], [class*="border-l-acc"] { border-left-color: #F6851B !important; }
-
-            /* Colored text classes */
-            .text-blue-400 { color: #60a5fa !important; }
-            .text-green-400 { color: #4ade80 !important; }
-            .text-purple-400 { color: #c084fc !important; }
-            .text-yellow-400 { color: #facc15 !important; }
-            .text-red-500 { color: #ef4444 !important; }
-
-            /* Colored backgrounds */
-            .bg-blue-500 { background-color: #3b82f6 !important; }
-            .bg-green-500 { background-color: #22c55e !important; }
-            .bg-purple-500 { background-color: #a855f7 !important; }
-            .bg-pink-500 { background-color: #ec4899 !important; }
-            .bg-yellow-500 { background-color: #eab308 !important; }
-
-            /* Animate pulse - stop for print */
-            .animate-pulse { animation: none !important; }
-
-            /* Blur effects - remove for print */
-            [class*="blur"] { filter: none !important; }
-            [class*="backdrop-blur"] { backdrop-filter: none !important; }
         }
     </style>
 </head>
 <body>
 
     <!-- Slide 1: Hero -->
-    <section class="slide-container" id="slide-0">
+    <section class="slide-container" id="slide-1">
         <div class="slide-content">
             <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-12">
                 <div class="col-span-12 md:col-span-7 space-y-6 text-left">
-                    <p class="text-[var(--accent)] font-bold tracking-[0.3em] uppercase text-sm">Liquid Research Economy</p>
-                    <h1 class="text-7xl font-black tracking-tighter leading-[0.9] uppercase italic">RECODING <br/> <span class="text-gradient-orange">SCIENCE.</span></h1>
-                    <p class="text-2xl text-white/50 leading-relaxed max-w-xl font-light">The High-Performance DeSci Social Network on Solana.</p>
+                    <div class="flex items-center gap-3 px-4 py-2 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-full w-fit">
+                        <span class="text-[var(--accent)] font-black text-[10px] uppercase tracking-[0.4em]">Liquid Discovery Protocol</span>
+                    </div>
+                    <h1 class="text-8xl font-black tracking-tighter leading-[0.8] uppercase italic">BIOTRY <br/> <span class="text-gradient-orange italic">SYSTEMS.</span></h1>
+                    <p class="text-2xl text-white/40 leading-relaxed max-w-xl font-light">Recoding Science with the Umbra Privacy Upgrade on Solana.</p>
+
                 </div>
                 <div class="col-span-12 md:col-span-5 flex justify-end pr-8">
                     <div class="bio-logo-box">
@@ -259,247 +170,253 @@
         </div>
     </section>
 
-    <!-- Slide 2: The Context -->
-    <section class="slide-container" id="slide-1">
-        <div class="slide-content">
-            <div class="max-w-5xl text-center space-y-12">
-                <h2 class="text-5xl font-black leading-tight">2026: Crypto is <span class="text-gradient-orange">Mature</span>.<br/>Science is <span class="text-red-500">Stagnant</span>.</h2>
-                <div class="grid grid-cols-2 gap-8 text-left">
-                    <div class="ui-card p-10 space-y-4">
-                        <h3 class="text-2xl font-black text-white italic">The Web2 Shackles</h3>
-                        <p class="text-white/40 leading-relaxed">Research remains trapped in closed journals. Rewards are distorted. Evaluation is slow and centralized.</p>
-                    </div>
-                    <div class="ui-card p-10 space-y-4">
-                        <h3 class="text-2xl font-black text-white italic">The Information Gap</h3>
-                        <p class="text-white/40 leading-relaxed">Researchers lack capital access. Investors lack verifiable data. The marketplace for truth is broken.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Slide 3: Market Research -->
+    <!-- Slide 2: The Hook (Science is Broken) -->
     <section class="slide-container" id="slide-2">
         <div class="slide-content">
-            <div class="w-full max-w-6xl grid grid-cols-2 gap-20 items-center">
-                <div class="space-y-8 text-left">
-                    <h2 class="text-5xl font-black text-gradient uppercase italic">The Problem in Numbers.</h2>
-                    <p class="text-xl text-white/40 leading-relaxed">Traditional scientific publishing is a $20B efficiency-negative market.</p>
-                    <div class="flex gap-4">
-                        <div class="px-6 py-3 bg-red-500/10 border border-red-500/30 rounded-full text-xs font-black uppercase text-red-500 italic shadow-[0_0_20px_rgba(239,68,68,0.2)]">Reproduction Crisis</div>
-                    </div>
+            <div class="max-w-6xl w-full grid grid-cols-2 gap-20 items-center">
+                <div class="space-y-8">
+                    <h2 class="text-5xl font-black text-white italic uppercase leading-none">Science is <br/><span class="text-red-500">Broken.</span></h2>
+                    <ul class="space-y-6">
+                        <li class="flex gap-4 items-start">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
+                            <p class="text-xl text-white/50"><b class="text-white">Paywalls</b> — $35 for a single static PDF is insanity. Knowledge is locked.</p>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
+                            <p class="text-xl text-white/50"><b class="text-white">Slow Valuation</b> — Peer review takes years. Innovation dies in the queue.</p>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
+                            <p class="text-xl text-white/50"><b class="text-white">Reproduction Crisis</b> — 70%+ of research is irreproducible but funded nonetheless.</p>
+                        </li>
+                    </ul>
                 </div>
-                <div class="ui-card p-12 space-y-8">
-                    <div class="flex justify-between items-end border-b border-white/5 pb-4">
-                        <div>
-                            <p class="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">TAM — Total Addressable</p>
-                            <p class="text-lg font-bold text-white/60 lowercase">Global Scientific Publishing</p>
-                        </div>
-                        <p class="text-4xl font-black text-white">$20B+</p>
-                    </div>
-                    <div class="flex justify-between items-end border-b border-white/5 pb-4">
-                        <div>
-                            <p class="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">SAM — Serviceable Available</p>
-                            <p class="text-lg font-bold text-white/60 lowercase">Open Access & DeSci Sector</p>
-                        </div>
-                        <p class="text-4xl font-black text-[var(--accent)]">$2.1B</p>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">SOM — Serviceable Obtainable</p>
-                            <p class="text-lg font-bold text-white/60 lowercase">Bioinformatics & AI Safety</p>
-                        </div>
-                        <p class="text-4xl font-black text-white">$180M</p>
-                    </div>
+                <div class="ui-card p-12 bg-white/5 space-y-8 border-l-8 border-red-500">
+                    <p class="text-[10px] font-black uppercase text-white/30 tracking-widest">Market Stagnation</p>
+                    <p class="text-5xl font-black text-white italic">$20B+</p>
+                    <p class="text-sm font-light text-white/40 leading-relaxed">The global scientific publishing market is a black box of inefficiency and centralized gatekeeping.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Slide 4: The Vision -->
+    <!-- Slide 3: The Solution (A Fluid Layer) -->
     <section class="slide-container" id="slide-3">
         <div class="slide-content">
             <div class="text-center space-y-12">
                 <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">The Paradigm Shift</p>
-                <h2 class="text-8xl font-black text-white tracking-tighter uppercase leading-[0.8]">Research is a <br/><span class="text-gradient-orange">Social Graph.</span></h2>
-                <p class="text-2xl text-white/30 font-light max-w-3xl mx-auto leading-relaxed">We decouple research from institutional gatekeepers and turn it into a liquid, verifiable asset class on Solana.</p>
+                <h2 class="text-8xl font-black text-white tracking-tighter uppercase leading-[0.8]">Discovery is a <br/><span class="text-gradient-orange italic">Fluid Layer.</span></h2>
+                <div class="grid grid-cols-3 gap-8 max-w-5xl mx-auto pt-10">
+                    <div class="ui-card p-8 space-y-2">
+                        <p class="text-2xl font-black text-white italic">SOLANA</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">High Speed Verification</p>
+                    </div>
+                    <div class="ui-card p-8 space-y-2">
+                        <p class="text-2xl font-black text-[var(--accent)] italic">x402 / MPP</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Instant Monetization</p>
+                    </div>
+                    <div class="ui-card p-8 space-y-2">
+                        <p class="text-2xl font-black text-white italic">AI SIMS</p>
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Multi-Agent Auditing</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Slide 5: Expertise Profiles -->
+    <!-- Slide 4: Product I (Assetizing Insight) -->
     <section class="slide-container" id="slide-4">
         <div class="slide-content">
             <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-16">
-                <div class="col-span-12 md:col-span-6 space-y-8">
+                <div class="col-span-12 md:col-span-6 space-y-10">
                     <div class="space-y-4">
-                        <p class="text-xs font-black tracking-[0.3em] text-[var(--accent)] uppercase">Phase 01</p>
-                        <h2 class="text-5xl font-black text-gradient italic">Expertise-Driven <br/>Profiling.</h2>
+                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Innovation Layer: Umbra Upgrade</p>
+                        <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter leading-none">Anonymous <br/><span class="text-gradient-orange italic">Grants.</span></h2>
                     </div>
-                    <p class="text-lg text-white/40 leading-relaxed">Unlike Twitter/Reddit, Biotry is built on <b>Professional Metadata</b>. Users join via expertise graphs (Bioinformatics, AI Safety, etc.), creating a curated network of truth.</p>
+                    <p class="text-xl text-white/40 leading-relaxed font-light">Biotry integrates the <b>Umbra Privacy Engine</b> to eliminate funding bias via Stealth Addresses. Donors support research anonymously, severing the public link between strategic interests and scientific pursuit.</p>
+                    <div class="flex gap-4 items-center text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
+                        [STEALTH_ADDRESS] [ANONYMOUS_SUPPORT] [ZERO_BIAS]
+                    </div>
                 </div>
-                <div class="col-span-12 md:col-span-6 ui-card p-12 relative overflow-hidden h-[400px]">
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                            <div class="w-2 h-2 rounded-full bg-green-400"></div>
-                            <p class="text-xs font-mono text-white/60">NODE_VERIFIED: BIOTECH_GRAPH_LEVEL_A</p>
+                <div class="col-span-12 md:col-span-6 ui-card p-12 bg-black/40 relative overflow-hidden border-2 border-white/5 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
+                    <div class="space-y-8">
+                        <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/10">
+                            <p class="font-mono text-[10px] text-[#F6851B]">STATUS: GENERATING_STEALTH</p>
+                            <p class="font-bold text-[10px] text-white italic uppercase">Privacy Enabled</p>
                         </div>
-                        <div class="h-1 bg-white/10 rounded-full w-full"></div>
-                        <div class="h-1 bg-white/10 rounded-full w-[80%]"></div>
-                        <div class="h-1 bg-[var(--accent)] rounded-full w-[60%] shadow-[0_0_20px_var(--accent)]"></div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-end">
+                                <p class="text-sm font-black text-white/60">Anonymous Grant Node #882</p>
+                                <p class="text-3xl font-black text-white">$1,000.00 <span class="text-xs font-light text-white/20 tracking-normal italic">USDC</span></p>
+                            </div>
+                            <div class="h-1.5 bg-white/10 rounded-full w-full overflow-hidden">
+                                <div class="h-full bg-[var(--accent)] w-[100%] shadow-[0_0_20px_var(--accent)]"></div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] font-bold text-white/20 uppercase tracking-widest text-center italic">Stealth Verification Complete</p>
                     </div>
-                    <div class="absolute bottom-10 right-10 text-6xl font-black text-white/5 uppercase italic">Expert</div>
                 </div>
             </div>
+
         </div>
     </section>
 
-    <!-- Slide 6: AI War Room (5-Agent Simulator) -->
+    <!-- Slide 5: Product II (AI War Room) -->
     <section class="slide-container" id="slide-5">
         <div class="slide-content">
-            <div class="w-full max-w-7xl space-y-10">
+            <div class="w-full max-w-7xl space-y-12">
                 <div class="text-center space-y-2">
                     <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Multi-Agent Intelligence</p>
-                    <h2 class="text-5xl font-black text-gradient uppercase italic">The AI War Room.</h2>
-                    <p class="text-white/30 text-sm">5 specialized AI agents analyze every research node simultaneously — powered by Colosseum Copilot real-world data.</p>
+                    <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter">The AI War Room.</h2>
+                    <p class="text-xl text-white/30 font-light">5 specialized AI agents audit methodology in real-time.</p>
                 </div>
-                <div class="grid grid-cols-5 gap-4">
-                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-blue-400">
-                        <p class="text-xs font-mono text-blue-400">AGENT_01</p>
-                        <h4 class="font-bold text-white text-sm">Dr. Bio</h4>
-                        <p class="text-white/30 text-xs">DeSci Auditor — 10x faster gap analysis & archive scan.</p>
+                <div class="grid grid-cols-5 gap-6">
+                    <div class="ui-card p-8 border-t-4 border-t-blue-400 space-y-4">
+                        <h4 class="font-black text-white italic uppercase text-lg">Dr. Bio</h4>
+                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">Gap Analysis & Archive scan node.</p>
                     </div>
-                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-purple-400">
-                        <p class="text-xs font-mono text-purple-400">AGENT_02</p>
-                        <h4 class="font-bold text-white text-sm">Solana Architect</h4>
-                        <p class="text-white/30 text-xs">PDA structure & Anchor validation — instant on-chain audit.</p>
+                    <div class="ui-card p-8 border-t-4 border-t-purple-400 space-y-4">
+                        <h4 class="font-black text-white italic uppercase text-lg">Solana Arch</h4>
+                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">PDA & Anchor verification.</p>
                     </div>
-                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-green-400">
-                        <p class="text-xs font-mono text-green-400">AGENT_03</p>
-                        <h4 class="font-bold text-white text-sm">ZK Shadow</h4>
-                        <p class="text-white/30 text-xs">Privacy layer & ZK-audit — 99.9% data integrity guaranteed.</p>
+                    <div class="ui-card p-8 border-t-4 border-t-green-400 space-y-4">
+                        <h4 class="font-black text-white italic uppercase text-lg">ZK Shadow</h4>
+                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">Privacy & Integrity Auditor.</p>
                     </div>
-                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-yellow-400">
-                        <p class="text-xs font-mono text-yellow-400">AGENT_04</p>
-                        <h4 class="font-bold text-white text-sm">Codama Bot</h4>
-                        <p class="text-white/30 text-xs">SDK generation — sub-second type-safe client rendering.</p>
+                    <div class="ui-card p-8 border-t-4 border-t-yellow-400 space-y-4">
+                        <h4 class="font-black text-white italic uppercase text-lg">Codama Bot</h4>
+                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">SDK Type-Safe Generation.</p>
                     </div>
-                    <div class="ui-card p-6 space-y-3 text-left border-t-4 border-t-[var(--accent)]">
-                        <p class="text-xs font-mono text-[var(--accent)]">AGENT_05</p>
-                        <h4 class="font-bold text-white text-sm">Strategist</h4>
-                        <p class="text-white/30 text-xs">Competitive scanner — real-world trend & signals filtering.</p>
+                    <div class="ui-card p-8 border-t-4 border-t-[var(--accent)] space-y-4 shadow-[0_0_40px_rgba(246,133,27,0.1)]">
+                        <h4 class="font-black text-white italic uppercase text-lg">Strategist</h4>
+                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">Trend & signals scanner.</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-4 gap-6 mt-4">
-                    <div class="ui-card p-5 text-center space-y-1">
-                        <p class="text-2xl font-black text-white">92%</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Actionability</p>
+                <div class="grid grid-cols-4 gap-8 pt-4">
+                    <div class="ui-card p-6 text-center">
+                        <p class="text-3xl font-black text-white italic">94%</p>
+                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">Success Probability</p>
                     </div>
-                    <div class="ui-card p-5 text-center space-y-1">
-                        <p class="text-2xl font-black text-[var(--accent)]">Low</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Crowdedness</p>
+                    <div class="ui-card p-6 text-center">
+                        <p class="text-3xl font-black text-green-400 italic">LOW</p>
+                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">Crowdedness</p>
                     </div>
-                    <div class="ui-card p-5 text-center space-y-1">
-                        <p class="text-2xl font-black text-white">87%</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Impact Score</p>
+                    <div class="ui-card p-6 text-center">
+                        <p class="text-3xl font-black text-white italic">87/100</p>
+                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">Impact Score</p>
                     </div>
-                    <div class="ui-card p-5 text-center space-y-1">
-                        <p class="text-2xl font-black text-white">1.8 Yrs</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Time-to-Market</p>
+                    <div class="ui-card p-6 text-center">
+                        <p class="text-3xl font-black text-[var(--accent)] italic">0.1 SOL</p>
+                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">Simulation Fee</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Slide 7: Funding -->
+    <!-- Slide 6: Social Graph (Expertise) -->
     <section class="slide-container" id="slide-6">
         <div class="slide-content">
             <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-16">
-                <div class="col-span-12 md:col-span-6 ui-card p-14 h-[450px] flex flex-col justify-center gap-12 border-l-8 border-l-[var(--accent)]">
-                    <div class="space-y-2">
-                        <p class="text-xs font-black uppercase text-white/20 tracking-widest">Funding Pool Status</p>
-                        <p class="text-6xl font-black text-white">$1.2M SOL</p>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="px-6 py-2 bg-[var(--accent)] rounded-xl font-bold text-black uppercase text-xs">Approve Milestone</div>
-                        <div class="px-6 py-2 bg-white/5 border border-white/10 rounded-xl font-bold text-white uppercase text-xs">Audit DAOs</div>
+                <div class="col-span-12 md:col-span-6 ui-card p-14 h-[450px] relative overflow-hidden flex flex-col justify-center border-l-8 border-l-[var(--accent)]">
+                    <div class="absolute top-0 right-0 p-8 text-8xl font-black opacity-[0.03] uppercase italic">REPUTATION</div>
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-6">
+                            <div class="w-20 h-20 rounded-3xl bg-[var(--accent)]/20 border border-[var(--accent)]/30 flex items-center justify-center font-black text-4xl text-[var(--accent)] shadow-[0_0_40px_var(--accent-glow)]">N</div>
+                            <div>
+                                <h4 class="text-3xl font-black text-white uppercase italic tracking-tighter">Neuro_Verified</h4>
+                                <p class="text-xs font-mono text-white/30 tracking-widest uppercase">Expertise Graph: Level A</p>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center">
+                            <p class="text-xs font-black uppercase text-white/40 tracking-widest">Impact Factor</p>
+                            <p class="text-2xl font-black text-[var(--accent)] italic">4.82</p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-span-12 md:col-span-6 space-y-8">
-                    <h2 class="text-5xl font-black text-gradient italic leading-snug">Milestone-Based <br/><span class="text-gradient-orange italic">Tokenized Funding.</span></h2>
-                    <p class="text-lg text-white/40 leading-relaxed">Integrated with <b>Bio Protocol</b>. Research DAOs manage liquidity, distributing rewards automatically upon SIM_NODE verification of audit milestones.</p>
+                <div class="col-span-12 md:col-span-6 space-y-10">
+                    <div class="space-y-4">
+                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">The Discovery Mesh</p>
+                        <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter leading-none">Weighted <br/><span class="text-gradient-orange italic">Reputation.</span></h2>
+                    </div>
+                    <p class="text-xl text-white/40 leading-relaxed font-light">Powered by the <b>Tapestry Protocol</b>. We map citations, expertise levels, and experimental history to create a liquid trust network where the truth is verifiable.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Slide 8: Strategic Alignment -->
+    <!-- Slide 7: Strategic Monetization (OWS) -->
     <section class="slide-container" id="slide-7">
         <div class="slide-content">
-            <div class="max-w-6xl text-center space-y-12">
-                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Strategic Alignment: <span class="text-gradient-orange">2026 Trends</span></h2>
-                <div class="grid grid-cols-4 gap-6">
-                    <div class="ui-card p-8 space-y-3">
-                        <p class="text-[var(--accent)] font-black text-xs uppercase italic">a16z</p>
-                        <h4 class="font-bold text-sm">On-chain Reputation</h4>
-                    </div>
-                    <div class="ui-card p-8 space-y-3">
-                        <p class="text-blue-400 font-black text-xs uppercase italic">Coinbase</p>
-                        <h4 class="font-bold text-sm">Creator Economy 2.0</h4>
-                    </div>
-                    <div class="ui-card p-8 space-y-3">
-                        <p class="text-purple-400 font-black text-xs uppercase italic">Delphi</p>
-                        <h4 class="font-bold text-sm">Data Markets</h4>
-                    </div>
-                    <div class="ui-card p-8 space-y-3">
-                        <p class="text-green-400 font-black text-xs uppercase italic">Vitalik</p>
-                        <h4 class="font-bold text-sm">Public Goods 3.0</h4>
+            <div class="max-w-6xl w-full grid grid-cols-2 gap-20 items-center">
+                <div class="space-y-8">
+                    <h2 class="text-6xl font-black text-white italic uppercase leading-tight">The Liquid <br/><span class="text-gradient-orange italic">API Economy.</span></h2>
+                    <p class="text-xl text-white/40 leading-relaxed font-light">Seamless conversion from tradition to the decentralized frontier.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="ui-card p-6 bg-white/5 space-y-2 border-t-2 border-t-blue-400">
+                            <p class="text-blue-400 font-black text-xs uppercase italic tracking-widest">MoonPay</p>
+                            <p class="text-[10px] text-white/40 uppercase">Institutional Fiat On-Ramp</p>
+                        </div>
+                        <div class="ui-card p-6 bg-white/5 space-y-2 border-t-2 border-t-[var(--accent)] shadow-[0_0_30px_rgba(246,133,27,0.1)]">
+                            <p class="text-[var(--accent)] font-black text-xs uppercase italic tracking-widest">x402 / MPP</p>
+                            <p class="text-[10px] text-white/40 uppercase">Instant Micropayment Clearing</p>
+                        </div>
                     </div>
                 </div>
-                <p class="text-xl text-white/30 pt-10 font-bold tracking-widest uppercase italic">Powered by Solana High-Performance Research Streams.</p>
+                <div class="ui-card p-10 bg-black/60 space-y-8 relative overflow-hidden border-2 border-[#F6851B]/30">
+                    <div class="flex justify-between items-center text-[9px] font-black tracking-widest text-[#F6851B] uppercase">
+                        <p>Status: Payment Required</p>
+                        <p>MPP Enabled</p>
+                    </div>
+                    <div class="p-8 bg-black rounded-3xl font-mono text-[11px] text-white/60 space-y-3 leading-relaxed">
+                        <p class="text-blue-400 uppercase font-black tracking-widest">OWS_RESPONSE // 402</p>
+                        <p>network: solana:devnet;</p>
+                        <p>method: mpp_standard;</p>
+                        <p>token: usdc; amount: 0.05;</p>
+                        <p>recipient: pvK3...cMnB;</p>
+                    </div>
+                    <div class="flex justify-between items-center bg-[var(--accent)] rounded-2xl p-4 text-black text-center font-black text-xs uppercase tracking-widest italic animate-pulse">
+                        Clear Transaction
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Slide 9: Competitive Difference -->
+    <!-- Slide 8: Competitive Edge -->
     <section class="slide-container" id="slide-8">
         <div class="slide-content">
             <div class="w-full max-w-6xl space-y-12">
                 <div class="text-center space-y-2">
-                    <p class="text-[var(--accent)] font-black uppercase text-xs tracking-widest">Market Analysis</p>
-                    <h2 class="text-5xl font-black text-white italic">Biotry vs ResearchHub</h2>
+                    <p class="text-[var(--accent)] font-black uppercase text-xs tracking-widest">Market Position</p>
+                    <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter">The Umbra Advantage</h2>
                 </div>
                 <div class="ui-card p-10">
                     <table class="comparison-table">
                         <thead>
                             <tr>
-                                <th>Feature</th>
+                                <th>Capability</th>
                                 <th>ResearchHub</th>
                                 <th>Biotry</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="font-bold">Model</td>
-                                <td>Open Hub / Community Bounties</td>
-                                <td>Expertise-Based Research Graph</td>
-                            </tr>
-                            <tr>
-                                <td class="font-bold">Content</td>
-                                <td>PDF / Repos / Reviews</td>
-                                <td>Live Experiment Logs + Social Stream</td>
-                            </tr>
-                            <tr>
-                                <td class="font-bold">Verification</td>
-                                <td>Social Voting (Majority Bias)</td>
-                                <td>Weighted ZK-Graph Reputation (Privacy-First)</td>
-                            </tr>
-                            <tr>
+                             <tr>
+                                <td class="font-bold">Privacy</td>
+                                <td>Public On-Chain Data</td>
+                                <td>Stealth Address Grant Flow</td>
+                             </tr>
+                             <tr>
                                 <td class="font-bold">Monetization</td>
-                                <td>Reward Token (RSC)</td>
-                                <td>Research as a Liquid Asset Asset</td>
-                            </tr>
+                                <td>Tokenized Rewards (RSC)</td>
+                                <td>Anonymous Grants + x402</td>
+                             </tr>
+                             <tr>
+                                <td class="font-bold">Valuation</td>
+                                <td>Community Voting</td>
+                                <td>AI Multi-Agent Viability Audit</td>
+                             </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -507,263 +424,87 @@
         </div>
     </section>
 
-    <!-- Slide 10: Traction & Founder -->
+    <!-- Slide 9: Traction & Founder -->
     <section class="slide-container" id="slide-9">
         <div class="slide-content">
-            <div class="w-full max-w-7xl space-y-8">
+            <div class="w-full max-w-7xl space-y-12">
                 <div class="text-center space-y-2">
-                    <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">Momentum & Leadership</p>
-                    <h2 class="text-5xl font-black text-white uppercase italic tracking-tighter">Verified Traction.</h2>
+                    <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">Momentum & Build</p>
+                    <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter">Proven Delivery.</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-8 items-stretch">
-                    <!-- Founder Profile -->
-                    <div class="ui-card p-10 space-y-6 border-l-4 border-l-[var(--accent)]">
+                <div class="grid grid-cols-2 gap-10">
+                    <div class="ui-card p-10 space-y-8 border-l-8 border-l-[var(--accent)]">
                         <div class="flex items-center gap-6">
-                            <div class="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
-                                <span class="text-4xl font-black text-white">J</span>
-                            </div>
+                            <div class="w-20 h-20 rounded-2xl bg-[var(--accent)] flex items-center justify-center font-black text-4xl text-black">J</div>
                             <div>
-                                <h3 class="text-2xl font-black text-white uppercase">Joseph</h3>
-                                <p class="text-[var(--accent)] font-bold text-xs tracking-widest uppercase">Founder / Lead Engineer</p>
+                                <h4 class="text-3xl font-black text-white uppercase italic tracking-tighter">Joseph</h4>
+                                <p class="text-[var(--accent)] font-bold text-xs tracking-[0.3em] uppercase">Founder & Lead Engineer</p>
                             </div>
                         </div>
-                        <ul class="space-y-4 text-sm text-white/50">
+                        <ul class="space-y-4 text-sm text-white/40 font-light">
                             <li class="flex gap-4">
-                                <span class="text-[var(--accent)] text-lg">✦</span>
-                                <span><b>1 Year AI Security Engineer</b> — Specialized in adversarial defense.</span>
+                                <span class="text-[var(--accent)] font-black text-xl">✦</span>
+                                <span>AI Security & Adverse Defense Expert</span>
                             </li>
                             <li class="flex gap-4">
-                                <span class="text-[var(--accent)] text-lg">✦</span>
-                                <span><b>2 Years Web3 Product Manager</b> — Scaled decentralized infra.</span>
+                                <span class="text-[var(--accent)] font-black text-xl">✦</span>
+                                <span>Web3 Infrastructure & Production Specialist</span>
                             </li>
                             <li class="flex gap-4">
-                                <span class="text-[var(--accent)] text-lg">✦</span>
-                                <span><b>10+ Hackathon Wins</b> — Proven track record in rapid delivery.</span>
+                                <span class="text-[var(--accent)] font-black text-xl">✦</span>
+                                <span>10+ Global Hackathon Victories</span>
                             </li>
                         </ul>
                     </div>
-                    <!-- Hackathon Wins -->
-                    <div class="ui-card p-10 flex flex-col justify-between items-center text-center space-y-4 bg-white/5">
-                        <img src="C:\Users\PC_1M\.gemini\antigravity\brain\a7982fc5-ec3f-4f42-84f7-b714fd0a2090\media__1774261600205.png" alt="Tapestry Logo" class="h-16">
-                        <div class="space-y-2">
-                            <h4 class="text-2xl font-black text-white uppercase tracking-tighter">Hackathon Winner</h4>
-                            <p class="text-xs font-bold text-[var(--accent)] uppercase tracking-widest">1ST PLACE | TAPESTRY TRACK</p>
+                    <div class="ui-card p-10 flex flex-col justify-between items-center text-center space-y-4 bg-white/5 w-full">
+                        <img src="public/tapestry-logo.png" alt="Tapestry Logo" class="h-16 opacity-90">
+                        <div class="space-y-1">
+                            <h4 class="text-3xl font-black text-white uppercase italic tracking-tighter">Hackathon Winner</h4>
+                            <p class="text-[10px] font-black text-[var(--accent)] uppercase tracking-widest">1ST PLACE | TAPESTRY TRACK</p>
                         </div>
-                        <img src="C:\Users\PC_1M\.gemini\antigravity\brain\a7982fc5-ec3f-4f42-84f7-b714fd0a2090\media__1774261737379.jpg" class="h-32 object-contain rounded-xl opacity-60 grayscale hover:grayscale-0 transition-all" alt="Biotry Hackathon Display">
+                        <img src="public/hackathon-victory.jpg" class="h-32 object-contain rounded-xl opacity-80 hover:opacity-100 transition-opacity" alt="Biotry Hackathon Display">
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Slide 11: Business Revenue Model (DEDICATED & IMPROVED GRAPH) -->
+    <!-- Slide 10: Roadmap & Vision -->
     <section class="slide-container" id="slide-10">
         <div class="slide-content">
-            <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-12">
-                <div class="col-span-4 space-y-8 text-left">
-                    <div class="space-y-4">
-                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Monetization</p>
-                        <h2 class="text-4xl font-black text-white leading-[1.1] italic uppercase tracking-tighter">Revenue <br/><span class="text-gradient-orange">Architecture.</span></h2>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="p-5 bg-white/5 border border-white/10 rounded-2xl flex gap-6 items-center">
-                            <div class="w-12 h-12 rounded-xl bg-[var(--accent)] flex items-center justify-center font-black text-black text-xs">01</div>
-                            <p class="text-xs font-bold text-white/60 leading-tight">SIM_NODE / AI Simulation Fees <br/><span class="text-[10px] opacity-40 font-normal italic">On-demand data audit streams</span></p>
-                        </div>
-                        <div class="p-5 bg-white/5 border border-white/10 rounded-2xl flex gap-6 items-center">
-                            <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center font-black text-black text-xs">02</div>
-                            <p class="text-xs font-bold text-white/60 leading-tight">Protocol Settlement Tax (2%) <br/><span class="text-[10px] opacity-40 font-normal italic">On-chain IP-NFT sales & swaps</span></p>
-                        </div>
-                        <div class="p-5 bg-white/5 border border-white/10 rounded-2xl flex gap-6 items-center">
-                            <div class="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center font-black text-black text-xs">03</div>
-                            <p class="text-xs font-bold text-white/60 leading-tight">B2B Scientific Data Licensing <br/><span class="text-[10px] opacity-40 font-normal italic">Metadata for Pharma R&D & AI training</span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-span-8 h-[480px] ui-card p-12 flex flex-col justify-between relative overflow-hidden">
-                    <div class="flex justify-between items-center text-[10px] font-black tracking-[0.3em] text-white/20 uppercase z-10">
-                        <p>Projected Market Impact ($M)</p>
-                        <p>FY 2026 - 28</p>
-                    </div>
-                    <div class="relative flex-1 flex items-end justify-between gap-10 pt-20">
-                        <!-- Horizontal Grid Lines -->
-                        <div class="absolute inset-0 flex flex-col justify-between pointer-events-none pb-12 z-0">
-                            <div class="chart-line w-full"></div>
-                            <div class="chart-line w-full"></div>
-                            <div class="chart-line w-full"></div>
-                            <div class="chart-line w-full"></div>
-                        </div>
-
-                        <!-- NATURAL ASCENDING Bézier CURVE (SVG) -->
-                        <svg class="absolute inset-0 w-full h-full pointer-events-none z-20" preserveAspectRatio="none">
-                            <defs>
-                                <linearGradient id="lineGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#F6851B" stop-opacity="0.8" />
-                                    <stop offset="100%" stop-color="#FFAB5E" stop-opacity="1" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M 55 270 C 200 255, 340 145, 530 20" class="ascending-line" stroke="url(#lineGrad)" />
-
-
-                        </svg>
-                        
-                        <!-- Bar 1 -->
-                        <div class="flex-1 flex flex-col items-center gap-4 z-10">
-                            <p class="text-xs font-black text-white/40">$2.4M</p>
-                            <div class="chart-bar w-full" style="height: 15%"></div>
-                            <p class="text-[10px] font-black uppercase text-white/20 tracking-widest">Year 1</p>
-                        </div>
-                        <!-- Bar 2 -->
-                        <div class="flex-1 flex flex-col items-center gap-4 z-10">
-                            <p class="text-sm font-black text-[var(--accent)]">$18.5M</p>
-                            <div class="chart-bar w-full shadow-[0_0_40px_rgba(246,133,27,0.3)]" style="height: 48%"></div>
-                            <p class="text-[10px] font-black uppercase text-white/20 tracking-widest">Year 2</p>
-                        </div>
-                        <!-- Bar 3 -->
-                        <div class="flex-1 flex flex-col items-center gap-4 z-10">
-                            <p class="text-3xl font-black text-[var(--accent)]">$85.0M+</p>
-                            <div class="chart-bar w-full shadow-[0_0_60px_rgba(246,133,27,0.5)]" style="height: 100%"></div>
-                            <p class="text-[10px] font-black uppercase text-white/20 tracking-widest">Year 3</p>
-                        </div>
-                    </div>
-                    <!-- Glow Decoration -->
-                    <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-[var(--accent)]/10 blur-[100px] rounded-full"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Slide 12: The Key Value -->
-    <section class="slide-container" id="slide-11">
-        <div class="slide-content">
-            <div class="w-full max-w-7xl grid grid-cols-3 gap-8 text-center uppercase">
-                <div class="space-y-4">
-                    <div class="text-7xl font-black border-b border-white/10 pb-4">01</div>
-                    <h4 class="text-2xl font-black text-gradient-orange italic whitespace-nowrap">Research = Asset</h4>
-                    <p class="text-[10px] text-white/30 tracking-widest leading-relaxed">Your experimental history is <br/>on-chain institutional proof.</p>
-                </div>
-                <div class="space-y-4">
-                    <div class="text-7xl font-black border-b border-white/10 pb-4">02</div>
-                    <h4 class="text-2xl font-black text-white italic whitespace-nowrap">Reputation = Revenue</h4>
-                    <p class="text-[10px] text-white/30 tracking-widest leading-relaxed">Impact scores direct liquid <br/>capital into your funding pools.</p>
-                </div>
-                <div class="space-y-4">
-                    <div class="text-7xl font-black border-b border-white/10 pb-4">03</div>
-                    <h4 class="text-2xl font-black text-gradient-orange italic whitespace-nowrap">Social = Verification</h4>
-                    <p class="text-[10px] text-white/30 tracking-widest leading-relaxed">The graph itself serves as the <br/>ultimate truth machine.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Slide 13: Roadmap & Closing -->
-    <section class="slide-container" id="slide-12">
-        <div class="slide-content">
-            <div class="max-w-6xl w-full space-y-12">
-                <div class="text-center space-y-2">
-                    <h2 class="text-7xl font-black tracking-tighter leading-none text-white uppercase italic">Recode the <span class="text-gradient-orange uppercase">Simulation.</span></h2>
+            <div class="max-w-6xl w-full space-y-16">
+                <div class="text-center space-y-6">
+                    <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter leading-none m-0 p-0">Recode the <span class="text-gradient-orange uppercase inline-block -ml-2">Simulation.</span></h2>
                 </div>
                 <div class="grid grid-cols-3 gap-8">
-                    <div class="ui-card p-8 space-y-4 border-l-4 border-l-green-400">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                            <p class="text-xs font-black uppercase tracking-widest text-green-400">Phase 01 — Complete ✓</p>
-                        </div>
-                        <h4 class="font-black text-white">Genesis Launch</h4>
-                        <ul class="text-xs text-white/40 space-y-2">
-                            <li>✓ On-chain Research Journal (Solana Devnet)</li>
-                            <li>✓ 5-Agent AI War Room (Dynamic Analysis)</li>
-                            <li>✓ Full-Stack Production Deployment</li>
-                            <li>✓ Tapestry Social Graph Integration</li>
-                            <li>✓ Privy Embedded Wallet Auth</li>
-                        </ul>
+                    <div class="ui-card p-8 border-l-4 border-l-green-400 space-y-4">
+                        <p class="text-xs font-black uppercase text-green-400 tracking-widest">Phase 01 — Privacy</p>
+                        <h4 class="text-xl font-bold text-white uppercase italic tracking-tighter">Anonymous Grants</h4>
+                        <p class="text-xs text-white/30 leading-relaxed uppercase">Stealth Addresses. Solana Devnet POC. Grant Verification. ✅</p>
                     </div>
-                    <div class="ui-card p-8 space-y-4 border-l-4 border-l-[var(--accent)]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full bg-[var(--accent)] animate-pulse"></div>
-                            <p class="text-xs font-black uppercase tracking-widest text-[var(--accent)]">Phase 02 — In Progress</p>
-                        </div>
-                        <h4 class="font-black text-white">Ecosystem Growth</h4>
-                        <ul class="text-xs text-white/40 space-y-2">
-                            <li>→ Mainnet deployment & smart contract audit</li>
-                            <li>→ DAO governance & milestone funding</li>
-                            <li>→ IP-NFT fractionalization</li>
-                            <li>→ Colosseum Copilot deep integration</li>
-                            <li>→ 50+ Research Lab partnerships</li>
-                        </ul>
+                    <div class="ui-card p-8 border-l-4 border-l-[var(--accent)] space-y-4 shadow-[0_0_40px_rgba(246,133,27,0.1)]">
+                        <p class="text-xs font-black uppercase text-[var(--accent)] tracking-widest">Phase 02 — Intelligence</p>
+                        <h4 class="text-xl font-bold text-white uppercase italic tracking-tighter">AI War Room</h4>
+                        <p class="text-xs text-white/30 leading-relaxed uppercase italic font-bold">Multi-Agent Methodology Audits. Automated Grant Scoring. Institutional On-Ramps. 🚀</p>
                     </div>
-                    <div class="ui-card p-8 space-y-4 border-l-4 border-l-white/20">
-                        <div class="flex items-center gap-3">
-                            <div class="w-3 h-3 rounded-full bg-white/20"></div>
-                            <p class="text-xs font-black uppercase tracking-widest text-white/30">Phase 03 — Horizon</p>
-                        </div>
-                        <h4 class="font-black text-white">Liquid Science Economy</h4>
-                        <ul class="text-xs text-white/40 space-y-2">
-                            <li>→ Research as tradeable asset class</li>
-                            <li>→ B2B scientific data licensing</li>
-                            <li>→ Cross-chain DeSci interoperability</li>
-                            <li>→ $85M+ ARR target (Year 3)</li>
-                        </ul>
+                    <div class="ui-card p-8 border-l-4 border-l-white/20 space-y-4">
+                        <p class="text-xs font-black uppercase text-white/20 tracking-widest">Phase 03 — Mesh</p>
+                        <h4 class="text-xl font-bold text-white uppercase italic tracking-tighter">Discovery Mesh</h4>
+                        <p class="text-xs text-white/30 leading-relaxed uppercase">Expert Social Graph (Tapestry). Global Reputation Staking. Predictive Markets. 🌐</p>
                     </div>
+
                 </div>
                 <div class="flex justify-center items-center gap-48 pt-4">
                     <div class="text-center">
-                        <p class="text-xs font-black uppercase tracking-[0.5em] text-white/20">Live Now</p>
-                        <a href="https://biotry.vercel.app/" target="_blank" class="text-lg font-black text-[var(--accent)] uppercase hover:underline">biotry.vercel.app</a>
+                        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-white/20">Protocol Live</p>
+                        <a href="https://biotry.vercel.app" target="_blank" class="text-2xl font-black text-[var(--accent)] uppercase italic hover:underline">biotry.vercel.app</a>
                     </div>
                     <div class="text-center">
-                        <p class="text-xs font-black uppercase tracking-[0.5em] text-white/20">Connect</p>
-                        <a href="https://x.com/BiotryApp" target="_blank" class="text-lg font-black text-[var(--accent)] uppercase hover:underline">@BiotryApp</a>
+                        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-white/20">Connect</p>
+                        <a href="https://x.com/BiotryProtocol" target="_blank" class="text-2xl font-black text-white uppercase italic hover:underline">@BiotryProtocol</a>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Slide 14: The Liquid API Economy (Open Wallet Standard) -->
-    <section class="slide-container" id="slide-13">
-        <div class="slide-content">
-            <div class="w-full max-w-7xl grid grid-cols-2 gap-16 items-center">
-                <div class="space-y-8 text-left">
-                    <div class="space-y-4">
-                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Hackathon Track: Pay-Per-Call</p>
-                        <h2 class="text-6xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">The Liquid <br/><span class="text-gradient-orange">Science API.</span></h2>
-                    </div>
-                    <p class="text-xl text-white/40 leading-relaxed">Wrapping scientific datasets and AI War Room audits behind <b>x402 Micropayments</b>. No accounts, no subscriptions, just instant peer-review.</p>
-                    
-                    <div class="space-y-4 pt-6">
-                        <div class="flex items-center gap-4 text-white/60">
-                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
-                            <p class="text-sm font-bold uppercase tracking-widest">Micropayment Protocol (MPP) Ready</p>
-                        </div>
-                        <div class="flex items-center gap-4 text-white/60">
-                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
-                            <p class="text-sm font-bold uppercase tracking-widest">USDC native on Solana Devnet</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="ui-card p-12 bg-gradient-to-br from-zinc-800 to-black space-y-8 border-2 border-[#F6851B]/30 shadow-[0_0_80px_rgba(246,133,27,0.1)]">
-                    <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/30">
-                        <p>Request: GET /api/audit</p>
-                        <p class="text-[#F6851B]">402 Payment Required</p>
-                    </div>
-                    <div class="space-y-6">
-                        <div class="p-6 bg-black rounded-2xl font-mono text-xs text-white/80 space-y-2">
-                            <p class="text-blue-400">PAYMENT-REQUIRED:</p>
-                            <p>network=solana:devnet;</p>
-                            <p>amount=0.1; recipient=pvK3...</p>
-                            <p>token=USDC;</p>
-                        </div>
-                        <div class="h-px bg-white/10 w-full"></div>
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-1">
-                                <p class="text-2xl font-black text-white">$0.10</p>
-                                <p class="text-[9px] text-white/30 uppercase font-black tracking-widest uppercase">Vs $35.00 Traditional</p>
-                            </div>
-                            <div class="px-6 py-2.5 bg-[#F6851B] rounded-full text-black font-black text-[10px] uppercase tracking-widest italic animate-pulse">Live API Economy</div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>

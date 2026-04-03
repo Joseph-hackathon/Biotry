@@ -1,8 +1,9 @@
 import React from 'react';
-import { CheckCircle2, XCircle, ExternalLink, X, FlaskConical, Activity, User, ShieldCheck, Zap } from 'lucide-react';
+import { CheckCircle2, XCircle, ExternalLink, X, FlaskConical, Activity, User, ShieldCheck, Zap, Fingerprint } from 'lucide-react';
+
 import { clsx } from 'clsx';
 
-export type TransactionCategory = 'DAO_JOIN' | 'UPVOTE' | 'PUBLISH' | 'DAO_INIT' | 'GENERIC';
+export type TransactionCategory = 'NETWORK_IDENTITY' | 'UPVOTE' | 'PUBLISH' | 'PROTOCOL_INIT' | 'ANONYMOUS_GRANT' | 'GENERIC';
 
 interface TransactionModalProps {
     isOpen: boolean;
@@ -15,12 +16,14 @@ interface TransactionModalProps {
 }
 
 const CATEGORY_MAP: Record<TransactionCategory, { label: string; icon: any; color: string; glow: string }> = {
-    DAO_JOIN: { label: 'DAO MEMBERSHIP', icon: User, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/20' },
+    NETWORK_IDENTITY: { label: 'NETWORK IDENTITY ACTIVATION', icon: User, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/20' },
     UPVOTE: { label: 'RESEARCH UPVOTE', icon: Activity, color: 'text-[#F6851B]', glow: 'bg-[#F6851B]/20' },
     PUBLISH: { label: 'RESEARCH PUBLISH', icon: FlaskConical, color: 'text-[#F6851B]', glow: 'bg-[#F6851B]/20' },
-    DAO_INIT: { label: 'DAO INITIALIZATION', icon: ShieldCheck, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/20' },
+    PROTOCOL_INIT: { label: 'PROTOCOL INITIALIZATION', icon: ShieldCheck, color: 'text-[#A78BFA]', glow: 'bg-[#7C3AED]/20' },
+    ANONYMOUS_GRANT: { label: 'UMBRA ANONYMOUS GRANT', icon: Fingerprint, color: 'text-[#F6851B]', glow: 'bg-[#F6851B]/20' },
     GENERIC: { label: 'INTERACTION', icon: Zap, color: 'text-white/50', glow: 'bg-white/5' },
 };
+
 
 const TransactionModal: React.FC<TransactionModalProps> = ({
     isOpen,

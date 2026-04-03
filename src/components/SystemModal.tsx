@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Info, CheckCircle2, AlertTriangle, AlertCircle, LucideIcon, Zap } from 'lucide-react';
+import { X, Info, CheckCircle2, AlertTriangle, AlertCircle, LucideIcon, Zap, ArrowUpRight } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export type SystemModalType = 'info' | 'success' | 'warning' | 'error';
@@ -10,6 +10,8 @@ interface SystemModalProps {
     type: SystemModalType;
     title: string;
     message: string;
+    actionLink?: string;
+    actionLabel?: string;
 }
 
 const TYPE_CONFIG: Record<SystemModalType, { icon: LucideIcon; color: string; glow: string; border: string }> = {
@@ -24,7 +26,9 @@ const SystemModal: React.FC<SystemModalProps> = ({
     onClose,
     type,
     title,
-    message
+    message,
+    actionLink,
+    actionLabel
 }) => {
     if (!isOpen) return null;
 
@@ -74,14 +78,28 @@ const SystemModal: React.FC<SystemModalProps> = ({
                         </p>
                     </div>
 
-                    {/* Action */}
-                    <button
-                        onClick={onClose}
-                        className="btn-metamask h-16 w-full flex items-center justify-center text-[11px] font-bold uppercase tracking-widest shadow-2xl transition-all active:scale-95 px-8"
-                    >
-                        <Zap className="w-4 h-4 mr-2" />
-                        ACKNOWLEDGE_RECEIPT
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={onClose}
+                            className="btn-metamask h-16 w-full flex items-center justify-center text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-95 px-8"
+                        >
+                            <Zap className="w-4 h-4 mr-2" />
+                            ACKNOWLEDGE_RECEIPT
+                        </button>
+
+                        {actionLink && (
+                            <a
+                                href={actionLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={onClose}
+                                className="w-full h-14 flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-2xl text-[9px] font-bold text-white/40 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
+                            >
+                                {actionLabel || 'VIEW_ON_EXPLORER'}
+                                <ArrowUpRight className="w-3 h-3" />
+                            </a>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

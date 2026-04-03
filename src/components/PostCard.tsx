@@ -22,6 +22,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { voteOnProposal: upvotePost } = useAppContext();
     const { connection, solanaAddress, isReady, program } = useSolana();
     const navigate = useNavigate();
+    
+    // Real-time state
+    const [postData, setPostData] = useState(post);
+    const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
     
     // Modal State
@@ -30,15 +34,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         type: SystemModalType;
         title: string;
         message: string;
+        actionLink?: string;
     }>({
         isOpen: false,
         type: 'info',
         title: '',
-        message: ''
+        message: '',
+        actionLink: ''
     });
 
-    const showModal = (type: SystemModalType, title: string, message: string) => {
-        setModalConfig({ isOpen: true, type, title, message });
+    const showModal = (type: SystemModalType, title: string, message: string, actionLink?: string) => {
+        setModalConfig({ isOpen: true, type, title, message, actionLink });
     };
 
     const handleLike = async (e: React.MouseEvent) => {
@@ -70,12 +76,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
         setIsFunding(true);
         try {
-            // OWS Micropayment: 1.0 USDC equivalent (0.01 SOL for hackathon demo speed)
+            // OWS Micropayment: Dynamic amount
+            const lamports = 0.01 * fundingAmount * LAMPORTS_PER_SOL;
             const recipientPubKey = new PublicKey('pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5');
             const instruction = SystemProgram.transfer({
                 fromPubkey: new PublicKey(solanaAddress),
                 toPubkey: recipientPubKey,
-                lamports: 0.01 * LAMPORTS_PER_SOL,
+                lamports: lamports,
             });
 
             const transaction = new Transaction().add(instruction);
@@ -99,7 +106,20 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             });
 
             if (res.ok) {
-                showModal('success', 'FUNDING_VERIFIED', 'Your 1.0 USDC contribution has been proven on-chain. Thank you for supporting open research!');
+                // Real-time UI Update
+                setPostData(prev => ({
+                    ...prev,
+                    fundUSDC: (prev.fundUSDC || 0) + fundingAmount,
+                    fundCount: (prev.fundCount || 0) + 1
+                }));
+
+                const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+                showModal(
+                    'success', 
+                    'FUNDING_PROVEN_ON_CHAIN', 
+                    `Your $${fundingAmount.toFixed(2)} contribution has been verified. Thank you for accelerating open science!`,
+                    explorerLink
+                );
             } else {
                 const errData = await res.json();
                 throw new Error(errData.detail || 'Backend failed to verify funding');
@@ -112,7 +132,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         }
     };
 
-    const fundingPercentage = Math.min(((post.fundUSDC || 0) / (post.fundingGoal || 100)) * 100, 100);
+    const fundingPercentage = Math.min(((postData.fundUSDC || 0) / (postData.fundingGoal || 100)) * 100, 100);
 
     return (
         <article 
@@ -125,6 +145,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 type={modalConfig.type}
                 title={modalConfig.title}
                 message={modalConfig.message}
+                actionLink={modalConfig.actionLink}
+                actionLabel="VIEW_ON_SOLANA_EXPLORER"
             />
 
             {/* Hover Glow Effect */}
@@ -167,7 +189,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <div className="flex justify-between items-end">
                     <div className="space-y-1">
                         <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Scientific Funding</p>
-                        <p className="text-[14px] font-bold text-white">${post.fundUSDC?.toFixed(2) || '0.00'} <span className="text-[10px] opacity-40">/ ${post.fundingGoal || 100}</span></p>
+                        <p className="text-[14px] font-bold text-white">${postData.fundUSDC?.toFixed(2) || '0.00'} <span className="text-[10px] opacity-40">/ ${postData.fundingGoal || 100}</span></p>
                     </div>
                     <p className="text-[10px] font-black text-[#F6851B]">{fundingPercentage.toFixed(0)}%</p>
                 </div>
@@ -190,28 +212,47 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 ))}
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
-                <button 
-                    onClick={handleSimulate}
-                    className="flex-1 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-all group/sim shadow-lg"
-                >
-                    <Zap className="w-3.5 h-3.5 fill-current" />
-                    Audit
-                </button>
-                <button 
-                    onClick={handleFund}
-                    disabled={isFunding}
-                    className="flex-1 h-11 bg-[#F6851B] border border-[#F6851B]/30 rounded-2xl flex items-center justify-center gap-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:shadow-[0_0_20px_#F6851B] transition-all disabled:opacity-50"
-                >
-                    {isFunding ? <Info className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
-                    Fund USDC
-                </button>
-                <button 
-                    onClick={handleLike}
-                    className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-[#F6851B] hover:bg-[#F6851B]/10 hover:border-[#F6851B]/30 transition-all"
-                >
-                    <ArrowBigUp className="w-5 h-5" />
-                </button>
+            <div className="space-y-3 pt-2">
+                {/* Amount Selector */}
+                <div className="flex gap-2 p-1.5 bg-black/40 border border-white/5 rounded-[18px]">
+                    {[1, 5, 10, 50].map(amt => (
+                        <button
+                            key={amt}
+                            onClick={(e) => { e.stopPropagation(); setFundingAmount(amt); }}
+                            className={clsx(
+                                "flex-1 h-9 rounded-[12px] text-[10px] font-black tracking-widest transition-all",
+                                fundingAmount === amt 
+                                    ? "bg-[#F6851B] text-black shadow-[0_4px_15px_rgba(246,133,27,0.3)]" 
+                                    : "text-white/30 hover:text-white/60 hover:bg-white/5"
+                            )}
+                        >
+                            ${amt}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={handleSimulate}
+                        className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-[#7C3AED] hover:bg-[#7C3AED]/10 transition-all group/sim"
+                    >
+                        <Zap className="w-5 h-5 fill-current" />
+                    </button>
+                    <button 
+                        onClick={handleFund}
+                        disabled={isFunding}
+                        className="flex-1 h-12 bg-[#F6851B] border border-[#F6851B]/30 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-black hover:shadow-[0_0_25px_#F6851B] transition-all disabled:opacity-50"
+                    >
+                        {isFunding ? <Info className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
+                        Support ${fundingAmount}
+                    </button>
+                    <button 
+                        onClick={handleLike}
+                        className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-[#F6851B] hover:bg-[#F6851B]/10 transition-all"
+                    >
+                        <ArrowBigUp className="w-6 h-6" />
+                    </button>
+                </div>
             </div>
         </article>
     );

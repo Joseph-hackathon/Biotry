@@ -24,10 +24,15 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const { connection, solanaAddress, isReady, program } = useSolana();
     const postComments = allComments[post.id] || [];
     const navigate = useNavigate();
-    const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
-    const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
-    const [newComment, setNewComment] = useState('');
+
+    // Real-time state
+    const [postData, setPostData] = useState(post);
+    const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
+    const [newComment, setNewComment] = useState('');
+    const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
+
+    const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
 
     // Modal State
     const [modalConfig, setModalConfig] = useState<{
@@ -35,15 +40,17 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         type: SystemModalType;
         title: string;
         message: string;
+        actionLink?: string;
     }>({
         isOpen: false,
         type: 'info',
         title: '',
-        message: ''
+        message: '',
+        actionLink: ''
     });
 
-    const showModal = (type: SystemModalType, title: string, message: string) => {
-        setModalConfig({ isOpen: true, type, title, message });
+    const showModal = (type: SystemModalType, title: string, message: string, actionLink?: string) => {
+        setModalConfig({ isOpen: true, type, title, message, actionLink });
     };
 
     const AGENTS = ['Dr. Bio', 'Solana Architect', 'ZK Shadow', 'Codama Bot', 'Colosseum Strategist'];
@@ -62,11 +69,12 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
         setIsFunding(true);
         try {
+            const lamports = 0.01 * fundingAmount * LAMPORTS_PER_SOL;
             const recipientPubKey = new PublicKey('pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5');
             const instruction = SystemProgram.transfer({
                 fromPubkey: new PublicKey(solanaAddress),
                 toPubkey: recipientPubKey,
-                lamports: 0.01 * LAMPORTS_PER_SOL,
+                lamports: lamports,
             });
 
             const transaction = new Transaction().add(instruction);
@@ -88,7 +96,20 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             });
 
             if (res.ok) {
-                showModal('success', 'FUNDING_VERIFIED', 'Your 1.0 USDC contribution has been proven on-chain. Thank you for supporting open research!');
+                // Real-time local update
+                setPostData(prev => ({
+                    ...prev,
+                    fundUSDC: (prev.fundUSDC || 0) + fundingAmount,
+                    fundCount: (prev.fundCount || 0) + 1
+                }));
+
+                const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+                showModal(
+                    'success', 
+                    'FUNDING_PROVEN_ON_CHAIN', 
+                    `Your $${fundingAmount.toFixed(2)} contribution has been verified on-chain. Thank you for supporting this research node!`,
+                    explorerLink
+                );
             } else {
                 const errData = await res.json();
                 throw new Error(errData.detail || 'Backend failed to verify funding');
@@ -108,7 +129,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         setNewComment('');
     };
 
-    const fundingPercentage = Math.min(((post.fundUSDC || 0) / (post.fundingGoal || 100)) * 100, 100);
+    const fundingPercentage = Math.min(((postData.fundUSDC || 0) / (postData.fundingGoal || 100)) * 100, 100);
 
     return (
         <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-700">
@@ -187,43 +208,27 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row items-center gap-4 relative z-50 w-full xl:w-auto">
-                    {/* Agent Selection Dropdown */}
-                    <div className="relative w-full sm:w-64 z-50">
-                         <button 
-                            onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
-                            className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 flex items-center justify-between hover:bg-white/10 transition-all group"
-                         >
-                            <div className="text-left">
-                                <p className="text-[10px] font-black text-[#F6851B] uppercase tracking-widest">Select Lead Agent</p>
-                                <p className="text-sm font-bold text-white uppercase">{selectedLeadAgent}</p>
-                            </div>
-                            <ChevronRight className={clsx("w-5 h-5 text-white/20 transition-transform", isAgentMenuOpen ? "rotate-90" : "")} />
-                         </button>
-
-                         {isAgentMenuOpen && (
-                             <div className="absolute top-full mt-3 left-0 w-full bg-[#121212] border border-white/10 rounded-2xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 z-[100] backdrop-blur-xl">
-                                 {AGENTS.map((agent) => (
-                                     <button 
-                                        key={agent}
-                                        onClick={() => {
-                                            setSelectedLeadAgent(agent);
-                                            setIsAgentMenuOpen(false);
-                                        }}
-                                        className={clsx(
-                                            "w-full text-left px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-tight transition-all",
-                                            selectedLeadAgent === agent ? "bg-[#F6851B] text-black" : "text-white/60 hover:text-white hover:bg-white/5"
-                                        )}
-                                     >
-                                         {agent}
-                                     </button>
-                                 ))}
-                             </div>
-                         )}
+                    {/* Amount Selector */}
+                    <div className="flex gap-2 p-1.5 bg-black/40 border border-white/10 rounded-2xl w-full sm:w-auto">
+                        {[1, 10, 50].map(amt => (
+                            <button
+                                key={amt}
+                                onClick={() => setFundingAmount(amt)}
+                                className={clsx(
+                                    "flex-1 h-12 px-4 rounded-xl text-[10px] font-black tracking-widest transition-all",
+                                    fundingAmount === amt 
+                                        ? "bg-[#F6851B] text-black shadow-xl" 
+                                        : "text-white/30 hover:text-white/60 hover:bg-white/5"
+                                )}
+                            >
+                                ${amt}
+                            </button>
+                        ))}
                     </div>
 
                     <button 
                         onClick={() => navigate(`/node/${post.id}/simulate?lead=${selectedLeadAgent}`)}
-                        className="flex-1 h-16 px-8 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/20 transition-all shadow-2xl"
+                        className="h-16 px-8 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-all"
                     >
                         AUDIT
                     </button>
@@ -234,7 +239,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         className="btn-metamask h-16 px-10 text-[10px] uppercase font-black tracking-[0.2em] w-full sm:w-auto flex items-center justify-center gap-3"
                     >
                         {isFunding ? <Info className="w-4 h-4 animate-spin text-black" /> : <Coins className="w-4 h-4 text-black" />}
-                        SUPPORT NODE
+                        SUPPORT ${fundingAmount}
                     </button>
                 </div>
             </div>
@@ -254,11 +259,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         <div className="flex justify-between items-end">
                             <div className="space-y-1">
                                 <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Scientific Funding Program</p>
-                                <p className="text-3xl font-bold text-white">${post.fundUSDC?.toFixed(2) || '0.00'} <span className="text-sm opacity-30">/ ${post.fundingGoal || 100} GOAL</span></p>
+                                <p className="text-3xl font-bold text-white">${postData.fundUSDC?.toFixed(2) || '0.00'} <span className="text-sm opacity-30">/ ${postData.fundingGoal || 100} GOAL</span></p>
                             </div>
                             <div className="text-right">
                                 <p className="text-2xl font-black text-[#F6851B]">{fundingPercentage.toFixed(0)}%</p>
-                                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{post.fundCount || 0} CONTRIBUTORS</p>
+                                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{postData.fundCount || 0} CONTRIBUTORS</p>
                             </div>
                         </div>
                         <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">

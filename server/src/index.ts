@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
 import { x402Middleware } from './middleware/x402';
+import { initializeAgentWallet, signAgentAudit } from './lib/agentWallet';
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ app.get('/api/posts/:id/audit', x402Middleware, async (req, res) => {
     
     // In a real app, this would trigger the actual AI War Room simulation.
     // For the hackathon demo, we return the high-value audit metrics.
-    res.json({
+    const auditResult = {
       postId: id,
       auditStatus: 'VERIFIED',
       metrics: {
@@ -40,6 +41,15 @@ app.get('/api/posts/:id/audit', x402Middleware, async (req, res) => {
         { agent: 'Dr. Bio', report: 'Positive gap analysis. Novel methodology in ZK-Graph.' },
         { agent: 'Solana Architect', report: 'Efficient PDA structure. Gas optimized.' }
       ]
+    };
+
+    // Deep OWS Integration: Sign the audit with the Agent's Sovereign Wallet
+    const { signature, address } = await signAgentAudit(auditResult);
+
+    res.json({
+      ...auditResult,
+      agentAddress: address,
+      agentSignature: signature
     });
   } catch (error) {
     res.status(500).json({ error: 'Audit failed' });
@@ -118,7 +128,14 @@ app.get('/api/leaderboard', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Biotry Backend running on port ${PORT}`);
   console.log(`DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
+  
+  // Initialize Open Wallet Standard Agent Identity
+  try {
+    await initializeAgentWallet();
+  } catch (e) {
+    console.error('Failed to init Agent Wallet:', e);
+  }
 });

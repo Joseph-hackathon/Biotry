@@ -17,6 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@open-wallet-standard/core": "^1.2.0",
     "@prisma/client": "^5.22.0",
     "@solana/web3.js": "^1.98.4",
     "cors": "^2.8.6",

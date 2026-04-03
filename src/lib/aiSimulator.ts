@@ -48,6 +48,8 @@ export interface ResearchAnalysis {
     agentReports: AgentReport[];
     steps: SimulationStep[];
     result: SimulationResult;
+    agentAddress?: string;
+    agentSignature?: string;
 }
 
 interface ColosseumProject {
@@ -246,6 +248,8 @@ const generateSimulationResult = async (post: Post, leadAgent?: string, auditDat
                 market: hasCompetitors ? `Medium — ${colosseumContext.projects.length} incumbents may pivot to the ${field} niche.` : `Low — Blue ocean in ${field} with no direct on-chain competition currently.`,
                 execution: `Low — The methodology in "${post.title}" is well-defined. Primary challenge is academic community adoption of on-chain verification workflows.`
             }
-        }
+        },
+        agentAddress: auditData?.agentAddress,
+        agentSignature: auditData?.agentSignature
     };
 };

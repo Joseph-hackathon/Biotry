@@ -600,6 +600,42 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                              </div>
                                          </div>
 
+                                         {/* OWS Agent Signature - Proof of Authenticity */}
+                                         {analysis.agentSignature && (
+                                             <div className="p-14 border-2 border-[#F6851B]/30 rounded-[56px] bg-[#F6851B]/5 backdrop-blur-3xl space-y-10 relative overflow-hidden group mb-12">
+                                                 <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#F6851B]/10 blur-[100px] rounded-full group-hover:bg-[#F6851B]/20 transition-all duration-1000" />
+                                                 <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative">
+                                                     <div className="flex items-center gap-8 flex-1">
+                                                         <div className="p-6 bg-[#F6851B] rounded-[32px] shadow-[0_0_50px_rgba(246,133,27,0.3)] animate-pulse">
+                                                             <Shield className="w-10 h-10 text-black" />
+                                                         </div>
+                                                         <div className="space-y-3">
+                                                             <div className="flex items-center gap-3">
+                                                                 <h4 className="text-[10px] text-[#F6851B] font-black uppercase tracking-[0.5em]">Authenticity Verified</h4>
+                                                                 <div className="px-3 py-1 bg-[#F6851B]/20 border border-[#F6851B]/30 rounded-full">
+                                                                     <p className="text-[8px] font-black text-[#F6851B] uppercase tracking-widest">OWS_CORE_V1.2</p>
+                                                                 </div>
+                                                             </div>
+                                                             <p className="text-3xl font-black tracking-tight text-white">Agent Sovereign Identity</p>
+                                                             <p className="text-white/50 font-medium">This scientific audit has been cryptographically signed by the Biotry Audit Agent.</p>
+                                                         </div>
+                                                     </div>
+                                                     <div className="w-full lg:w-auto p-8 bg-black/40 border border-white/10 rounded-[32px] space-y-4 font-mono min-w-[320px]">
+                                                         <div className="space-y-1">
+                                                             <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Agent Address</p>
+                                                             <p className="text-[11px] text-white/70 break-all">{analysis.agentAddress}</p>
+                                                         </div>
+                                                         <div className="space-y-1">
+                                                             <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Digital Signature</p>
+                                                             <p className="text-[11px] text-[#F6851B] break-all border-l-2 border-[#F6851B]/40 pl-4">
+                                                                 {analysis.agentSignature.slice(0, 32)}...{analysis.agentSignature.slice(-32)}
+                                                             </p>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         )}
+
                                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                                              {/* 2. Market Landscape Detail */}
                                              <div className="p-14 border border-white/10 rounded-[56px] bg-zinc-900/30 backdrop-blur-3xl space-y-10 group hover:border-[#F6851B]/30 transition-colors duration-500">

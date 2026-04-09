@@ -137,9 +137,10 @@ app.get('/api/posts', async (req, res) => {
     const serializedPosts = posts.map((post: any) => ({
       ...post,
       timestamp: post.timestamp ? Number(post.timestamp) : Date.now(),
-      fundUSDC: post.fundUSDC ?? 0,
-      fundCount: post.fundCount ?? 0,
-      fundingGoal: post.fundingGoal ?? 100
+      // Remove silent 0 fallback to ensure data integrity issues are visible
+      fundUSDC: post.fundUSDC,
+      fundCount: post.fundCount,
+      fundingGoal: post.fundingGoal || 100
     }));
 
     res.json(serializedPosts);
@@ -251,18 +252,18 @@ app.listen(PORT, async () => {
   
   // Background Database Synchronization: Fixes 502 Bad Gateway and 409 Conflict Persistence Failures
   if (process.env.DATABASE_URL) {
-    console.log('[Background Sync] Initializing database schema update...');
+    console.log('[DATABASE] Initializing schema update (prisma db push)...');
     exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
       if (error) {
-        console.error(`[Background Sync] CRITICAL ERROR: ${error.message}`);
-        console.error(`[Background Sync] STACK: ${error.stack}`);
+        console.error(`[DATABASE] CRITICAL MIGRATION ERROR: ${error.message}`);
         return;
       }
-      if (stderr) {
-        console.warn(`[Background Sync] SCHEMA WARNING: ${stderr}`);
+      if (stderr && stderr.includes('Error')) {
+        console.error(`[DATABASE] MIGRATION FAILED: ${stderr}`);
+      } else {
+        console.log(`[DATABASE] MIGRATION SUCCESSFUL: ${stdout}`);
+        console.log(`[DATABASE] Schema is now up-to-date with funding columns.`);
       }
-      console.log(`[Background Sync] DATABASE SYNC COMPLETE: ${stdout}`);
-      console.log(`[Background Sync] Schema is now up-to-date with Post funding columns.`);
     });
   }
 

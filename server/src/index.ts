@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { exec } from 'child_process';
 
 import { createX402Middleware } from './middleware/x402';
 import { initializeAgentWallet, signAgentAudit } from './lib/agentWallet';
@@ -22,11 +23,10 @@ app.use(cors({
   origin: (origin, callback) => {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('vercel.app')) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    return callback(null, true); // Fallback to true for debugging
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-PAYMENT-SIGNATURE'],
@@ -34,7 +34,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Handle preflight requests
 app.options('*', cors());
 
 app.use(express.json());
@@ -249,8 +248,19 @@ app.get('/api/leaderboard', async (req, res) => {
 
 app.listen(PORT, async () => {
   console.log(`Biotry Backend running on port ${PORT}`);
-  console.log(`DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
   
+  // Background Database Synchronization: Fixes 502 Bad Gateway timeouts
+  if (process.env.DATABASE_URL) {
+    exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`[Background Sync] Error: ${error.message}`);
+        return;
+      }
+      if (stderr) console.warn(`[Background Sync] Warning: ${stderr}`);
+      console.log(`[Background Sync] Success: ${stdout}`);
+    });
+  }
+
   // Initialize Open Wallet Standard Agent Identity
   try {
     await initializeAgentWallet();

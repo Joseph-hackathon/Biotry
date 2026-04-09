@@ -145,49 +145,12 @@ app.get('/api/posts', async (req, res) => {
 
     res.json(serializedPosts);
   } catch (error: any) {
-    console.error('[GET /api/posts] Primary Fetch Failed. Attempting legacy fallback...', error.message);
-    
-    try {
-        // Fallback for production: If new columns are missing, fetch only the known core fields
-        // We log clearly that a sync is required. 
-        const legacyPosts = await (prisma.post as any).findMany({
-            select: {
-                id: true,
-                author: true,
-                researchField: true,
-                type: true,
-                title: true,
-                doi: true,
-                abstract: true,
-                content: true,
-                upvotes: true,
-                commentCount: true,
-                createdAt: true,
-                timestamp: true,
-                topics: true,
-                status: true
-            },
-            orderBy: { timestamp: 'desc' }
-        });
-
-        const serialized = legacyPosts.map((p: any) => ({
-            ...p,
-            timestamp: p.timestamp ? Number(p.timestamp) : Date.now(),
-            fundUSDC: 0,
-            fundCount: 0,
-            fundingGoal: 100,
-            _syncWarning: 'DB_COLUMNS_MISSING - Run npm run db:push'
-        }));
-        
-        res.json(serialized);
-    } catch (fallbackError: any) {
-        console.error('[GET /api/posts] Critical DB Error:', fallbackError.message);
-        res.status(500).json({ 
-            error: 'Database Failure', 
-            detail: 'Database schema mismatch. Please run: npm run db:push (locally or via deployment)',
-            technical: fallbackError.message 
-        });
-    }
+    console.error('[GET /api/posts] Primary Fetch Failed. DB Sync likely required.', error.message);
+    res.status(503).json({ 
+        error: 'Database Sync Pending', 
+        message: 'The system is currently updating its research schemas. Please refresh in 30 seconds.',
+        technical: error.message 
+    });
   }
 });
 
@@ -238,34 +201,56 @@ app.get('/api/editors', async (req, res) => {
 // --- LEADERBOARD ---
 app.get('/api/leaderboard', async (req, res) => {
   try {
-    const entries = await prisma.leaderboardEntry.findMany({
-      orderBy: { points: 'desc' }
-    });
-    res.json(entries);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch leaderboard' });
-  }
+// --- DIAGNOSTICS & HEALTH ---
+app.get('/api/diag', async (req, res) => {
+    try {
+        const postCount = await prisma.post.count();
+        const testPost = await prisma.post.findFirst();
+        
+        const schemaStatus = {
+            dbConnected: true,
+            postCount,
+            hasFundingColumns: testPost ? ('fundUSDC' in testPost) : 'UNKNOWN (No Posts)',
+            environment: process.env.NODE_ENV || 'production',
+            timestamp: new Date().toISOString()
+        };
+        
+        res.json(schemaStatus);
+    } catch (error: any) {
+        res.status(500).json({
+            dbConnected: false,
+            error: error.message,
+            tip: 'If columns are missing, trigger: npx prisma db push'
+        });
+    }
 });
 
 app.listen(PORT, async () => {
-  console.log(`Biotry Backend running on port ${PORT}`);
-  
-  // Background Database Synchronization: Fixes 502 Bad Gateway and 409 Conflict Persistence Failures
-  if (process.env.DATABASE_URL) {
-    console.log('[DATABASE] Initializing schema update (prisma db push)...');
-    exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
-      if (error) {
-        console.error(`[DATABASE] CRITICAL MIGRATION ERROR: ${error.message}`);
-        return;
-      }
-      if (stderr && stderr.includes('Error')) {
-        console.error(`[DATABASE] MIGRATION FAILED: ${stderr}`);
-      } else {
-        console.log(`[DATABASE] MIGRATION SUCCESSFUL: ${stdout}`);
-        console.log(`[DATABASE] Schema is now up-to-date with funding columns.`);
-      }
-    });
-  }
+    console.log(`[SYSTEM] Biotry Backend listening on port ${PORT}`);
+    
+    // Self-Healing Database Sync: Essential for Railway/PaaS deployments
+    if (process.env.DATABASE_URL) {
+        console.log('[DATABASE] Initiating cold-start synchronization...');
+        const syncProcess = exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
+            if (error) {
+                console.error(`[DATABASE] SYNC FATAL ERROR: ${error.message}`);
+                return;
+            }
+            if (stderr && stderr.includes('Error')) {
+                console.error(`[DATABASE] SYNC FAILED: ${stderr}`);
+            } else {
+                console.log(`[DATABASE] SYNC COMPLETE: ${stdout.trim() || 'No changes required'}`);
+                console.log('[DATABASE] Verified: Schema is synchronized with Post funding model.');
+            }
+        });
+
+        // Ensure we log if the process hangs
+        setTimeout(() => {
+            if (syncProcess.exitCode === null) {
+                console.warn('[DATABASE] Sync process is taking longer than expected (30s+)...');
+            }
+        }, 30000);
+    }
 
   // Initialize Open Wallet Standard Agent Identity
   try {

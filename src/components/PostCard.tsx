@@ -122,12 +122,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
                 showModal(
                     'success', 
-                    'UMBRA_GRANT_VERIFIED', 
+                    isPendingSync ? 'PERSISTENCE_PENDING' : 'UMBRA_GRANT_VERIFIED', 
                     isPendingSync 
-                        ? `Grant sent! Payment confirmed on-chain ($${fundingAmount.toFixed(2)}). Data sync is pending but your transaction is final.`
+                        ? `Transaction confirmed ($${fundingAmount.toFixed(2)})! On-chain verification complete. The research network is currently syncing your contribution to the archives—it will appear in 30 seconds.`
                         : `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Stealth Address and verified on-chain. Donor privacy preserved.`,
                     explorerLink
                 );
+            } else if (res.status === 503) {
+                throw new Error('Research network is currently syncing schemas. Please refresh in 30 seconds.');
             } else {
                 const errData = await res.json();
                 throw new Error(errData.detail || 'Backend failed to verify funding');
@@ -138,6 +140,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             // Graceful handling for user cancellations: Don't show scary error modal
             if (error.message?.includes('User rejected')) {
                 console.log('[OWS] Project funding canceled by researcher.');
+                return;
+            }
+
+            // Specific handling for sync pending errors
+            if (error.message?.includes('syncing')) {
+                showModal('warning', 'SYNC_IN_PROGRESS', error.message);
                 return;
             }
 

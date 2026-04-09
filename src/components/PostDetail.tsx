@@ -95,7 +95,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             
             await connection.confirmTransaction(signature, 'confirmed');
 
-            const res = await fetch(`${process.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app'}/api/posts/${post.id}/fund`, {
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app';
+            const res = await fetch(`${baseUrl}/api/posts/${post.id}/fund`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

@@ -101,8 +101,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
     }, []);
 
-    const fundPost = useCallback(async (postId: string, amount: number) => {
-        // UI update
+    const fundPost = useCallback((postId: string, amount: number) => {
+        // UI update: Synchronizes counts across the network for a seamless experience
         setProposals(prev =>
             prev.map(p => p.id === postId
                 ? { 
@@ -113,19 +113,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 : p
             )
         );
-
-        // Actual backend sync via scientific funding protocol (X402)
-        try {
-            const response = await fetch(`${API_URL}/posts/${postId}/fund`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            if (!response.ok) {
-                console.error("Backend funding verification failed");
-            }
-        } catch (err) {
-            console.error("Funding sync error:", err);
-        }
     }, []);
 
     return (

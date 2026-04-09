@@ -100,17 +100,43 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     const connection = useMemo(() => {
-        const endpoint = network === 'localhost' ? 'http://127.0.0.1:8899' : clusterApiUrl(network);
-        return new Connection(endpoint, 'confirmed');
+        // Use a more robust endpoint structure if on devnet
+        const endpoint = network === 'localhost' 
+            ? 'http://127.0.0.1:8899' 
+            : (network === 'devnet' ? 'https://api.devnet.solana.com' : clusterApiUrl(network));
+        
+        return new Connection(endpoint, {
+            commitment: 'confirmed',
+            disableRetryOnRateLimit: false, // Ensure internal retries are enabled
+            confirmTransactionInitialTimeout: 60000
+        });
     }, [network]);
+
+    const lastRefreshRef = useRef<number>(0);
+    const THROTTLE_MS = 2000; // 2 second throttle
 
     const refreshBalance = async () => {
         if (!solanaAddress) return;
+        
+        const now = Date.now();
+        if (now - lastRefreshRef.current < THROTTLE_MS) {
+            console.log('[Solana] Skipping balance refresh (throttled)');
+            return;
+        }
+        
         try {
+            lastRefreshRef.current = now;
             const bal = await connection.getBalance(new PublicKey(solanaAddress));
             setBalance(bal / 1e9);
-        } catch (e) {
+        } catch (e: any) {
             console.error('[Solana] Balance fetch failed:', e);
+            if (e.message?.includes('429')) {
+                showSystemModal({
+                    type: 'warning',
+                    title: 'Network Congestion',
+                    message: 'Solana Devnet is currently experiencing high traffic. Some data might be delayed.'
+                });
+            }
         }
     };
 
@@ -188,7 +214,9 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
     }, [authenticated, allWallets, user, solanaAddress]);
 
-    // 2. Initialize Program
+    // 2. Initialize Program (Debounced)
+    const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
         const init = async () => {
             if (!solanaAddress) {
@@ -202,7 +230,6 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const aw = allWallets.find(w => sanitize(w.address) === solanaAddress);
 
             if (!sw && !aw) {
-                console.log('[Solana] Active address not yet available in any wallet list:', solanaAddress);
                 setIsReady(false);
                 return;
             }
@@ -221,7 +248,6 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                             });
                             return tx.constructor.from(out.signedTransaction);
                         } else if (aw) {
-                            // Fallback to Privy universal sign (Privy Embedded or other)
                             const txRes = await (aw as any).signTransaction(tx);
                             return txRes;
                         }
@@ -247,17 +273,31 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 const biotryProgram = buildBiotryProgram(anchorWallet, idl as unknown as Idl, connection);
                 setProgram(biotryProgram);
                 setIsReady(true);
-                console.log('[Solana] Program Ready');
-                refreshBalance();
-                refreshProfile();
-                checkProtocolConfig();
+                
+                // Batch these calls
+                await Promise.allSettled([
+                    refreshBalance(),
+                    refreshProfile(),
+                    checkProtocolConfig()
+                ]);
+                
+                console.log('[Solana] Biotry Network Ready');
             } catch (err) {
                 console.error('[Solana] Init failed:', err);
                 setIsReady(false);
             }
         };
 
-        init();
+        // Clear previous timeout to debounce rapid state changes
+        if (initTimeoutRef.current) clearTimeout(initTimeoutRef.current);
+        
+        initTimeoutRef.current = setTimeout(() => {
+            init();
+        }, 300); // 300ms debounce
+
+        return () => {
+            if (initTimeoutRef.current) clearTimeout(initTimeoutRef.current);
+        };
     }, [solanaAddress, standardWallets, network, connection]);
 
     const showTransactionModal = (params: {

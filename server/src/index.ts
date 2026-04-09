@@ -12,12 +12,31 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 
+const allowedOrigins = [
+  'https://biotry.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-PAYMENT-SIGNATURE'],
-  exposedHeaders: ['PAYMENT-REQUIRED']
+  exposedHeaders: ['PAYMENT-REQUIRED'],
+  credentials: true
 }));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 
 // --- x402 PROTECTED AUDIT API ---

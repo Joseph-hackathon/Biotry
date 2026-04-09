@@ -201,6 +201,15 @@ app.get('/api/editors', async (req, res) => {
 // --- LEADERBOARD ---
 app.get('/api/leaderboard', async (req, res) => {
   try {
+    const entries = await prisma.leaderboardEntry.findMany({
+      orderBy: { points: 'desc' }
+    });
+    res.json(entries);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+});
+
 // --- DIAGNOSTICS & HEALTH ---
 app.get('/api/diag', async (req, res) => {
     try {

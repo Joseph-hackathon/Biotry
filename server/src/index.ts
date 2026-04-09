@@ -91,12 +91,15 @@ app.post('/api/posts/:id/fund', createX402Middleware('1.0'), async (req, res) =>
                 syncStatus: 'PROVEN_ON_CHAIN'
             });
         } catch (dbError: any) {
-            console.warn('[Funding API] Payment verified but DB update failed (Schema Mismatch).', dbError.message);
-            res.json({
-                message: 'Funding Verified',
-                fundingTotal: post.fundUSDC || 0,
-                fundingCount: post.fundCount || 0,
-                syncStatus: 'PENDING_MIGRATION'
+            console.error('[Funding API] DB Update Failed (Schema Mismatch).', dbError.message);
+            
+            // If DB update failed, the payment was verified but NOT recorded. 
+            // We tell the client that a migration is pending so they can manually sync if needed.
+            res.status(409).json({
+                error: 'Persistence Failure',
+                message: 'Payment verified but database record could not be updated (Schema Mismatch).',
+                syncStatus: 'SCHEMA_UPDATE_REQUIRED',
+                technical: dbError.message
             });
         }
     } catch (error: any) {
@@ -127,7 +130,7 @@ app.get('/api/posts', async (req, res) => {
     
     try {
         // Fallback for production: If new columns are missing, fetch only the known core fields
-        // This prevents the 500 error while the DB is being synced.
+        // We log clearly that a sync is required. 
         const legacyPosts = await (prisma.post as any).findMany({
             select: {
                 id: true,
@@ -153,7 +156,8 @@ app.get('/api/posts', async (req, res) => {
             timestamp: p.timestamp ? Number(p.timestamp) : Date.now(),
             fundUSDC: 0,
             fundCount: 0,
-            fundingGoal: 100
+            fundingGoal: 100,
+            _syncWarning: 'DB_COLUMNS_MISSING - Run npm run db:push'
         }));
         
         res.json(serialized);
@@ -161,7 +165,7 @@ app.get('/api/posts', async (req, res) => {
         console.error('[GET /api/posts] Critical DB Error:', fallbackError.message);
         res.status(500).json({ 
             error: 'Database Failure', 
-            detail: 'Ensure you have run: npx prisma db push',
+            detail: 'Database schema mismatch. Please run: npm run db:push (locally or via deployment)',
             technical: fallbackError.message 
         });
     }

@@ -257,7 +257,9 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                                 // Phantom "Disconnected Port" Retry Logic
                                 if (e.message?.includes('disconnected port') && attempt < 3) {
                                     console.warn(`[Solana] Wallet port disconnected. Retrying (Attempt ${attempt}/3)...`);
-                                    if (sw) await sw.connect?.(); // Attempt re-connection
+                                    // Small delay allows extension background to re-establish port
+                                    await new Promise(resolve => setTimeout(resolve, 500));
+                                    if (sw) await (sw as any).connect?.(); // Cast to any to bypass TS error
                                     return signWithRetry(attempt + 1);
                                 }
                                 throw e;
@@ -284,7 +286,8 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                             } catch (e: any) {
                                 if (e.message?.includes('disconnected port') && attempt < 3) {
                                     console.warn(`[Solana] Wallet port disconnected. Retrying (Attempt ${attempt}/3)...`);
-                                    if (sw) await sw.connect?.();
+                                    await new Promise(resolve => setTimeout(resolve, 500));
+                                    if (sw) await (sw as any).connect?.();
                                     return signAllWithRetry(attempt + 1);
                                 }
                                 throw e;

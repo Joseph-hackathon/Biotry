@@ -238,35 +238,59 @@ export const SolanaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 const anchorWallet = {
                     publicKey: new PublicKey(solanaAddress),
                     signTransaction: async (tx: any) => {
-                        if (sw) {
-                            const feature = sw.features['solana:signTransaction'];
-                            if (!feature) throw new Error('Wallet lacks signTransaction feature');
-                            const [out] = await feature.signTransaction({
-                                account: sw.accounts[0],
-                                transaction: tx.serialize({ verifySignatures: false, requireAllSignatures: false }),
-                                chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
-                            });
-                            return tx.constructor.from(out.signedTransaction);
-                        } else if (aw) {
-                            const txRes = await (aw as any).signTransaction(tx);
-                            return txRes;
-                        }
-                        throw new Error('No wallet available for signing');
+                        const signWithRetry = async (attempt = 1): Promise<any> => {
+                            try {
+                                if (sw) {
+                                    const feature = sw.features['solana:signTransaction'];
+                                    if (!feature) throw new Error('Wallet lacks signTransaction feature');
+                                    const [out] = await feature.signTransaction({
+                                        account: sw.accounts[0],
+                                        transaction: tx.serialize({ verifySignatures: false, requireAllSignatures: false }),
+                                        chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
+                                    });
+                                    return tx.constructor.from(out.signedTransaction);
+                                } else if (aw) {
+                                    return await (aw as any).signTransaction(tx);
+                                }
+                                throw new Error('No wallet available for signing');
+                            } catch (e: any) {
+                                // Phantom "Disconnected Port" Retry Logic
+                                if (e.message?.includes('disconnected port') && attempt < 3) {
+                                    console.warn(`[Solana] Wallet port disconnected. Retrying (Attempt ${attempt}/3)...`);
+                                    if (sw) await sw.connect?.(); // Attempt re-connection
+                                    return signWithRetry(attempt + 1);
+                                }
+                                throw e;
+                            }
+                        };
+                        return signWithRetry();
                     },
                     signAllTransactions: async (txs: any[]) => {
-                        if (sw) {
-                            const feature = sw.features['solana:signTransaction'];
-                            if (!feature) throw new Error('Wallet lacks signTransaction feature');
-                            const outputs = await feature.signTransaction(...txs.map(tx => ({
-                                account: sw.accounts[0],
-                                transaction: tx.serialize(),
-                                chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
-                            })));
-                            return outputs.map((out, i) => txs[i].constructor.from(out.signedTransaction));
-                        } else if (aw) {
-                            return Promise.all(txs.map(tx => (aw as any).signTransaction(tx)));
-                        }
-                        throw new Error('No wallet available for signing');
+                        const signAllWithRetry = async (attempt = 1): Promise<any[]> => {
+                            try {
+                                if (sw) {
+                                    const feature = sw.features['solana:signTransaction'];
+                                    if (!feature) throw new Error('Wallet lacks signTransaction feature');
+                                    const outputs = await feature.signTransaction(...txs.map(tx => ({
+                                        account: sw.accounts[0],
+                                        transaction: tx.serialize(),
+                                        chain: (network === 'mainnet-beta' ? 'solana:mainnet' : 'solana:devnet') as any
+                                    })));
+                                    return outputs.map((out, i) => txs[i].constructor.from(out.signedTransaction));
+                                } else if (aw) {
+                                    return Promise.all(txs.map(tx => (aw as any).signTransaction(tx)));
+                                }
+                                throw new Error('No wallet available for signing');
+                            } catch (e: any) {
+                                if (e.message?.includes('disconnected port') && attempt < 3) {
+                                    console.warn(`[Solana] Wallet port disconnected. Retrying (Attempt ${attempt}/3)...`);
+                                    if (sw) await sw.connect?.();
+                                    return signAllWithRetry(attempt + 1);
+                                }
+                                throw e;
+                            }
+                        };
+                        return signAllWithRetry();
                     }
                 };
 

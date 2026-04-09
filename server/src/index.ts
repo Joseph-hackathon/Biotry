@@ -249,15 +249,20 @@ app.get('/api/leaderboard', async (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Biotry Backend running on port ${PORT}`);
   
-  // Background Database Synchronization: Fixes 502 Bad Gateway timeouts
+  // Background Database Synchronization: Fixes 502 Bad Gateway and 409 Conflict Persistence Failures
   if (process.env.DATABASE_URL) {
+    console.log('[Background Sync] Initializing database schema update...');
     exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
       if (error) {
-        console.error(`[Background Sync] Error: ${error.message}`);
+        console.error(`[Background Sync] CRITICAL ERROR: ${error.message}`);
+        console.error(`[Background Sync] STACK: ${error.stack}`);
         return;
       }
-      if (stderr) console.warn(`[Background Sync] Warning: ${stderr}`);
-      console.log(`[Background Sync] Success: ${stdout}`);
+      if (stderr) {
+        console.warn(`[Background Sync] SCHEMA WARNING: ${stderr}`);
+      }
+      console.log(`[Background Sync] DATABASE SYNC COMPLETE: ${stdout}`);
+      console.log(`[Background Sync] Schema is now up-to-date with Post funding columns.`);
     });
   }
 

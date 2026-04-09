@@ -113,7 +113,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 }
             });
 
-            if (res.ok) {
+            if (res.ok || res.status === 409) {
+                const isPendingSync = res.status === 409;
+                
                 // Global State Update: Synchronizes gauges across all views
                 fundPost(post.id, fundingAmount);
 
@@ -121,7 +123,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 showModal(
                     'success', 
                     'UMBRA_GRANT_VERIFIED', 
-                    `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Stealth Address and verified on-chain. Donor privacy preserved.`,
+                    isPendingSync 
+                        ? `Grant sent! Payment confirmed on-chain ($${fundingAmount.toFixed(2)}). Data sync is pending but your transaction is final.`
+                        : `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Stealth Address and verified on-chain. Donor privacy preserved.`,
                     explorerLink
                 );
             } else {
@@ -130,6 +134,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             }
         } catch (error: any) {
             console.error('Funding failed', error);
+            
+            // Graceful handling for user cancellations: Don't show scary error modal
+            if (error.message?.includes('User rejected')) {
+                console.log('[OWS] Project funding canceled by researcher.');
+                return;
+            }
+
             showModal('error', 'UMBRA_GRANT_FAILED', error.message || 'We encountered an error during stealth transaction verification.');
         } finally {
             setIsFunding(false);

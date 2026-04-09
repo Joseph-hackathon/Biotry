@@ -220,6 +220,7 @@ app.get('/api/diag', async (req, res) => {
             dbConnected: true,
             postCount,
             hasFundingColumns: testPost ? ('fundUSDC' in testPost) : 'UNKNOWN (No Posts)',
+            rawSyncAvailable: true,
             environment: process.env.NODE_ENV || 'production',
             timestamp: new Date().toISOString()
         };
@@ -229,36 +230,49 @@ app.get('/api/diag', async (req, res) => {
         res.status(500).json({
             dbConnected: false,
             error: error.message,
-            tip: 'If columns are missing, trigger: npx prisma db push'
+            tip: 'If columns are missing, this server is configured to self-heal using Raw SQL on startup.'
         });
     }
 });
 
+/**
+ * PRODUCTION SELF-HEALING: Ensures required columns exist via Raw SQL.
+ * This bypasses CLI path/permission issues in restricted environments like Railway.
+ */
+async function initializeDatabaseRawSQL() {
+    console.log('[DATABASE] Starting Raw SQL Schema Verification...');
+    try {
+        // PostgreSQL Raw SQL: ADD COLUMN IF NOT EXISTS
+        await prisma.$executeRawUnsafe(`ALTER TABLE "Post" ADD COLUMN IF NOT EXISTS "fundingGoal" DOUBLE PRECISION DEFAULT 100.0;`);
+        await prisma.$executeRawUnsafe(`ALTER TABLE "Post" ADD COLUMN IF NOT EXISTS "fundUSDC" DOUBLE PRECISION DEFAULT 0.0;`);
+        await prisma.$executeRawUnsafe(`ALTER TABLE "Post" ADD COLUMN IF NOT EXISTS "fundCount" INTEGER DEFAULT 0;`);
+        
+        console.log('[DATABASE] Raw SQL Schema Sync: SUCCESS');
+        console.log('[DATABASE] Verified: Post table has fundingGoal, fundUSDC, and fundCount.');
+    } catch (error: any) {
+        console.error('[DATABASE] Raw SQL Schema Sync: FAILED', error.message);
+        // We logging failure but NOT crashing, allowing the app to still attempt to start.
+    }
+}
+
 app.listen(PORT, async () => {
     console.log(`[SYSTEM] Biotry Backend listening on port ${PORT}`);
     
-    // Self-Healing Database Sync: Essential for Railway/PaaS deployments
+    // 1. Primary Sync: Raw SQL (Fast, Reliable, Internal)
     if (process.env.DATABASE_URL) {
-        console.log('[DATABASE] Initiating cold-start synchronization...');
-        const syncProcess = exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
+        await initializeDatabaseRawSQL();
+    }
+
+    // 2. Secondary Sync: Background CLI (Full synchronization)
+    if (process.env.DATABASE_URL) {
+        console.log('[DATABASE] Triggering secondary CLI push...');
+        exec('npx prisma db push --accept-data-loss', (error, stdout, stderr) => {
             if (error) {
-                console.error(`[DATABASE] SYNC FATAL ERROR: ${error.message}`);
+                console.warn(`[DATABASE] CLI Push Warning: ${error.message}`);
                 return;
             }
-            if (stderr && stderr.includes('Error')) {
-                console.error(`[DATABASE] SYNC FAILED: ${stderr}`);
-            } else {
-                console.log(`[DATABASE] SYNC COMPLETE: ${stdout.trim() || 'No changes required'}`);
-                console.log('[DATABASE] Verified: Schema is synchronized with Post funding model.');
-            }
+            console.log(`[DATABASE] CLI Push Result: ${stdout.trim() || 'No changes'}`);
         });
-
-        // Ensure we log if the process hangs
-        setTimeout(() => {
-            if (syncProcess.exitCode === null) {
-                console.warn('[DATABASE] Sync process is taking longer than expected (30s+)...');
-            }
-        }, 30000);
     }
 
   // Initialize Open Wallet Standard Agent Identity

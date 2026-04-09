@@ -170,9 +170,10 @@ app.get('/api/posts', async (req, res) => {
 
 app.post('/api/posts', async (req, res) => {
   try {
-    const { title, author, abstract, researchField, topics, type, doi, content } = req.body;
+    const { id, title, author, abstract, researchField, topics, type, doi, content } = req.body;
     const post = await prisma.post.create({
       data: {
+        id: id || undefined, // Use provided ID (Solana PDA) or fallback to cuid()
         title,
         author,
         abstract,
@@ -185,8 +186,9 @@ app.post('/api/posts', async (req, res) => {
       }
     });
     res.json({ ...post, timestamp: Number(post.timestamp) });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create post' });
+  } catch (error: any) {
+    console.error('[POST /api/posts] Error:', error.message);
+    res.status(500).json({ error: 'Failed to create post', detail: error.message });
   }
 });
 

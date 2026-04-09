@@ -41,12 +41,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const [comments, setComments] = useState<Record<string, Comment[]>>({});
 
+    const API_URL = 'https://biotry-production.up.railway.app/api';
+
     useEffect(() => {
-        setIsLoading(false);
+        const loadData = async () => {
+            try {
+                const response = await fetch(`${API_URL}/posts`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setProposals(data);
+                }
+            } catch (err) {
+                console.error("Failed to load posts from backend:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadData();
     }, []);
 
-    const addProposal = useCallback((proposalData: Post) => {
+    const addProposal = useCallback(async (proposalData: Post) => {
+        // Optimistic update
         setProposals(prev => [proposalData, ...prev]);
+
+        try {
+            const response = await fetch(`${API_URL}/posts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(proposalData)
+            });
+            if (!response.ok) {
+                console.error("Failed to persist proposal to backend");
+            }
+        } catch (err) {
+            console.error("Error adding proposal to backend:", err);
+        }
     }, []);
 
     const addComment = useCallback((postId: string, author: string, content: string) => {
@@ -72,7 +101,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
     }, []);
 
-    const fundPost = useCallback((postId: string, amount: number) => {
+    const fundPost = useCallback(async (postId: string, amount: number) => {
+        // UI update
         setProposals(prev =>
             prev.map(p => p.id === postId
                 ? { 
@@ -83,6 +113,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 : p
             )
         );
+
+        // Actual backend sync via scientific funding protocol (X402)
+        try {
+            const response = await fetch(`${API_URL}/posts/${postId}/fund`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!response.ok) {
+                console.error("Backend funding verification failed");
+            }
+        } catch (err) {
+            console.error("Funding sync error:", err);
+        }
     }, []);
 
     return (

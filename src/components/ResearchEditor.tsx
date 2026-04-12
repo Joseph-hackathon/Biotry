@@ -142,7 +142,7 @@ const ResearchEditor = () => {
                 type,
                 researchField: field,
                 doi: doi || undefined,
-                author: shortAddress,
+                author: activeAddress,
                 upvotes: 0,
                 commentCount: 0,
                 createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),

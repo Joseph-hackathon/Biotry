@@ -91,7 +91,7 @@ const ProfileView: React.FC = () => {
         fetchHistory();
     }, [fetchHistory]);
 
-    const myPosts = myAuthorTag ? posts.filter(p => p.author === myAuthorTag) : [];
+    const myPosts = activeAddress ? posts.filter(p => p.author === activeAddress) : [];
     const totalUpvotes = myPosts.reduce((sum, p) => sum + p.upvotes, 0);
 
     const handleActivateIdentity = async () => {

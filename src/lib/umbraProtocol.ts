@@ -71,24 +71,43 @@ export class UmbraProtocol {
         
         console.log(`[Umbra] Initiating on-chain grant: ${params.amount} SOL from ${donorPubkey.toBase58().slice(0,8)}...`);
         
-        // build transaction
-        const tx = new Transaction().add(
-            SystemProgram.transfer({
-                fromPubkey: donorPubkey,
-                toPubkey: stealthAddress,
-                lamports: Math.floor(params.amount * LAMPORTS_PER_SOL * 0.05), // scaling for devnet
-            })
-        );
+        try {
+            const connection = this.provider.connection;
+            const { blockhash } = await connection.getLatestBlockhash('confirmed');
 
-        // Sign and Send using Anchor Provider (Privy Bridge)
-        const signature = await (this.provider as any).sendAndConfirm(tx, []);
-        
-        console.log(`[Umbra] On-Chain Signature Verified: ${signature}`);
+            // build transaction
+            const tx = new Transaction();
+            tx.recentBlockhash = blockhash;
+            tx.feePayer = donorPubkey;
 
-        return {
-            signature,
-            stealthAddress: stealthAddress.toBase58()
-        };
+            tx.add(
+                SystemProgram.transfer({
+                    fromPubkey: donorPubkey,
+                    toPubkey: stealthAddress,
+                    lamports: Math.floor(params.amount * LAMPORTS_PER_SOL * 0.05), // scaling for devnet
+                })
+            );
+
+            // Sign and Send using Anchor Provider (Privy Bridge)
+            // Using a fresh blockhash and explicit feePayer prevents 'already processed' errors
+            const signature = await (this.provider as any).sendAndConfirm(tx, []);
+            
+            console.log(`[Umbra] On-Chain Signature Verified: ${signature}`);
+
+            return {
+                signature,
+                stealthAddress: stealthAddress.toBase58()
+            };
+        } catch (err: any) {
+            console.error('[Umbra] Funding Execution Failed:', err);
+            if (err.logs) console.error('[Umbra] Simulation Logs:', err.logs);
+            
+            // Re-throw with descriptive message
+            if (err.message?.includes('already been processed')) {
+                throw new Error('Transaction duplication detected. Please wait a moment and try again.');
+            }
+            throw err;
+        }
     }
 
     /**

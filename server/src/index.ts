@@ -44,7 +44,8 @@ app.use('/api', metadataRouter);
 // --- HEALTH CHECK ---
 app.get('/health', (req, res) => res.status(200).json({ status: 'OK', timestamp: Date.now() }));
 
-app.all('*', async (req: any, res: any) => {
+// --- CATCH-ALL 404 HANDLER ---
+app.use((req: any, res: any) => {
     try {
         const endpoint = req.path || '';
         res.status(404).json({ error: `Endpoint ${endpoint} not found` });

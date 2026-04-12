@@ -1,5 +1,6 @@
 // ─── Configuration ────────────────────────────────────────────────
-const TAPESTRY_BASE_URL = '/api/tapestry';
+const BACKEND_URL = 'https://biotry-production.up.railway.app';
+const TAPESTRY_BASE_URL = `${BACKEND_URL}/api/tapestry`;
 
 /**
  * Helper to perform authenticated Tapestry API requests via the Biotry Backend Proxy.

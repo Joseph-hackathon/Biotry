@@ -20,10 +20,12 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Standardize origins to prevent preflight failures
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('vercel.app')) {
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
+    // Allow for development and high-integrity environments
     return callback(null, true); 
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -39,12 +41,24 @@ app.use('/api/posts', postsRouter);
 app.use('/api/tapestry', tapestryRouter);
 app.use('/api', metadataRouter);
 
+// --- HEALTH CHECK ---
+app.get('/health', (req, res) => res.status(200).json({ status: 'OK', timestamp: Date.now() }));
+
+app.all('*', async (req: any, res: any) => {
+    try {
+        const endpoint = req.path || '';
+        res.status(404).json({ error: `Endpoint ${endpoint} not found` });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // --- SERVER INITIALIZATION ---
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
     console.log(`[SYSTEM] Biotry Backend Professional listening on port ${PORT}`);
     
-    // Self-healing database initialization (Prisma + Raw SQL)
+    // Background self-healing (non-blocking)
     if (process.env.DATABASE_URL) {
-        await initializeDatabaseRawSQL();
+        initializeDatabaseRawSQL().catch(err => console.error('[FATAL] DB Init Failed:', err));
     }
 });

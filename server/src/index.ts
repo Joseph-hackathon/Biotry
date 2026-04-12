@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { initializeDatabaseRawSQL } from './db';
 import postsRouter from './routes/posts';
 import metadataRouter from './routes/metadata';
-import tapestryRouter from './routes/tapestry';
+import tapestryRouterV2 from './routes/tapestry_v2';
 
 dotenv.config();
 
@@ -38,7 +38,7 @@ app.use(express.json());
 
 // --- ROUTES ---
 app.use('/api/posts', postsRouter);
-app.use('/api/tapestry', tapestryRouter);
+app.use('/api/tapestry', tapestryRouterV2);
 app.use('/api', metadataRouter);
 
 // --- HEALTH CHECK ---

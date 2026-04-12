@@ -23,6 +23,7 @@ export interface UmbraGrantParams {
 
 export class UmbraProtocol {
     private provider: Provider;
+    private _isExecuting: boolean = false;
 
     constructor(provider: Provider) {
         this.provider = provider;
@@ -66,12 +67,17 @@ export class UmbraProtocol {
      * Executes a private grant transfer via the Umbra stealth layer.
      */
     async executeStealthGrant(params: UmbraGrantParams): Promise<{ signature: string, stealthAddress: string }> {
+        if (this._isExecuting) {
+            throw new Error('Transaction duplication detected. An anonymous grant is already being processed.');
+        }
+
         const stealthAddress = await this.generateStealthAddress(params.recipient);
         const donorPubkey = this.toSafePublicKey(params.donor);
         
         console.log(`[Umbra] Initiating on-chain grant: ${params.amount} SOL from ${donorPubkey.toBase58().slice(0,8)}...`);
         
         try {
+            this._isExecuting = true;
             const connection = this.provider.connection;
             const { blockhash } = await connection.getLatestBlockhash('confirmed');
 
@@ -107,6 +113,8 @@ export class UmbraProtocol {
                 throw new Error('Transaction duplication detected. Please wait a moment and try again.');
             }
             throw err;
+        } finally {
+            this._isExecuting = false;
         }
     }
 

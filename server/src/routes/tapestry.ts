@@ -14,6 +14,8 @@ router.use(async (req: any, res: any) => {
         const endpoint = req.path || '';
         const url = `${TAPESTRY_BASE_URL}${endpoint}`;
         
+        console.log(`[PROXY] Relaying ${req.method} to Tapestry: ${endpoint}`);
+
         const response = await fetch(url, {
             method: req.method,
             headers: {
@@ -23,11 +25,19 @@ router.use(async (req: any, res: any) => {
             body: ['POST', 'PUT', 'PATCH'].includes(req.method) ? JSON.stringify(req.body) : undefined
         });
 
-        const data = await response.json();
+        const rawText = await response.text();
+        let data;
+        try {
+            data = rawText ? JSON.parse(rawText) : {};
+        } catch (parseErr) {
+            console.warn(`[PROXY WARNING] Tapestry returned non-JSON response. Serving raw text.`);
+            return res.status(response.status).send(rawText);
+        }
+
         res.status(response.status).json(data);
     } catch (error) {
         console.error(`[PROXY ERROR] Tapestry relay failed:`, error);
-        res.status(500).json({ error: 'Tapestry Relay Failure', details: String(error) });
+        res.status(502).json({ error: 'Tapestry Gateway Error', details: String(error) });
     }
 });
 

@@ -21,6 +21,8 @@ export const fetchSignerType = () => Promise.resolve("scw");
 export const loadSignerType = () => "scw";
 export const storeSignerType = () => {};
 
-export const createCoinbaseWalletSDK = (params) => new CoinbaseWalletSDK(params);
+export const createCoinbaseWalletSDK = (params) => ({
+    getProvider: () => new CoinbaseWalletProvider()
+});
 
 export default CoinbaseWalletSDK;

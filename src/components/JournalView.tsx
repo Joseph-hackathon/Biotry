@@ -27,6 +27,7 @@ import PostCard from './PostCard';
 import { clsx } from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { useSolana } from '../context/SolanaContext';
+import { useUI } from '../context/UIContext';
 
 type JournalTab = 'All' | 'In-Review' | 'Published' | 'About';
 
@@ -35,7 +36,7 @@ const JournalView: React.FC = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<JournalTab>('All');
     const [selectedHub, setSelectedHub] = useState<string | null>(null);
-    const { showSystemModal } = useSolana();
+    const { showSystemModal } = useUI();
 
     const filteredPosts = useMemo(() => {
         let result = [...posts];

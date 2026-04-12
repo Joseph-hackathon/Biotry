@@ -5,6 +5,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { useSolana } from '../context/SolanaContext';
+import { useUI } from '../context/UIContext';
 import { initializeDao, findDaoConfigPDA, createProfile } from '../lib/program';
 import { PublicKey } from '@solana/web3.js';
 import { Shield, AlertCircle, History, ExternalLink, Clock } from 'lucide-react';
@@ -21,7 +22,8 @@ const typeStyle: Record<string, string> = {
 const ProfileView: React.FC = () => {
     const { authenticated, login, logout, user, connectWallet, linkWallet } = usePrivy();
     const { proposals: posts } = useAppContext();
-    const { program, solanaAddress, availableWallets, setActiveAddress, balance, refreshBalance, hasProfile, refreshProfile, memberProfile, showTransactionModal, showSystemModal } = useSolana();
+    const { program, solanaAddress, availableWallets, setActiveAddress, balance, refreshBalance, hasProfile, refreshProfile, memberProfile } = useSolana();
+    const { showTransactionModal, showSystemModal } = useUI();
     const navigate = useNavigate();
     const [isInitializing, setIsInitializing] = useState(false);
     const [protocolStatus, setProtocolStatus] = useState<'checking' | 'initialized' | 'not-initialized'>('checking');

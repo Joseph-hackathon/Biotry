@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { useAppContext } from '../context/AppContext';
 import { useSolana } from '../context/SolanaContext';
+import { useUI } from '../context/UIContext';
 import { truncateAddress } from '../utils/address';
 
 interface LayoutProps { children: React.ReactNode; currentView: string; }
@@ -18,7 +19,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView }) => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const { searchQuery, setSearchQuery } = useAppContext();
-    const { network, setNetwork, solanaAddress, showSystemModal } = useSolana();
+    const { network, setNetwork, solanaAddress } = useSolana();
+    const { showSystemModal } = useUI();
     const activeAddress = solanaAddress || '';
     const [copied, setCopied] = useState(false);
 

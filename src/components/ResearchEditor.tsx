@@ -9,6 +9,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { useSolana } from '../context/SolanaContext';
+import { useUI } from '../context/UIContext';
 import { submitProposal } from '../lib/program';
 import { PublicKey } from '@solana/web3.js';
 
@@ -33,7 +34,8 @@ const ResearchEditor = () => {
     const { authenticated, login } = usePrivy();
     const { addProposal } = useAppContext();
     const navigate = useNavigate();
-    const { program, solanaAddress, showTransactionModal, showSystemModal, hasProtocolConfig, initializeHub } = useSolana();
+    const { program, solanaAddress, hasProtocolConfig, initializeHub } = useSolana();
+    const { showTransactionModal, showSystemModal } = useUI();
     const activeAddress = solanaAddress || '';
 
     const [type, setType] = useState<'Research' | 'Critique' | 'Investigation'>('Research');

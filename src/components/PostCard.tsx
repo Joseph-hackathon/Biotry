@@ -11,6 +11,7 @@ import { truncateAddress } from '../utils/address';
 import { useSolana } from '../context/SolanaContext';
 import { useUI } from '../context/UIContext';
 import { useUmbra } from '../hooks/useUmbra';
+import { useTapestryReputation } from '../hooks/useTapestryReputation';
 import { useState, useEffect } from 'react';
 
 interface PostCardProps { post: Post; }
@@ -22,6 +23,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { connection, solanaAddress, isReady, program } = useSolana();
     const { showSystemModal } = useUI();
     const navigate = useNavigate();
+    
+    // Tapestry Social Reputation
+    const reputation = useTapestryReputation(post.author);
     
     // Real-time state
     const [postData, setPostData] = useState(post);
@@ -129,16 +133,28 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                             alt="Author" 
                         />
                     </div>
-                    <div className="min-w-0">
-                        <p className="text-[11px] font-bold text-white uppercase tracking-tight truncate">{truncateAddress(post?.author || '')}</p>
+                    <div className="min-w-0 flex flex-col">
+                        <div className="flex items-center gap-2">
+                            <p className="text-[11px] font-bold text-white uppercase tracking-tight truncate">{truncateAddress(post?.author || '')}</p>
+                            {!reputation.loading && (
+                                <div className="flex items-center gap-1.5 px-1.5 py-0.5 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-md">
+                                    <Fingerprint className="w-2.5 h-2.5 text-[#F6851B]" />
+                                    <span className="text-[9px] font-black text-[#F6851B]">{reputation.score}</span>
+                                </div>
+                            )}
+                        </div>
                         <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{post?.createdAt || ''}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-bold text-white/50 uppercase tracking-wider">
-                        {post.type}
-                    </span>
-                </div>
+                {!reputation.loading && (
+                    <div className="flex gap-1.5 self-center">
+                        {reputation.badges.slice(0, 2).map(badge => (
+                            <span key={badge.id} className={clsx("text-[8px] font-black uppercase tracking-[0.2em] border-b border-current pb-0.5", badge.color)}>
+                                {badge.label}
+                            </span>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="space-y-3">

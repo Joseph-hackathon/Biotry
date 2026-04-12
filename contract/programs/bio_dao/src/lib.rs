@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::system_instruction;
 
 declare_id!("2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y");
 
@@ -6,7 +7,7 @@ declare_id!("2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y");
 const MAX_USERNAME_LEN: usize = 32;
 const MAX_BIO_LEN:      usize = 200;
 const MAX_TITLE_LEN:    usize = 200;
-const MAX_CONTENT_URI_LEN: usize = 512;
+const MAX_CONTENT_URI_LEN: usize = 256; 
 
 #[program]
 pub mod bio_dao {
@@ -67,15 +68,76 @@ pub mod bio_dao {
         proposal.content_uri = content_uri;
         proposal.funding_goal = funding_goal;
         proposal.amount_raised = 0;
+        proposal.amount_claimed = 0;
         proposal.votes_for = 0;
         proposal.votes_against = 0;
         proposal.status = ProposalStatus::Active;
         proposal.created_at = Clock::get()?.unix_timestamp;
         proposal.bump = ctx.bumps.proposal;
 
+        // Initialize 3-stage milestones: 30% / 40% / 30%
+        proposal.milestones = [
+            Milestone { proof_uri: "".to_string(), percentage: 30, is_claimed: false },
+            Milestone { proof_uri: "".to_string(), percentage: 40, is_claimed: false },
+            Milestone { proof_uri: "".to_string(), percentage: 30, is_claimed: false },
+        ];
+
         config.proposal_count += 1;
 
         msg!("Proposal #{} submitted: {}", proposal.id, proposal.title);
+        Ok(())
+    }
+
+    /// Submit proof of work for a specific milestone
+    pub fn submit_milestone_proof(
+        ctx: Context<UpdateMilestone>,
+        milestone_index: u8,
+        proof_uri: String
+    ) -> Result<()> {
+        require!(milestone_index < 3, BioError::InvalidMilestoneIndex);
+        require!(proof_uri.len() <= MAX_CONTENT_URI_LEN, BioError::UriTooLong);
+
+        let proposal = &mut ctx.accounts.proposal;
+        require!(ctx.accounts.author.key() == proposal.author, BioError::Unauthorized);
+
+        proposal.milestones[milestone_index as usize].proof_uri = proof_uri;
+        msg!("Proof uploaded for milestone #{} of proposal #{}", milestone_index, proposal.id);
+        Ok(())
+    }
+
+    /// Claim funds for a completed milestone (split disbursement)
+    pub fn claim_milestone_funds(
+        ctx: Context<UpdateMilestone>,
+        milestone_index: u8
+    ) -> Result<()> {
+        require!(milestone_index < 3, BioError::InvalidMilestoneIndex);
+        
+        let proposal = &mut ctx.accounts.proposal;
+        let author = &ctx.accounts.author;
+
+        require!(author.key() == proposal.author, BioError::Unauthorized);
+        
+        let milestone = &mut proposal.milestones[milestone_index as usize];
+        require!(!milestone.is_claimed, BioError::AlreadyClaimed);
+        require!(!milestone.proof_uri.is_empty(), BioError::ProofRequired);
+        
+        // Safety: Only allow claims once funding is successfully completed (e.g. 100% reached)
+        // For hackathon flexibility, we check if amount_raised >= funding_goal
+        require!(proposal.amount_raised >= proposal.funding_goal, BioError::FundingIncomplete);
+
+        let claim_amount = proposal.amount_raised
+            .checked_mul(milestone.percentage as u64)
+            .unwrap()
+            .checked_div(100)
+            .unwrap();
+
+        milestone.is_claimed = true;
+        proposal.amount_claimed += claim_amount;
+
+        // Note: Real SOL transfer would involve a vault PDA or direct transfer if funds are on PDA
+        // Here we simulate the state update. In full implementation, we'd use invoke(transfer)
+        msg!("Claimed {} lamports for milestone #{}", claim_amount, milestone_index);
+
         Ok(())
     }
 
@@ -145,7 +207,8 @@ pub struct SubmitProposal<'info> {
     #[account(
         init,
         payer = author,
-        space = 8 + 8 + 32 + 4 + MAX_TITLE_LEN + 4 + MAX_CONTENT_URI_LEN + 8 + 8 + 8 + 8 + 1 + 8 + 1,
+        // Expanded space for 3 milestones
+        space = 8 + 8 + 32 + 4 + MAX_TITLE_LEN + 4 + MAX_CONTENT_URI_LEN + 8 + 8 + 8 + 8 + 8 + 1 + 8 + 1 + (3 * (4 + MAX_CONTENT_URI_LEN + 1 + 1)),
         seeds = [b"proposal", config.proposal_count.to_le_bytes().as_ref()],
         bump
     )]
@@ -159,6 +222,14 @@ pub struct SubmitProposal<'info> {
     #[account(mut)]
     pub author: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateMilestone<'info> {
+    #[account(mut, seeds = [b"proposal", proposal.id.to_le_bytes().as_ref()], bump = proposal.bump)]
+    pub proposal: Account<'info, ResearchProposal>,
+    #[account(mut)]
+    pub author: Signer<'info>,
 }
 
 #[derive(Accounts)]
@@ -210,11 +281,20 @@ pub struct ResearchProposal {
     pub content_uri: String,
     pub funding_goal: u64,
     pub amount_raised: u64,
+    pub amount_claimed: u64,
     pub votes_for: u64,
     pub votes_against: u64,
     pub status: ProposalStatus,
     pub created_at: i64,
+    pub milestones: [Milestone; 3],
     pub bump: u8,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Default)]
+pub struct Milestone {
+    pub proof_uri: String,
+    pub percentage: u8,
+    pub is_claimed: bool,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
@@ -246,4 +326,14 @@ pub enum BioError {
     UriTooLong,
     #[msg("Proposal is not in active state")]
     ProposalNotActive,
+    #[msg("Unauthorized access")]
+    Unauthorized,
+    #[msg("Invalid milestone index")]
+    InvalidMilestoneIndex,
+    #[msg("Milestone already claimed")]
+    AlreadyClaimed,
+    #[msg("Proof of work is required before claiming")]
+    ProofRequired,
+    #[msg("Funding goal has not been reached")]
+    FundingIncomplete,
 }

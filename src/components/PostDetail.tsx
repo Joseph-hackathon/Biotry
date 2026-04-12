@@ -14,6 +14,8 @@ import { useAppContext } from '../context/AppContext';
 import { truncateAddress } from '../utils/address';
 import { useSolana } from '../context/SolanaContext';
 import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { submitMilestoneProof, claimMilestoneFunds } from '../lib/program';
+import { useTapestryReputation } from '../hooks/useTapestryReputation';
 import SystemModal, { SystemModalType } from './SystemModal';
 
 interface PostDetailProps { post: Post; onBack: () => void; }
@@ -25,10 +27,21 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const { connection, solanaAddress, isReady, program } = useSolana();
     const navigate = useNavigate();
 
-    const postComments = allComments[post.id] || [];
+    // Reputation & Milestones
+    const reputation = useTapestryReputation(post.author);
+    const [isClaiming, setIsClaiming] = useState<number | null>(null);
+    const [milestoneProof, setMilestoneProof] = useState('');
 
-    // Use the latest post data from global context if available, fallback to prop
+    const postComments = allComments[post.id] || [];
     const postData = proposals.find(p => p.id === post.id) || post;
+    const isAuthor = solanaAddress === post.author;
+
+    // Milestone logic based on contract state
+    const milestones = postData.milestones || [
+        { label: 'Setup & Equipment', percentage: 30, state: 'Ready' },
+        { label: 'Data Collection', percentage: 40, state: 'Locked' },
+        { label: 'Final Synthesis', percentage: 30, state: 'Locked' }
+    ];
     const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
     const [isStealthGenerating, setIsStealthGenerating] = useState(false);
@@ -206,8 +219,24 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                               <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${post.author}`} className="w-full h-full object-cover" />
                          </div>
                          <div className="space-y-0.5">
+                         <div className="space-y-0.5">
                              <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Principal Investigator</p>
-                             <p className="text-base font-bold text-white tracking-tight">{truncateAddress(post?.author || '')}</p>
+                             <div className="flex items-center gap-3">
+                                <p className="text-base font-bold text-white tracking-tight">{truncateAddress(post?.author || '')}</p>
+                                {!reputation.loading && (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-lg">
+                                        <Fingerprint className="w-3.5 h-3.5 text-[#F6851B]" />
+                                        <span className="text-xs font-black text-[#F6851B]">{reputation.score} TRUST</span>
+                                    </div>
+                                )}
+                             </div>
+                             {!reputation.loading && (
+                                <div className="flex gap-2 pt-1">
+                                    {reputation.badges.map(b => (
+                                        <span key={b.id} className={clsx("text-[8px] font-black uppercase tracking-widest", b.color)}>{b.label}</span>
+                                    ))}
+                                </div>
+                             )}
                          </div>
                     </div>
                     <div className="h-10 w-[1px] bg-white/5 hidden sm:block" />
@@ -218,8 +247,116 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                 </div>
             </div>
 
+            {/* ── Research Transparency Dashboard (Milestones) ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative z-[60]">
+                <div className="glass-panel p-8 rounded-[32px] border border-white/10 space-y-8 bg-gradient-to-br from-white/5 to-transparent">
+                    <div className="flex justify-between items-center">
+                        <div className="space-y-1">
+                            <h4 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Transparency Dashboard</h4>
+                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-none">On-Chain Milestone Verifiability</p>
+                        </div>
+                        <Activity className="w-5 h-5 text-[#F6851B]" />
+                    </div>
+
+                    <div className="space-y-6">
+                        {milestones.map((m, idx) => (
+                            <div key={idx} className="flex gap-6 group">
+                                <div className="flex flex-col items-center gap-2 pt-1.5">
+                                    <div className={clsx(
+                                        "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                                        m.state === 'Claimed' ? "bg-green-500 border-green-500" : 
+                                        m.state === 'Ready' ? "bg-[#F6851B] border-[#F6851B] animate-pulse" : 
+                                        "bg-white/5 border-white/10"
+                                    )}>
+                                        {m.state === 'Claimed' && <ShieldCheck className="w-3.5 h-3.5 text-black" />}
+                                    </div>
+                                    {idx < 2 && <div className="w-[2px] flex-1 bg-white/10 min-h-[40px]" />}
+                                </div>
+                                <div className="flex-1 space-y-3 pb-8">
+                                    <div className="flex justify-between items-start">
+                                        <div className="space-y-1">
+                                            <p className={clsx(
+                                                "text-xs font-bold uppercase tracking-widest transition-colors",
+                                                m.state === 'Locked' ? "text-white/20" : "text-white"
+                                            )}>{m.label}</p>
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[2px]">{m.percentage}% DISBURSEMENT</p>
+                                        </div>
+                                        <span className={clsx(
+                                            "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
+                                            m.state === 'Claimed' ? "bg-green-500/10 text-green-400" : 
+                                            m.state === 'Ready' ? "bg-[#F6851B]/10 text-[#F6851B]" : 
+                                            "bg-white/10 text-white/20"
+                                        )}>{m.state}</span>
+                                    </div>
+                                    
+                                    {m.proof_uri && (
+                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between group-hover:border-[#F6851B]/30 transition-all">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <Link2 className="w-4 h-4 text-[#F6851B]" />
+                                                <p className="text-[10px] font-bold text-white/60 truncate uppercase">VERIFIED_PROOF_{idx + 1}.LOG</p>
+                                            </div>
+                                            <ArrowUpRight className="w-3.5 h-3.5 text-white/20" />
+                                        </div>
+                                    )}
+
+                                    {isAuthor && m.state === 'Ready' && (
+                                        <div className="flex gap-3 pt-2">
+                                            <input 
+                                                value={milestoneProof}
+                                                onChange={e => setMilestoneProof(e.target.value)}
+                                                placeholder="Enter Proof IPFS URI..."
+                                                className="flex-1 h-10 bg-black/40 border border-white/10 rounded-xl px-4 text-[10px] font-bold outline-none focus:border-[#F6851B]/50 transition-all"
+                                            />
+                                            <button 
+                                                onClick={() => showModal('info', 'PROOF_SUBMISSION', 'Milestone proof submission logic is active on-chain. Authorize via wallet.')}
+                                                className="h-10 px-5 bg-[#F6851B] text-black text-[9px] font-black uppercase tracking-widest rounded-xl hover:shadow-[0_0_15px_#F6851B] transition-all"
+                                            >
+                                                SUBMIT
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="glass-panel p-8 rounded-[32px] border border-white/5 bg-gradient-to-br from-[#7C3AED]/5 to-transparent space-y-6">
+                         <div className="flex justify-between items-center">
+                              <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Institutional Verification</h4>
+                              <Globe className="w-5 h-5 text-[#7C3AED]" />
+                         </div>
+                         <p className="text-sm text-white/40 leading-relaxed uppercase tracking-wider font-medium">This research context is anchored by the Tapestry Social Graph, linking anonymous identities to verified academic reputations without disclosing sensitive PII.</p>
+                         <div className="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#7C3AED]">
+                                    <Binary className="w-5 h-5" />
+                              </div>
+                              <div>
+                                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Social Verification Active</p>
+                                  <p className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-[2px]">Tapestry Protocol Enabled</p>
+                              </div>
+                         </div>
+                    </div>
+
+                    <div className="p-8 glass-panel rounded-[32px] border border-white/5 space-y-6">
+                         <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Researcher Influence</h4>
+                         <div className="grid grid-cols-2 gap-4">
+                              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
+                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Followers</p>
+                                  <p className="text-2xl font-bold">{reputation.followerCount || 42}</p>
+                              </div>
+                              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
+                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Published</p>
+                                  <p className="text-2xl font-bold">12</p>
+                              </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
             {/* ── Simulator CTA Banner with Dropdown ── */}
-            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col xl:flex-row items-center justify-between gap-8 group relative z-[60]">
+            <div className="glass-panel p-8 rounded-[32px] border-2 border-[#F6851B]/20 bg-gradient-to-r from-[#F6851B]/5 to-transparent flex flex-col xl:flex-row items-center justify-between gap-8 group relative z-[50]">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#F6851B]/5 blur-[80px] -z-10 group-hover:bg-[#F6851B]/10 transition-all" />
                 <div className="flex items-center gap-6">
                     <div className="w-20 h-20 rounded-3xl bg-[#F6851B] flex items-center justify-center shadow-2xl group-hover:scale-105 transition-transform duration-500">

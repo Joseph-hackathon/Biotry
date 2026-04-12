@@ -169,6 +169,45 @@ export const voteOnProposal = async (
     return { tx, voteRecordPDA };
 };
 
+/** Submit proof for a milestone */
+export const submitMilestoneProof = async (
+    program: Program,
+    params: {
+        author: PublicKey;
+        proposalPDA: PublicKey;
+        milestoneIndex: number;
+        proofUri: string;
+    }
+) => {
+    const tx = await (program.methods as any)
+        .submitMilestoneProof(params.milestoneIndex, params.proofUri)
+        .accounts({
+            proposal: params.proposalPDA,
+            author: params.author,
+        })
+        .rpc();
+    return { tx };
+};
+
+/** Claim funds for a milestone */
+export const claimMilestoneFunds = async (
+    program: Program,
+    params: {
+        author: PublicKey;
+        proposalPDA: PublicKey;
+        milestoneIndex: number;
+    }
+) => {
+    const tx = await (program.methods as any)
+        .claimMilestoneFunds(params.milestoneIndex)
+        .accounts({
+            proposal: params.proposalPDA,
+            author: params.author,
+        })
+        .rpc();
+    return { tx };
+};
+
 /** Fetch a member profile */
 export const fetchMemberProfile = async (program: Program, owner: PublicKey) => {
     const [profilePDA] = findMemberProfilePDA(owner);

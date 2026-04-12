@@ -186,30 +186,43 @@ export const createCommentNode = async (
     }
 };
 
-// ─── Like (existing, re-exported cleanly) ───────────────────────
-export const likePost = async (walletAddress: string, postId: string) => {
+// ─── Reputation Engine ──────────────────────────────────────────
+/**
+ * Calculates a researcher's decentralized reputation score and fetches badges 
+ * from the Tapestry social graph.
+ */
+export const getResearcherReputation = async (walletAddress: string) => {
     try {
-        await tapestry.likes.likesCreate(
-            { nodeId: postId, apiKey: TAPESTRY_API_KEY },
-            { startId: walletAddress }
-        );
-        console.log(`[Tapestry] Like created: ${walletAddress} → ${postId}`);
-        return true;
-    } catch (err) {
-        console.warn('[Tapestry] Like failed:', err);
-        return false;
-    }
-};
+        // In a real implementation, we would query the Tapestry API for a 
+        // comprehensive profile aggregate. For this hackathon, we derive 
+        // a score from social signals (followers/publications).
+        const followers = await getFollowers(walletAddress);
+        const following = await getFollowing(walletAddress);
+        
+        // Base score linked to social graph density
+        const baseScore = Math.min(100, (followers.length * 10) + (following.length * 2) + 20); // Default 20
+        
+        // Badges based on social and on-chain traits
+        const badges: Array<{ id: string; label: string; color: string }> = [];
+        
+        if (followers.length > 5) {
+            badges.push({ id: 'top_researcher', label: 'Top_Cited', color: 'text-purple-400' });
+        }
+        
+        if (walletAddress.startsWith('2BY4')) { // Example logic for protocol authority
+            badges.push({ id: 'verified_academic', label: 'Verified_Hub', color: 'text-blue-400' });
+        }
 
-export const unlikePost = async (walletAddress: string, postId: string) => {
-    try {
-        await tapestry.likes.likesDelete(
-            { nodeId: postId, apiKey: TAPESTRY_API_KEY },
-            { startId: walletAddress }
-        );
-        return true;
+        // Default badge for all active researchers
+        badges.push({ id: 'early_adopter', label: 'Genesis_Node', color: 'text-green-400' });
+
+        return {
+            score: baseScore,
+            badges,
+            followerCount: followers.length
+        };
     } catch (err) {
-        console.warn('[Tapestry] Unlike failed:', err);
-        return false;
+        console.error('[Tapestry] Reputation fetch failed:', err);
+        return { score: 0, badges: [], followerCount: 0 };
     }
 };

@@ -1,24 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Post, Comment } from '../types';
 
-const EDITORIAL_BOARD = [
-    { id: '1', name: 'Dr. Sarah Chen', role: 'Genetics Lead', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
-    { id: '2', name: 'Prof. James Wilson', role: 'Neuroscience', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James' },
-    { id: '3', name: 'Dr. Elena Rossi', role: 'Longevity Research', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elena' }
-];
-
-const FEATURED_HUBS = [
-    { id: '1', name: 'Longevity', icon: 'zap', count: 124 },
-    { id: '2', name: 'Neurotech', icon: 'binary', count: 89 },
-    { id: '3', name: 'Synthetic Bio', icon: 'flask', count: 56 }
-];
-
-const TOP_CONTRIBUTORS = [
-    { id: '1', name: 'quantum_doc', points: 1240, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=quantum' },
-    { id: '2', name: 'bio_hacker', points: 980, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hacker' },
-    { id: '3', name: 'longevity_insider', points: 850, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=insider' }
-];
-
 interface AppContextValue {
     proposals: Post[];
     members: any[];
@@ -41,7 +23,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const [comments, setComments] = useState<Record<string, Comment[]>>({});
 
-    const API_URL = 'https://biotry-production.up.railway.app/api';
+    const API_URL = (import.meta.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app') + '/api';
 
     useEffect(() => {
         const loadData = async () => {
@@ -58,10 +40,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
         };
         loadData();
-    }, []);
+    }, [API_URL]);
 
     const addProposal = useCallback(async (proposalData: Post) => {
-        // Optimistic update
         setProposals(prev => [proposalData, ...prev]);
 
         try {
@@ -70,13 +51,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(proposalData)
             });
-            if (!response.ok) {
-                console.error("Failed to persist proposal to backend");
-            }
+            if (!response.ok) console.error("Failed to persist proposal to backend");
         } catch (err) {
             console.error("Error adding proposal to backend:", err);
         }
-    }, []);
+    }, [API_URL]);
 
     const addComment = useCallback((postId: string, author: string, content: string) => {
         const newComment: Comment = {
@@ -102,7 +81,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, []);
 
     const fundPost = useCallback((postId: string, amount: number) => {
-        // UI update: Synchronizes counts across the network for a seamless experience
         setProposals(prev =>
             prev.map(p => p.id === postId
                 ? { 

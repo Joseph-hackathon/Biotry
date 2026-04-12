@@ -1,8 +1,5 @@
 import { 
-    MessageSquare, ArrowBigUp, FileText, Link2, 
-    Binary, User, ExternalLink, ArrowUpRight, 
-    Play, Zap, Coins, CheckCircle2, Globe, Info, Code2,
-    Fingerprint, Activity
+    Binary, Globe, ArrowBigUp, Zap, Fingerprint, Info
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types';
@@ -12,9 +9,9 @@ import { useAppContext } from '../context/AppContext';
 import { tapestry, TAPESTRY_API_KEY } from '../lib/tapestry';
 import { truncateAddress } from '../utils/address';
 import { useSolana } from '../context/SolanaContext';
-import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { useUI } from '../context/UIContext';
+import { useUmbra } from '../hooks/useUmbra';
 import { useState, useEffect } from 'react';
-import SystemModal, { SystemModalType } from './SystemModal';
 
 interface PostCardProps { post: Post; }
 
@@ -23,6 +20,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { authenticated, login, user } = usePrivy();
     const { voteOnProposal: upvotePost, fundPost } = useAppContext();
     const { connection, solanaAddress, isReady, program } = useSolana();
+    const { showSystemModal } = useUI();
     const navigate = useNavigate();
     
     // Real-time state
@@ -30,30 +28,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const [fundingAmount, setFundingAmount] = useState(1.0);
     const [isFunding, setIsFunding] = useState(false);
 
-    // Sync with prop changes to ensure local state doesn't track stale prop data
+    // Sync with prop changes
     useEffect(() => {
         setPostData(post);
     }, [post]);
     
-    // Modal State
-    const [modalConfig, setModalConfig] = useState<{
-        isOpen: boolean;
-        type: SystemModalType;
-        title: string;
-        message: string;
-        actionLink?: string;
-    }>({
-        isOpen: false,
-        type: 'info',
-        title: '',
-        message: '',
-        actionLink: ''
-    });
-
-    const showModal = (type: SystemModalType, title: string, message: string, actionLink?: string) => {
-        setModalConfig({ isOpen: true, type, title, message, actionLink });
-    };
-
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!authenticated) return login();
@@ -74,82 +53,57 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         navigate(`/node/${post.id}/simulate`);
     };
 
+    const { fundAnonymously } = useUmbra(connection);
+
     const handleFund = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!isReady || !solanaAddress || !program) {
-            showModal('warning', 'WALLET_DISCONNECTED', 'Please connect your Solana wallet to contribute funds.');
+            showSystemModal({ type: 'warning', title: 'WALLET_DISCONNECTED', message: 'Please connect your Solana wallet to contribute anonymous funds.' });
             return;
         }
 
         setIsFunding(true);
         try {
-            // OWS Micropayment: Dynamic amount
-            const lamports = 0.01 * fundingAmount * LAMPORTS_PER_SOL;
-            const recipientPubKey = new PublicKey('pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5');
-            const instruction = SystemProgram.transfer({
-                fromPubkey: new PublicKey(solanaAddress),
-                toPubkey: recipientPubKey,
-                lamports: lamports,
+            // Umbra Protocol: Anonymous Grant Execution via Hook
+            const result = await fundAnonymously({
+                amount: fundingAmount,
+                recipient: post.author,
+                donor: solanaAddress
             });
-
-            const transaction = new Transaction().add(instruction);
-            const { blockhash } = await connection.getLatestBlockhash();
-            transaction.recentBlockhash = blockhash;
-            transaction.feePayer = new PublicKey(solanaAddress);
-
-            const signedTx = await (program.provider as any).wallet.signTransaction(transaction);
-            const signature = await connection.sendRawTransaction(signedTx.serialize());
             
-            console.log('[OWS_FUND] Signature:', signature);
-            await connection.confirmTransaction(signature, 'confirmed');
+            console.log(`[UMBRA] Stealth Grant Signature: ${result.signature}`);
 
-            // Notify backend
+            // Notify backend for persistence
             const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app';
             const res = await fetch(`${baseUrl}/api/posts/${post.id}/fund`, {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'X-PAYMENT-SIGNATURE': signature
-                }
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    stealthAddress: result.stealthAddress,
+                    amount: fundingAmount
+                })
             });
 
-            if (res.ok || res.status === 409) {
-                const isPendingSync = res.status === 409;
-                
-                // Global State Update: Synchronizes gauges across all views
+            if (res.ok) {
+                // Global State Update
                 fundPost(post.id, fundingAmount);
 
-                const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
-                showModal(
-                    'success', 
-                    isPendingSync ? 'PERSISTENCE_PENDING' : 'UMBRA_GRANT_VERIFIED', 
-                    isPendingSync 
-                        ? `Transaction confirmed ($${fundingAmount.toFixed(2)})! On-chain verification complete. The research network is currently syncing your contribution to the archives—it will appear in 30 seconds.`
-                        : `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Stealth Address and verified on-chain. Donor privacy preserved.`,
-                    explorerLink
-                );
-            } else if (res.status === 503) {
-                throw new Error('Research network is currently syncing schemas. Please refresh in 30 seconds.');
+                showSystemModal({
+                    type: 'success', 
+                    title: 'UMBRA_GRANT_VERIFIED', 
+                    message: `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Stealth Address (${result.stealthAddress.slice(0, 8)}...) and verified on-chain. Donor privacy preserved.`,
+                    actionLink: `https://explorer.solana.com/tx/${result.signature}?cluster=devnet`
+                });
             } else {
                 const errData = await res.json();
-                throw new Error(errData.detail || 'Backend failed to verify funding');
+                throw new Error(errData.detail || 'Research network failed to verify stealth proof.');
             }
         } catch (error: any) {
-            console.error('Funding failed', error);
-            
-            // Graceful handling for user cancellations: Don't show scary error modal
-            if (error.message?.includes('User rejected')) {
-                console.log('[OWS] Project funding canceled by researcher.');
-                return;
-            }
-
-            // Specific handling for sync pending errors
-            if (error.message?.includes('syncing')) {
-                showModal('warning', 'SYNC_IN_PROGRESS', error.message);
-                return;
-            }
-
-            showModal('error', 'UMBRA_GRANT_FAILED', error.message || 'We encountered an error during stealth transaction verification.');
+            console.error('Umbra Funding failed', error);
+            if (error.message?.includes('User rejected')) return;
+            showSystemModal({ type: 'error', title: 'UMBRA_STEALTH_FAILED', message: error.message || 'We encountered an error during stealth transaction verification.' });
         } finally {
             setIsFunding(false);
         }
@@ -162,15 +116,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             onClick={() => navigate(`/node/${post.id}`)}
             className="glass-card p-6 flex flex-col gap-6 cursor-pointer group relative overflow-hidden"
         >
-            <SystemModal 
-                isOpen={modalConfig.isOpen}
-                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
-                type={modalConfig.type}
-                title={modalConfig.title}
-                message={modalConfig.message}
-                actionLink={modalConfig.actionLink}
-                actionLabel="VIEW_ON_SOLANA_EXPLORER"
-            />
 
             {/* Hover Glow Effect */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#F6851B]/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,8 +12,8 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            // Redirect the entire broken SDK to a stable local mock
-            '@coinbase/wallet-sdk': 'C:/Users/PC_1M/Desktop/Biotry/src/utils/mock-coinbase-sdk.js',
+            // Redirect the entire broken SDK to a stable local mock (cross-platform)
+            '@coinbase/wallet-sdk': path.resolve(__dirname, './src/utils/mock-coinbase-sdk.js'),
         }
     },
     optimizeDeps: {

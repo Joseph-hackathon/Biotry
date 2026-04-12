@@ -3,17 +3,20 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+    ],
     define: {
-        'global': 'window', // Fixes module resolution for various wallet SDKs
+        'global': 'window',
     },
     resolve: {
         alias: {
-            '@coinbase/wallet-sdk/dist/sign/walletlink/relay/ui/components/Snackbar/Snackbar.js': '/src/utils/mock-snackbar.js',
-            '@coinbase/wallet-sdk': '@coinbase/wallet-sdk/dist/index.js',
+            // Redirect the entire broken SDK to a stable local mock
+            '@coinbase/wallet-sdk': 'C:/Users/PC_1M/Desktop/Biotry/src/utils/mock-coinbase-sdk.js',
         }
     },
     optimizeDeps: {
+        // Exclude from optimization as we are using a local mock
         exclude: ['@coinbase/wallet-sdk'] 
     },
     build: {
@@ -21,12 +24,7 @@ export default defineConfig({
             transformMixedEsModules: true,
         },
         rollupOptions: {
-            external: ['@coinbase/wallet-sdk'],
-            output: {
-                globals: {
-                    '@coinbase/wallet-sdk': 'CoinbaseWalletSDK'
-                }
-            }
+            // No externalization; bundle our local mock instead
         }
     },
     server: {

@@ -1,12 +1,12 @@
 import { 
-    Binary, Globe, ArrowBigUp, Zap, Fingerprint, Info
+    Binary, Globe, ArrowUp, Zap, Fingerprint, Info
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types';
 import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
-import { tapestry, TAPESTRY_API_KEY } from '../lib/tapestry';
+import { likePost } from '../lib/tapestry';
 import { truncateAddress } from '../utils/address';
 import { useSolana } from '../context/SolanaContext';
 import { useUI } from '../context/UIContext';
@@ -43,12 +43,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         upvotePost(post.id, true);
         const profileId = user?.wallet?.address;
         if (profileId) {
-            try {
-                await tapestry.likes.likesCreate(
-                    { nodeId: post.id, apiKey: TAPESTRY_API_KEY },
-                    { startId: profileId }
-                );
-            } catch (err) { console.warn('[Tapestry] Like failed:', err); }
+            likePost(profileId, post.id);
         }
     };
 
@@ -234,7 +229,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         onClick={handleLike}
                         className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-[#F6851B] hover:bg-[#F6851B]/10 transition-all"
                     >
-                        <ArrowBigUp className="w-6 h-6" />
+                        <ArrowUp className="w-6 h-6" />
                     </button>
                 </div>
             </div>

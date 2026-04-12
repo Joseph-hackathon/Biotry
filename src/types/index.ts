@@ -26,6 +26,13 @@ export interface Post {
     license?: string;
     versions?: { version: string; date: string; url: string }[];
     status?: 'Published' | 'In-Review' | 'Draft';
+    amountClaimed?: number;
+    milestones?: {
+        label: string;
+        percentage: number;
+        state: 'Locked' | 'Ready' | 'Claimed';
+        proof_uri?: string;
+    }[];
 }
 
 export interface Editor {

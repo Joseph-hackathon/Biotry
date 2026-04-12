@@ -1,228 +1,110 @@
-import { SocialFi } from 'socialfi';
-
 // ─── Configuration ────────────────────────────────────────────────
 export const TAPESTRY_API_KEY = '7ef7d2eb-1c0e-41d7-baaf-06a3fa5fbf49';
 export const TAPESTRY_NAMESPACE = 'biotry';
 
-export const tapestry = new SocialFi({
-    headers: { 'Authorization': `Bearer ${TAPESTRY_API_KEY}` }
-});
+// ─── Native REST Implementation ──────────────────────────────────
+const TAPESTRY_BASE_URL = 'https://api.usetapestry.dev/v1';
+
+/**
+ * Helper to perform authenticated Tapestry API requests.
+ */
+const tapestryFetch = async (endpoint: string, method: string = 'GET', body?: any) => {
+    try {
+        const res = await fetch(`${TAPESTRY_BASE_URL}${endpoint}`, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${TAPESTRY_API_KEY}`
+            },
+            body: body ? JSON.stringify(body) : undefined
+        });
+        if (!res.ok) throw new Error(`Tapestry API Error: ${res.status}`);
+        return await res.json();
+    } catch (err) {
+        console.error(`[Tapestry] Request failed: ${endpoint}`, err);
+        return null;
+    }
+};
 
 // ─── Profile Sync ───────────────────────────────────────────────
-/**
- * Create or update a researcher's Tapestry social profile.
- */
 export const syncResearcherToTapestry = async (
     walletAddress: string,
-    metadata: {
-        name: string;
-        bio: string;
-        institution?: string;
-        orcid?: string;
-        field?: string;
-    }
+    metadata: { name: string; bio: string; institution?: string; orcid?: string; field?: string; }
 ) => {
-    try {
-        await tapestry.profiles.findOrCreateCreate(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                username: metadata.name,
-                walletAddress,
-                bio: metadata.bio,
-                image: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${walletAddress}`,
-                properties: [
-                    ...(metadata.institution ? [{ key: 'institution', value: metadata.institution }] : []),
-                    ...(metadata.orcid ? [{ key: 'orcid', value: metadata.orcid }] : []),
-                    ...(metadata.field ? [{ key: 'researchField', value: metadata.field }] : []),
-                    { key: 'version', value: '1.0' },
-                ],
-            }
-        );
-        console.log(`[Tapestry] Profile synced: ${walletAddress}`);
-        return true;
-    } catch (err) {
-        console.error('[Tapestry] Profile sync failed:', err);
-        return false;
-    }
+    return !!(await tapestryFetch('/profiles', 'POST', {
+        username: metadata.name,
+        walletAddress,
+        bio: metadata.bio,
+        image: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${walletAddress}`,
+        properties: [
+            ...(metadata.institution ? [{ key: 'institution', value: metadata.institution }] : []),
+            ...(metadata.orcid ? [{ key: 'orcid', value: metadata.orcid }] : []),
+            ...(metadata.field ? [{ key: 'researchField', value: metadata.field }] : []),
+            { key: 'version', value: '1.0' },
+        ],
+    }));
 };
 
 // ─── Follow / Unfollow ──────────────────────────────────────────
-/**
- * Follow another researcher on the Tapestry social graph.
- */
 export const followUser = async (followerAddress: string, followeeAddress: string) => {
-    try {
-        await tapestry.followers.postFollowers(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                startId: followerAddress,
-                endId: followeeAddress,
-            }
-        );
-        console.log(`[Tapestry] ${followerAddress} → followed → ${followeeAddress}`);
-        return true;
-    } catch (err) {
-        console.error('[Tapestry] Follow failed:', err);
-        return false;
-    }
+    return !!(await tapestryFetch('/followers', 'POST', {
+        startId: followerAddress,
+        endId: followeeAddress,
+    }));
 };
 
-/**
- * Unfollow a researcher on the Tapestry social graph.
- */
 export const unfollowUser = async (followerAddress: string, followeeAddress: string) => {
-    try {
-        await tapestry.followers.removeCreate(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                startId: followerAddress,
-                endId: followeeAddress,
-            }
-        );
-        console.log(`[Tapestry] ${followerAddress} → unfollowed → ${followeeAddress}`);
-        return true;
-    } catch (err) {
-        console.error('[Tapestry] Unfollow failed:', err);
-        return false;
-    }
+    return !!(await tapestryFetch(`/followers/${followerAddress}/${followeeAddress}`, 'DELETE'));
 };
 
-/**
- * Get the list of followers for a researcher.
- */
 export const getFollowers = async (walletAddress: string): Promise<string[]> => {
-    try {
-        const res = await tapestry.profiles.followersList({
-            apiKey: TAPESTRY_API_KEY,
-            id: walletAddress,
-        });
-        return (res as any)?.followers?.map((f: any) => f.profile.id) ?? [];
-    } catch (err) {
-        console.error('[Tapestry] getFollowers failed:', err);
-        return [];
-    }
+    const res = await tapestryFetch(`/profiles/${walletAddress}/followers`);
+    return res?.followers?.map((f: any) => f.profile?.id || f.id) ?? [];
 };
 
-/**
- * Get the list of accounts a researcher is following.
- */
 export const getFollowing = async (walletAddress: string): Promise<string[]> => {
-    try {
-        const res = await tapestry.profiles.followingList({
-            apiKey: TAPESTRY_API_KEY,
-            id: walletAddress,
-        });
-        return (res as any)?.following?.map((f: any) => f.profile.id) ?? [];
-    } catch (err) {
-        console.error('[Tapestry] getFollowing failed:', err);
-        return [];
-    }
+    const res = await tapestryFetch(`/profiles/${walletAddress}/following`);
+    return res?.following?.map((f: any) => f.profile?.id || f.id) ?? [];
 };
 
-// ─── Post Node ──────────────────────────────────────────────────
-/**
- * Register a research post as a node in the Tapestry social graph.
- * Links the author to the post via a "published" edge.
- */
-export const createPostNode = async (
-    walletAddress: string,
-    postId: string,
-    title: string
-) => {
-    try {
-        await tapestry.contents.findOrCreateCreate(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                id: postId,
-                profileId: walletAddress, // This automatically links the author
-                properties: [
-                    { key: 'title', value: title },
-                    { key: 'author', value: walletAddress },
-                    { key: 'createdAt', value: new Date().toISOString() },
-                    { key: 'label', value: 'ResearchPost' }
-                ],
-            }
-        );
-        console.log(`[Tapestry] Post node created: ${postId}`);
-        return true;
-    } catch (err) {
-        console.error('[Tapestry] createPostNode failed:', err);
-        return false;
-    }
+// ─── Actions ───────────────────────────────────────────────────
+export const createPostNode = async (walletAddress: string, postId: string, title: string) => {
+    return !!(await tapestryFetch('/contents', 'POST', {
+        id: postId,
+        profileId: walletAddress,
+        properties: [
+            { key: 'title', value: title },
+            { key: 'author', value: walletAddress },
+            { key: 'label', value: 'ResearchPost' }
+        ],
+    }));
 };
 
-// ─── Comment Node ────────────────────────────────────────────────
-/**
- * Register a comment as a node in the Tapestry social graph.
- * Links: author →COMMENTED_ON→ post
- */
-export const createCommentNode = async (
-    walletAddress: string,
-    postId: string,
-    commentId: string,
-    content: string
-) => {
-    try {
-        await tapestry.comments.commentsCreate(
-            { apiKey: TAPESTRY_API_KEY },
-            {
-                commentId,
-                contentId: postId,
-                profileId: walletAddress,
-                text: content.slice(0, 280),
-                properties: [
-                    { key: 'author', value: walletAddress },
-                    { key: 'postId', value: postId },
-                    { key: 'createdAt', value: new Date().toISOString() },
-                    { key: 'label', value: 'Comment' }
-                ],
-            }
-        );
-        console.log(`[Tapestry] Comment node created: ${commentId}`);
-        return true;
-    } catch (err) {
-        console.error('[Tapestry] createCommentNode failed:', err);
-        return false;
-    }
+export const likePost = async (walletAddress: string, postId: string) => {
+    return !!(await tapestryFetch(`/likes/${postId}`, 'POST', { startId: walletAddress }));
+};
+
+export const unlikePost = async (walletAddress: string, postId: string) => {
+    return !!(await tapestryFetch(`/likes/${postId}/${walletAddress}`, 'DELETE'));
 };
 
 // ─── Reputation Engine ──────────────────────────────────────────
-/**
- * Calculates a researcher's decentralized reputation score and fetches badges 
- * from the Tapestry social graph.
- */
 export const getResearcherReputation = async (walletAddress: string) => {
     try {
-        // In a real implementation, we would query the Tapestry API for a 
-        // comprehensive profile aggregate. For this hackathon, we derive 
-        // a score from social signals (followers/publications).
-        const followers = await getFollowers(walletAddress);
-        const following = await getFollowing(walletAddress);
+        const [followers, following] = await Promise.all([
+            getFollowers(walletAddress),
+            getFollowing(walletAddress)
+        ]);
         
-        // Base score linked to social graph density
-        const baseScore = Math.min(100, (followers.length * 10) + (following.length * 2) + 20); // Default 20
-        
-        // Badges based on social and on-chain traits
+        const baseScore = Math.min(100, (followers.length * 10) + (following.length * 2) + 20);
         const badges: Array<{ id: string; label: string; color: string }> = [];
         
-        if (followers.length > 5) {
-            badges.push({ id: 'top_researcher', label: 'Top_Cited', color: 'text-purple-400' });
-        }
-        
-        if (walletAddress.startsWith('2BY4')) { // Example logic for protocol authority
-            badges.push({ id: 'verified_academic', label: 'Verified_Hub', color: 'text-blue-400' });
-        }
-
-        // Default badge for all active researchers
+        if (followers.length > 5) badges.push({ id: 'top_researcher', label: 'Top_Cited', color: 'text-purple-400' });
+        if (walletAddress.startsWith('2BY4')) badges.push({ id: 'verified_academic', label: 'Verified_Hub', color: 'text-blue-400' });
         badges.push({ id: 'early_adopter', label: 'Genesis_Node', color: 'text-green-400' });
 
-        return {
-            score: baseScore,
-            badges,
-            followerCount: followers.length
-        };
+        return { score: baseScore, badges, followerCount: followers.length };
     } catch (err) {
-        console.error('[Tapestry] Reputation fetch failed:', err);
-        return { score: 0, badges: [], followerCount: 0 };
+        return { score: 20, badges: [{ id: 'early_adopter', label: 'Genesis_Node', color: 'text-green-400' }], followerCount: 0 };
     }
 };

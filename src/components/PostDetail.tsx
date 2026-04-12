@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    ArrowLeft, MessageSquare, ArrowBigUp, Share2, 
+    ArrowLeft, MessageSquare, ArrowUp, Share2, 
     MoreHorizontal, FileText, Globe, Link2, 
     Binary, Zap, Sparkles, ShieldCheck, 
     ChevronRight, ArrowUpRight, Play, Activity,
@@ -219,7 +219,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                               <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${post.author}`} className="w-full h-full object-cover" />
                          </div>
                          <div className="space-y-0.5">
-                         <div className="space-y-0.5">
                              <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Principal Investigator</p>
                              <div className="flex items-center gap-3">
                                 <p className="text-base font-bold text-white tracking-tight">{truncateAddress(post?.author || '')}</p>
@@ -259,7 +258,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     </div>
 
                     <div className="space-y-6">
-                        {milestones.map((m, idx) => (
+                        {milestones.map((m: any, idx: number) => (
                             <div key={idx} className="flex gap-6 group">
                                 <div className="flex flex-col items-center gap-2 pt-1.5">
                                     <div className={clsx(
@@ -520,7 +519,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         onClick={() => handleUpvote(post.id)}
                         className="flex items-center gap-3 px-8 py-3 bg-[#F6851B]/10 border border-[#F6851B]/50 rounded-2xl text-white hover:bg-[#F6851B] transition-all group"
                     >
-                        <ArrowBigUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                        <ArrowUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
                         <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{post.upvotes} UPVOTES</span>
                     </button>
                     <div className="flex items-center gap-3 text-white/40">
@@ -563,7 +562,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-lg">
-                                         <ArrowBigUp className="w-3.5 h-3.5 text-white/40" />
+                                         <ArrowUp className="w-3.5 h-3.5 text-white/40" />
                                          <span className="text-[10px] font-bold text-white/60">{comment.upvotes}</span>
                                     </div>
                                 </div>

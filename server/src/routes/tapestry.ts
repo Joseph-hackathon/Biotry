@@ -9,9 +9,9 @@ const TAPESTRY_API_KEY = process.env.TAPESTRY_API_KEY || '7ef7d2eb-1c0e-41d7-baa
  * Catch-all proxy for Tapestry API requests.
  * Relays requests to api.usetapestry.dev with the API key injected.
  */
-router.all('/*', async (req: any, res: any) => {
+router.all('/:subpath*', async (req: any, res: any) => {
     try {
-        const endpoint = req.params[0] ? `/${req.params[0]}` : '';
+        const endpoint = req.params.subpath ? `/${req.params.subpath}` : '';
         const url = `${TAPESTRY_BASE_URL}${endpoint}`;
         
         const response = await fetch(url, {

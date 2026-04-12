@@ -1,20 +1,17 @@
 // ─── Configuration ────────────────────────────────────────────────
-export const TAPESTRY_API_KEY = '7ef7d2eb-1c0e-41d7-baaf-06a3fa5fbf49';
-export const TAPESTRY_NAMESPACE = 'biotry';
-
-// ─── Native REST Implementation ──────────────────────────────────
-const TAPESTRY_BASE_URL = 'https://api.usetapestry.dev/v1';
+const TAPESTRY_BASE_URL = '/api/tapestry';
 
 /**
- * Helper to perform authenticated Tapestry API requests.
+ * Helper to perform authenticated Tapestry API requests via the Biotry Backend Proxy.
+ * This resolves CORS issues for production origins (e.g., Vercel).
  */
 const tapestryFetch = async (endpoint: string, method: string = 'GET', body?: any) => {
     try {
         const res = await fetch(`${TAPESTRY_BASE_URL}${endpoint}`, {
             method,
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${TAPESTRY_API_KEY}`
+                'Content-Type': 'application/json'
+                // Authorization is now handled by the backend proxy.
             },
             body: body ? JSON.stringify(body) : undefined
         });

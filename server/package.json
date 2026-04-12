@@ -19,10 +19,12 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@solana/web3.js": "^1.98.4",
+    "@types/node-fetch": "^2.6.13",
     "biotry": "file:..",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

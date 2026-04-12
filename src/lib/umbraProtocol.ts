@@ -3,14 +3,16 @@ import {
     Transaction, 
     SystemProgram, 
     Connection, 
-    LAMPORTS_PER_SOL 
+    LAMPORTS_PER_SOL,
+    sendAndConfirmTransaction
 } from '@solana/web3.js';
+import { Provider } from '@coral-xyz/anchor';
 
 /**
  * Biotry Umbra Privacy Layer — Frontend SDK
  * 
- * This module manages the generation of stealth addresses and the verification 
- * of confidential research grants.
+ * This module manages the generation of stealth addresses and the execution 
+ * of live, on-chain confidential research grants.
  */
 
 export interface UmbraGrantParams {
@@ -20,10 +22,10 @@ export interface UmbraGrantParams {
 }
 
 export class UmbraProtocol {
-    private connection: Connection;
+    private provider: Provider;
 
-    constructor(connection: Connection) {
-        this.connection = connection;
+    constructor(provider: Provider) {
+        this.provider = provider;
     }
 
     /**
@@ -67,19 +69,24 @@ export class UmbraProtocol {
         const stealthAddress = await this.generateStealthAddress(params.recipient);
         const donorPubkey = this.toSafePublicKey(params.donor);
         
-        console.log(`[Umbra] Executing anonymous grant: ${params.amount} SOL from ${donorPubkey.toBase58().slice(0,8)}... to stealth address`);
+        console.log(`[Umbra] Initiating on-chain grant: ${params.amount} SOL from ${donorPubkey.toBase58().slice(0,8)}...`);
         
-        // This simulates the Umbra stealth transfer.
+        // build transaction
         const tx = new Transaction().add(
             SystemProgram.transfer({
                 fromPubkey: donorPubkey,
                 toPubkey: stealthAddress,
-                lamports: Math.floor(params.amount * LAMPORTS_PER_SOL * 0.05), // Representative amount
+                lamports: Math.floor(params.amount * LAMPORTS_PER_SOL * 0.05), // scaling for devnet
             })
         );
 
+        // Sign and Send using Anchor Provider (Privy Bridge)
+        const signature = await (this.provider as any).sendAndConfirm(tx, []);
+        
+        console.log(`[Umbra] On-Chain Signature Verified: ${signature}`);
+
         return {
-            signature: 'SIMULATED_UMBRA_SIG_' + Math.random().toString(36).slice(2, 9).toUpperCase(),
+            signature,
             stealthAddress: stealthAddress.toBase58()
         };
     }
@@ -92,7 +99,3 @@ export class UmbraProtocol {
         return true;
     }
 }
-
-export const useUmbra = (connection: Connection) => {
-    return new UmbraProtocol(connection);
-};

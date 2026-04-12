@@ -53,25 +53,25 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         navigate(`/node/${post.id}/simulate`);
     };
 
-    const { fundAnonymously } = useUmbra(connection);
+    const { fundAnonymously } = useUmbra(program?.provider || null);
 
     const handleFund = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!isReady || !solanaAddress || !program) {
-            showSystemModal({ type: 'warning', title: 'WALLET_DISCONNECTED', message: 'Please connect your Solana wallet to contribute anonymous funds.' });
+            showSystemModal({ type: 'warning', title: 'WALLET_DISCONNECTED', message: 'Please connect your Solana wallet to contribute live anonymous funds.' });
             return;
         }
 
         setIsFunding(true);
         try {
-            // Umbra Protocol: Anonymous Grant Execution via Hook
+            // Live Umbra Protocol: Real On-Chain Transaction sign/send
             const result = await fundAnonymously({
                 amount: fundingAmount,
                 recipient: post.author,
                 donor: solanaAddress
             });
             
-            console.log(`[UMBRA] Stealth Grant Signature: ${result.signature}`);
+            console.log(`[UMBRA] Live Stealth Grant Signature: ${result.signature}`);
 
             // Notify backend for persistence
             const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app';

@@ -1,14 +1,19 @@
 import { useMemo, useCallback } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Provider } from '@coral-xyz/anchor';
 import { UmbraProtocol } from '../lib/umbraProtocol';
 
 /**
  * Custom hook for Umbra Privacy Protocol interactions.
+ * Bridges the Solana Context (Provider/Wallet) with the Privacy Layer.
  */
-export const useUmbra = (connection: Connection) => {
-    const umbra = useMemo(() => new UmbraProtocol(connection), [connection]);
+export const useUmbra = (provider: Provider | null) => {
+    const umbra = useMemo(() => {
+        if (!provider) return null;
+        return new UmbraProtocol(provider);
+    }, [provider]);
 
     const getStealthAddress = useCallback(async (recipient: string) => {
+        if (!umbra) throw new Error('Umbra Protocol not initialized. Connect wallet.');
         return await umbra.generateStealthAddress(recipient);
     }, [umbra]);
 
@@ -17,12 +22,13 @@ export const useUmbra = (connection: Connection) => {
         recipient: string; 
         donor: string;
     }) => {
+        if (!umbra) throw new Error('Umbra Protocol not initialized. Connect wallet.');
         return await umbra.executeStealthGrant(params);
     }, [umbra]);
 
     return {
         getStealthAddress,
         fundAnonymously,
-        verifyGrantPrivacy: umbra.verifyGrantPrivacy.bind(umbra)
+        verifyGrantPrivacy: umbra ? umbra.verifyGrantPrivacy.bind(umbra) : () => false
     };
 };

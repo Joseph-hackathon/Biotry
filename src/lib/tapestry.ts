@@ -146,12 +146,15 @@ export const postComment = async (walletAddress: string, nodeId: string, text: s
         // Step 1: Guarantee author presence
         await ensureTapestryProfile(walletAddress);
 
-        // Step 2: Anchor professional commentary
+        // Step 2: Just-In-Time Registration of the target node
+        // This prevents 500 errors if commenting on a node that hasn't been liked yet.
+        await createPostNode(walletAddress, nodeId, "Research Node");
+
+        // Step 3: Anchor professional commentary
         const res = await tapestryFetch('/comments', 'POST', {
             profileId: walletAddress,
             contentId: nodeId,
             text,
-            blockchain: 'SOLANA',
             execution: 'FAST_UNCONFIRMED',
             properties: [
                 { key: 'label', value: 'ScientificCommentary' },

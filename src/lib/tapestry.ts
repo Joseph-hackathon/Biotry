@@ -82,10 +82,11 @@ export const getFollowing = async (walletAddress: string): Promise<string[]> => 
 export const ensureTapestryProfile = async (walletAddress: string) => {
     try {
         // Tapestry v1 requires a 'username' for profile initialization.
-        // We use the wallet address as the default verified handle.
+        // We also explicitly define the blockchain for proper indexing.
         const res = await tapestryFetch('/profiles/findOrCreate', 'POST', {
             id: walletAddress,
             username: walletAddress,
+            blockchain: 'SOLANA',
             execution: 'FAST_UNCONFIRMED'
         });
         return !!res;
@@ -108,6 +109,7 @@ export const createPostNode = async (walletAddress: string, postId: string, titl
             profileId: walletAddress,
             content: title,
             contentType: 'text',
+            blockchain: 'SOLANA',
             execution: 'FAST_UNCONFIRMED',
             properties: [
                 { key: 'title', value: title || 'Research Node' },
@@ -132,6 +134,7 @@ export const likePost = async (walletAddress: string, postId: string, title?: st
         // Step 3: Atomic Like interaction
         const res = await tapestryFetch(`/likes/${postId}`, 'POST', { 
             startId: walletAddress,
+            blockchain: 'SOLANA',
             execution: 'FAST_UNCONFIRMED'
         });
         return !!res;

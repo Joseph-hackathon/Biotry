@@ -24,15 +24,15 @@ router.use(async (req: any, res: any) => {
             });
         }
 
-        const url = `${TAPESTRY_BASE_URL}${endpoint}`;
+        // API v1 requires apiKey as a query parameter, not as a header.
+        const url = `${TAPESTRY_BASE_URL}${req.path}?apiKey=${TAPESTRY_API_KEY}`;
         
-        console.log(`[PROXY v2.1] Relaying to Tapestry: ${url}`);
+        console.log(`[PROXY v2.2] Relaying to: ${url}`);
 
         const response = await fetch(url, {
             method: req.method,
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${TAPESTRY_API_KEY}`
+                'Content-Type': 'application/json'
             },
             body: ['POST', 'PUT', 'PATCH'].includes(req.method) ? JSON.stringify(req.body) : undefined
         });

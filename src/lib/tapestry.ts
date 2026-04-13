@@ -77,28 +77,59 @@ export const getFollowing = async (walletAddress: string): Promise<string[]> => 
     return res?.following?.map((f: any) => f.profile?.id || f.id) ?? [];
 };
 
+// ─── Profile Management ──────────────────────────────────────────
+
+export const ensureTapestryProfile = async (walletAddress: string) => {
+    try {
+        // Tapestry v1 requires a 'username' for profile initialization.
+        // We use the wallet address as the default verified handle.
+        const res = await tapestryFetch('/profiles/findOrCreate', 'POST', {
+            id: walletAddress,
+            username: walletAddress,
+            execution: 'FAST_UNCONFIRMED'
+        });
+        return !!res;
+    } catch (err) {
+        console.warn(`[Tapestry] Profile sync error for ${walletAddress}:`, err);
+        return false;
+    }
+};
+
 // ─── Actions ───────────────────────────────────────────────────
+
 export const createPostNode = async (walletAddress: string, postId: string, title: string) => {
-    return !!(await tapestryFetch('/contents/findOrCreate', 'POST', {
-        id: postId,
-        profileId: walletAddress,
-        content: title,
-        contentType: 'text',
-        execution: 'FAST_UNCONFIRMED',
-        properties: [
-            { key: 'title', value: title || 'Research Node' },
-            { key: 'author', value: walletAddress },
-            { key: 'label', value: 'ResearchPost' }
-        ],
-    }));
+    try {
+        // Step 1: Guarantee author presence on graph
+        await ensureTapestryProfile(walletAddress);
+
+        // Step 2: Anchoring content node
+        return !!(await tapestryFetch('/contents/findOrCreate', 'POST', {
+            id: postId,
+            profileId: walletAddress,
+            content: title,
+            contentType: 'text',
+            execution: 'FAST_UNCONFIRMED',
+            properties: [
+                { key: 'title', value: title || 'Research Node' },
+                { key: 'author', value: walletAddress },
+                { key: 'label', value: 'ResearchPost' }
+            ],
+        }));
+    } catch (err) {
+         console.warn(`[Tapestry] Content registration rejected:`, err);
+         return false;
+    }
 };
 
 export const likePost = async (walletAddress: string, postId: string, title?: string) => {
     try {
-        // Just-In-Time Registration using correct findOrCreate specs
+        // Step 1: Guarantee liker presence on graph
+        await ensureTapestryProfile(walletAddress);
+
+        // Step 2: Just-In-Time Registration of the target node
         await createPostNode(walletAddress, postId, title || 'Research Node');
         
-        // documented v1 likes path
+        // Step 3: Atomic Like interaction
         const res = await tapestryFetch(`/likes/${postId}`, 'POST', { 
             startId: walletAddress,
             execution: 'FAST_UNCONFIRMED'

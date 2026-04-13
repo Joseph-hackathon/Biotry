@@ -622,13 +622,22 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     {/* Render existing comments */}
                     <div className="space-y-6 pt-6">
                         {/* Combine local and graph-anchored comments */}
-                        {[...postComments, ...fetchedComments.map(c => ({
-                            id: c.id,
-                            author: c.profileId,
-                            content: c.text || c.comment || c.message || 'Professional commentary recorded on graph.',
-                            createdAt: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'Anchored Discussion',
-                            upvotes: 0
-                        }))].map((comment, idx) => (
+                        {[...postComments, ...fetchedComments.map(c => {
+                            const rawText = c.text || c.comment || c.message;
+                            const contentStr = typeof rawText === 'string' 
+                                ? rawText 
+                                : (typeof rawText === 'object' && rawText !== null)
+                                    ? (rawText.text || rawText.content || JSON.stringify(rawText))
+                                    : 'Professional commentary recorded on graph.';
+                                    
+                            return {
+                                id: c.id,
+                                author: c.profileId,
+                                content: contentStr,
+                                createdAt: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'Anchored Discussion',
+                                upvotes: 0
+                            };
+                        })].map((comment, idx) => (
                             <div key={comment.id || idx} className="glass-panel p-6 border-white/5 bg-white/5 rounded-[24px] space-y-4 animate-in fade-in slide-in-from-left-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">

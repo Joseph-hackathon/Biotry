@@ -101,7 +101,7 @@ const ResearchEditor = () => {
         if (!canSubmit || isSubmitting) return;
         setIsSubmitting(true);
         try {
-            const shortAddress = truncateAddress(activeAddress);
+            // Generate a random ID for fallback or use provided PDA later
             let finalId = Math.random().toString(36).substr(2, 9);
 
             if (program && solanaAddress) {

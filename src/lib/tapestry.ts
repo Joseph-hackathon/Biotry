@@ -100,6 +100,11 @@ export const unlikePost = async (walletAddress: string, postId: string) => {
 
 // ─── Reputation Engine ──────────────────────────────────────────
 export const getResearcherReputation = async (walletAddress: string) => {
+    // Identifier Integrity: Return Genesis defaults for truncated addresses
+    if (!walletAddress || walletAddress.includes('...')) {
+        return { score: 20, badges: [{ id: 'early_adopter', label: 'Genesis_Node', color: 'text-green-400' }], followerCount: 0 };
+    }
+
     try {
         const [followers, following] = await Promise.all([
             getFollowers(walletAddress),

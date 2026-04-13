@@ -21,8 +21,13 @@ export const useTapestryReputation = (walletAddress: string | null) => {
     });
 
     useEffect(() => {
-        if (!walletAddress) {
-            setData(prev => ({ ...prev, loading: false }));
+        if (!walletAddress || walletAddress.includes('...')) {
+            setData({
+                score: 20,
+                badges: [{ id: 'early_adopter', label: 'Genesis_Node', color: 'text-green-400' }],
+                followerCount: 0,
+                loading: false
+            });
             return;
         }
 

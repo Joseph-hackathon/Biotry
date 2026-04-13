@@ -625,8 +625,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         {[...postComments, ...fetchedComments.map(c => ({
                             id: c.id,
                             author: c.profileId,
-                            content: c.text,
-                            createdAt: 'Anchored Discussion',
+                            content: c.text || c.comment || c.message || 'Professional commentary recorded on graph.',
+                            createdAt: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'Anchored Discussion',
                             upvotes: 0
                         }))].map((comment, idx) => (
                             <div key={comment.id || idx} className="glass-panel p-6 border-white/5 bg-white/5 rounded-[24px] space-y-4 animate-in fade-in slide-in-from-left-4">

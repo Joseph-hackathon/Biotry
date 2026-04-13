@@ -80,7 +80,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const voteOnProposal = useCallback((proposalId: string, approve: boolean) => {
         setProposals(prev =>
             prev.map(p => p.id === proposalId
-                ? { ...p, upvotes: approve ? p.upvotes + 1 : p.upvotes }
+                ? { ...p, upvotes: approve ? (p.upvotes || 0) + 1 : (p.upvotes || 0) }
                 : p
             )
         );

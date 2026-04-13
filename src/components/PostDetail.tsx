@@ -216,7 +216,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         // Real graph anchoring
         const success = await likePost(solanaAddress, postId, post.title);
         if (success) {
-            loadNodeStats(); // Refresh live counters
+            // Indexer-aware refresh: Allow Tapestry ~1.5s to propagate
+            setTimeout(() => loadNodeStats(), 1500);
         }
     };
 
@@ -227,7 +228,9 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         // Add locally and anchor to social graph
         await addComment(post.id, authenticated ? truncateAddress("User") : "Anonymous", newComment, solanaAddress || undefined);
         setNewComment('');
-        loadNodeStats(); // Refresh comment count from graph
+        
+        // Indexer-aware refresh
+        setTimeout(() => loadNodeStats(), 1500);
     };
 
     const fundingPercentage = Math.min(((postData?.fundUSDC || 0) / (postData?.fundingGoal || 100)) * 100, 100);
@@ -552,11 +555,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         <div className="grid grid-cols-2 gap-x-12 gap-y-12">
                              <div className="space-y-2">
                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Upvotes</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-white">{(liveStats.upvotes || post.upvotes)}</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">{Math.max(liveStats.upvotes, postData.upvotes || 0)}</p>
                              </div>
                              <div className="space-y-2">
                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Expert Comments</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-white">{(liveStats.comments || postComments.length)}</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">{Math.max(liveStats.comments, postComments.length)}</p>
                              </div>
                              <div className="space-y-2 pt-6 border-t border-white/5">
                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Followers</p>
@@ -579,11 +582,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         className="flex items-center gap-3 px-8 py-3 bg-[#F6851B]/10 border border-[#F6851B]/50 rounded-2xl text-white hover:bg-[#F6851B] transition-all group"
                     >
                         <ArrowUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{(liveStats.upvotes || post.upvotes)} UPVOTES</span>
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{Math.max(liveStats.upvotes, postData.upvotes || 0)} UPVOTES</span>
                     </button>
                     <div className="flex items-center gap-3 text-white/40">
                         <MessageSquare className="w-5 h-5" />
-                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{(liveStats.comments || postComments.length)} COMMENTS</span>
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{Math.max(liveStats.comments, postComments.length)} COMMENTS</span>
                     </div>
                 </div>
 

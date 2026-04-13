@@ -40,10 +40,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const handleLike = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!authenticated) return login();
+        if (!solanaAddress) return;
+
+        // Optimistic local update
         upvotePost(post.id, true);
-        const profileId = user?.wallet?.address;
-        if (profileId) {
-            likePost(profileId, post.id);
+
+        // Real graph anchoring
+        try {
+            await likePost(solanaAddress, post.id, post.title);
+        } catch (err) {
+            console.warn('[Social Graph] Like anchoring failed:', err);
         }
     };
 
@@ -227,9 +233,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     </button>
                     <button 
                         onClick={handleLike}
-                        className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-[#F6851B] hover:bg-[#F6851B]/10 transition-all"
+                        className="flex items-center gap-2 px-4 h-11 bg-white/5 border border-white/10 rounded-2xl text-white/40 hover:text-[#F6851B] hover:bg-[#F6851B]/10 transition-all font-black tabular-nums"
                     >
-                        <ArrowUp className="w-6 h-6" />
+                        <ArrowUp className="w-5 h-5" />
+                        <span className="text-[11px] tracking-tight">{post.upvotes || 0}</span>
                     </button>
                 </div>
             </div>

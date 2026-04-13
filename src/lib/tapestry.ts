@@ -8,6 +8,13 @@ const TAPESTRY_BASE_URL = `${BACKEND_URL}/api/tapestry`;
  */
 const tapestryFetch = async (endpoint: string, method: string = 'GET', body?: any) => {
     try {
+        // Identifier Integrity: Reject truncated addresses containing '...'
+        // Solana addresses must be the full 44-character public key.
+        if (endpoint.includes('...')) {
+            console.warn(`[Tapestry] Blocked invalid truncated identifier: ${endpoint}`);
+            return null;
+        }
+
         const res = await fetch(`${TAPESTRY_BASE_URL}${endpoint}`, {
             method,
             headers: {

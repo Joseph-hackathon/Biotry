@@ -14,6 +14,16 @@ const TAPESTRY_API_KEY = process.env.TAPESTRY_API_KEY || '7ef7d2eb-1c0e-41d7-baa
 router.use(async (req: any, res: any) => {
     try {
         const endpoint = req.path || '';
+        
+        // Identifier Integrity: Reject truncated addresses containing '...'
+        if (endpoint.includes('...')) {
+            console.warn(`[PROXY v2.1] Rejected truncated identifier: ${endpoint}`);
+            return res.status(400).json({ 
+                error: 'Invalid Profile Identifier', 
+                details: 'Identifiers containing "..." are truncated and cannot be resolved on the Tapestry network. Use the full Solana public key.'
+            });
+        }
+
         const url = `${TAPESTRY_BASE_URL}${endpoint}`;
         
         console.log(`[PROXY v2.1] Relaying to Tapestry: ${url}`);

@@ -18,6 +18,7 @@ import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana
 import { submitMilestoneProof, claimMilestoneFunds } from '../lib/program';
 import { useTapestryReputation } from '../hooks/useTapestryReputation';
 import SystemModal, { SystemModalType } from './SystemModal';
+import { getContentStats, likePost } from '../lib/tapestry';
 
 interface PostDetailProps { post: Post; onBack: () => void; }
 
@@ -52,7 +53,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
 
     const [liveStats, setLiveStats] = useState({ upvotes: 0, comments: 0 });
-    const { getContentStats } = require('../lib/tapestry');
 
     useEffect(() => {
         const loadNodeStats = async () => {
@@ -214,7 +214,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         upvotePost(postId, true);
         
         // Real graph anchoring
-        const { likePost } = require('../lib/tapestry');
         const success = await likePost(solanaAddress, postId, post.title);
         if (success) {
             loadNodeStats(); // Refresh live counters

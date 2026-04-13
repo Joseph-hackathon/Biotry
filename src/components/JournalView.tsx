@@ -28,6 +28,7 @@ import { clsx } from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { useSolana } from '../context/SolanaContext';
 import { useUI } from '../context/UIContext';
+import { getNetworkStats } from '../lib/tapestry';
 
 type JournalTab = 'All' | 'In-Review' | 'Published' | 'About';
 
@@ -56,7 +57,6 @@ const JournalView: React.FC = () => {
     }, [posts, activeTab, searchQuery, selectedHub]);
 
     const [liveStats, setLiveStats] = useState({ scientistCount: 0, nodeCount: 0 });
-    const { getNetworkStats } = require('../lib/tapestry');
 
     React.useEffect(() => {
         const loadStats = async () => {

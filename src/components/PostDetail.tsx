@@ -272,7 +272,12 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     <div className="h-10 w-[1px] bg-white/5 hidden sm:block" />
                     <div className="hidden sm:block space-y-0.5">
                          <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Research Field</p>
-                         <p className="text-base font-bold text-[#A78BFA] tracking-tight">{post.researchField}</p>
+                         <div className="flex items-center gap-4">
+                            <p className="text-base font-bold text-[#A78BFA] tracking-tight">{post.researchField}</p>
+                            <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] px-2 py-0.5 border border-white/5 rounded-md flex items-center gap-1.5">
+                                <Globe className="w-3 h-3" /> VERIFICATION: TAPESTRY_GRAPH_ACTIVE
+                            </span>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -363,38 +368,30 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    <div className="glass-panel p-8 rounded-[32px] border border-white/5 bg-gradient-to-br from-[#7C3AED]/5 to-transparent space-y-6">
-                         <div className="flex justify-between items-center">
-                              <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Institutional Verification</h4>
-                              <Globe className="w-5 h-5 text-[#7C3AED]" />
-                         </div>
-                         <p className="text-sm text-white/40 leading-relaxed uppercase tracking-wider font-medium">This research context is anchored by the Tapestry Social Graph, linking anonymous identities to verified academic reputations without disclosing sensitive PII.</p>
-                         <div className="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center text-[#7C3AED]">
-                                    <Binary className="w-5 h-5" />
-                              </div>
-                              <div>
-                                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Social Verification Active</p>
-                                  <p className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-[2px]">Tapestry Protocol Enabled</p>
-                              </div>
-                         </div>
+                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-8">
+                        <div className="flex justify-between items-center">
+                             <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Influence Metrics</h4>
+                             <Activity className="w-4 h-4 text-green-400" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                             <div className="space-y-1">
+                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">Citations</p>
+                                 <p className="text-2xl font-bold tracking-tighter">1,244</p>
+                             </div>
+                             <div className="space-y-1">
+                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">H-Index (AI)</p>
+                                 <p className="text-2xl font-bold tracking-tighter">42</p>
+                             </div>
+                             <div className="space-y-1 pt-4 border-t border-white/5">
+                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">Followers</p>
+                                 <p className="text-2xl font-bold tracking-tighter">{reputation.followerCount || 42}</p>
+                             </div>
+                             <div className="space-y-1 pt-4 border-t border-white/5">
+                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">Published</p>
+                                 <p className="text-2xl font-bold tracking-tighter">12</p>
+                             </div>
+                        </div>
                     </div>
-
-                    <div className="p-8 glass-panel rounded-[32px] border border-white/5 space-y-6">
-                         <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Researcher Influence</h4>
-                         <div className="grid grid-cols-2 gap-4">
-                              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Followers</p>
-                                  <p className="text-2xl font-bold">{reputation.followerCount || 42}</p>
-                              </div>
-                              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Published</p>
-                                  <p className="text-2xl font-bold">12</p>
-                              </div>
-                         </div>
-                    </div>
-                </div>
             </div>
 
             {/* ── Simulator CTA Banner with Dropdown ── */}

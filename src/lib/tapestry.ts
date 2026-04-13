@@ -90,8 +90,19 @@ export const createPostNode = async (walletAddress: string, postId: string, titl
     }));
 };
 
-export const likePost = async (walletAddress: string, postId: string) => {
-    return !!(await tapestryFetch(`/likes/${postId}`, 'POST', { startId: walletAddress }));
+export const likePost = async (walletAddress: string, postId: string, title?: string) => {
+    try {
+        const res = await tapestryFetch(`/likes/${postId}`, 'POST', { startId: walletAddress });
+        // If 404, the content node might not exist yet. Try creating it.
+        if (res === null) {
+            console.log(`[Tapestry] Content node ${postId} missing. Attempting JIT registration...`);
+            await createPostNode(walletAddress, postId, title || 'Research Node');
+            return !!(await tapestryFetch(`/likes/${postId}`, 'POST', { startId: walletAddress }));
+        }
+        return !!res;
+    } catch (err) {
+        return false;
+    }
 };
 
 export const unlikePost = async (walletAddress: string, postId: string) => {

@@ -79,9 +79,11 @@ export const getFollowing = async (walletAddress: string): Promise<string[]> => 
 
 // ─── Actions ───────────────────────────────────────────────────
 export const createPostNode = async (walletAddress: string, postId: string, title: string) => {
-    return !!(await tapestryFetch('/contents', 'POST', {
-        id: postId,
+    return !!(await tapestryFetch('/contents/findOrCreate', 'POST', {
         profileId: walletAddress,
+        id: postId,
+        content: title,
+        contentType: 'text',
         properties: [
             { key: 'title', value: title },
             { key: 'author', value: walletAddress },
@@ -92,15 +94,15 @@ export const createPostNode = async (walletAddress: string, postId: string, titl
 
 export const likePost = async (walletAddress: string, postId: string, title?: string) => {
     try {
-        const res = await tapestryFetch(`/likes/${postId}`, 'POST', { startId: walletAddress });
-        // If 404, the content node might not exist yet. Try creating it.
-        if (res === null) {
-            console.log(`[Tapestry] Content node ${postId} missing. Attempting JIT registration...`);
-            await createPostNode(walletAddress, postId, title || 'Research Node');
-            return !!(await tapestryFetch(`/likes/${postId}`, 'POST', { startId: walletAddress }));
-        }
+        // Just-In-Time Registration using findOrCreate
+        await createPostNode(walletAddress, postId, title || 'Research Node');
+        
+        const res = await tapestryFetch(`/likes/${postId}`, 'POST', { 
+            startId: walletAddress 
+        });
         return !!res;
     } catch (err) {
+        console.warn(`[Tapestry] Like failed for node ${postId}:`, err);
         return false;
     }
 };

@@ -272,12 +272,15 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     <div className="h-10 w-[1px] bg-white/5 hidden sm:block" />
                     <div className="hidden sm:block space-y-0.5">
                          <p className="text-xs font-bold text-white/30 uppercase tracking-[0.2em]">Research Field</p>
-                         <div className="flex items-center gap-4">
-                            <p className="text-base font-bold text-[#A78BFA] tracking-tight">{post.researchField}</p>
-                            <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] px-2 py-0.5 border border-white/5 rounded-md flex items-center gap-1.5">
-                                <Globe className="w-3 h-3" /> VERIFICATION: TAPESTRY_GRAPH_ACTIVE
-                            </span>
-                         </div>
+                         <p className="text-base font-bold text-[#A78BFA] tracking-tight">{post.researchField}</p>
+                    </div>
+                    
+                    {/* Independent Status Badge - Far Right */}
+                    <div className="ml-auto hidden xl:block">
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] px-4 py-2 border border-white/5 rounded-xl flex items-center gap-2 group hover:border-[#F6851B]/30 hover:text-white/40 transition-all">
+                            <Globe className="w-4 h-4 text-[#F6851B] group-hover:rotate-12 transition-transform" /> 
+                            VERIFICATION: TAPESTRY_GRAPH_ACTIVE
+                        </span>
                     </div>
                 </div>
             </div>
@@ -368,27 +371,27 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     </div>
                 </div>
 
-                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-8">
+                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-10">
                         <div className="flex justify-between items-center">
                              <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Influence Metrics</h4>
                              <Activity className="w-4 h-4 text-green-400" />
                         </div>
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-10">
-                             <div className="space-y-1">
-                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">Citations</p>
-                                 <p className="text-2xl font-bold tracking-tighter">1,244</p>
+                        <div className="grid grid-cols-2 gap-x-12 gap-y-12">
+                             <div className="space-y-2">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">Citations</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">1,244</p>
                              </div>
-                             <div className="space-y-1">
-                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">H-Index (AI)</p>
-                                 <p className="text-2xl font-bold tracking-tighter">42</p>
+                             <div className="space-y-2">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">H-Index (AI)</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">42</p>
                              </div>
-                             <div className="space-y-1 pt-4 border-t border-white/5">
-                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">Followers</p>
-                                 <p className="text-2xl font-bold tracking-tighter">{reputation.followerCount || 42}</p>
+                             <div className="space-y-2 pt-6 border-t border-white/5">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">Followers</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-[#F6851B]">{reputation.followerCount || 42}</p>
                              </div>
-                             <div className="space-y-1 pt-4 border-t border-white/5">
-                                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">Published</p>
-                                 <p className="text-2xl font-bold tracking-tighter">12</p>
+                             <div className="space-y-2 pt-6 border-t border-white/5">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">Published</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-[#A78BFA]">12</p>
                              </div>
                         </div>
                     </div>

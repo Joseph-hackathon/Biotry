@@ -80,12 +80,12 @@ export const getFollowing = async (walletAddress: string): Promise<string[]> => 
 // ─── Actions ───────────────────────────────────────────────────
 export const createPostNode = async (walletAddress: string, postId: string, title: string) => {
     return !!(await tapestryFetch('/contents/findOrCreate', 'POST', {
-        profileId: walletAddress,
         id: postId,
+        profileId: walletAddress,
         content: title,
         contentType: 'text',
         properties: [
-            { key: 'title', value: title },
+            { key: 'title', value: title || 'Research Node' },
             { key: 'author', value: walletAddress },
             { key: 'label', value: 'ResearchPost' }
         ],
@@ -94,15 +94,16 @@ export const createPostNode = async (walletAddress: string, postId: string, titl
 
 export const likePost = async (walletAddress: string, postId: string, title?: string) => {
     try {
-        // Just-In-Time Registration using findOrCreate
+        // Just-In-Time Registration using correct findOrCreate specs
         await createPostNode(walletAddress, postId, title || 'Research Node');
         
+        // documented v1 likes path
         const res = await tapestryFetch(`/likes/${postId}`, 'POST', { 
             startId: walletAddress 
         });
         return !!res;
     } catch (err) {
-        console.warn(`[Tapestry] Like failed for node ${postId}:`, err);
+        console.warn(`[Tapestry] Interaction error for node ${postId}:`, err);
         return false;
     }
 };

@@ -286,7 +286,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             </div>
 
             {/* ── Research Transparency Dashboard (Milestones) ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative z-[60]">
+            <div className="grid grid-cols-1 gap-8 relative z-[60]">
                 <div className="glass-panel p-8 rounded-[32px] border border-white/10 space-y-8 bg-gradient-to-br from-white/5 to-transparent">
                     <div className="flex justify-between items-center">
                         <div className="space-y-1">
@@ -370,31 +370,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         ))}
                     </div>
                 </div>
-
-                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-10">
-                        <div className="flex justify-between items-center">
-                             <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Influence Metrics</h4>
-                             <Activity className="w-4 h-4 text-green-400" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-12 gap-y-12">
-                             <div className="space-y-2">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">Citations</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-white">1,244</p>
-                             </div>
-                             <div className="space-y-2">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">H-Index (AI)</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-white">42</p>
-                             </div>
-                             <div className="space-y-2 pt-6 border-t border-white/5">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">Followers</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-[#F6851B]">{reputation.followerCount || 42}</p>
-                             </div>
-                             <div className="space-y-2 pt-6 border-t border-white/5">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2">Published</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-[#A78BFA]">12</p>
-                             </div>
-                        </div>
-                    </div>
+            </div>
+                <div className="glass-panel p-8 rounded-[32px] border border-white/10 space-y-8 bg-gradient-to-br from-white/5 to-transparent">
             </div>
 
             {/* ── Simulator CTA Banner with Dropdown ── */}
@@ -536,19 +513,27 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         </div>
                     </div>
 
-                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-6">
+                    <div className="p-8 glass-panel rounded-3xl border border-white/5 space-y-10">
                         <div className="flex justify-between items-center">
                              <h4 className="text-xs font-bold text-white uppercase tracking-[0.3em]">Influence Metrics</h4>
                              <Activity className="w-4 h-4 text-green-400" />
                         </div>
-                        <div className="grid grid-cols-2 gap-6">
-                             <div className="space-y-1">
-                                 <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest leading-none">Citations</p>
-                                 <p className="text-2xl font-bold tracking-tighter">1,244</p>
+                        <div className="grid grid-cols-2 gap-x-12 gap-y-12">
+                             <div className="space-y-2">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Citations</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">1,244</p>
                              </div>
-                             <div className="space-y-1">
-                                 <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest leading-none">H-Index</p>
-                                 <p className="text-2xl font-bold tracking-tighter">42</p>
+                             <div className="space-y-2">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">H-Index (AI)</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">42</p>
+                             </div>
+                             <div className="space-y-2 pt-6 border-t border-white/5">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Followers</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-[#F6851B]">{reputation.followerCount || 42}</p>
+                             </div>
+                             <div className="space-y-2 pt-6 border-t border-white/5">
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Published</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-[#A78BFA]">12</p>
                              </div>
                         </div>
                     </div>

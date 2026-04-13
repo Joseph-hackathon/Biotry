@@ -2,7 +2,7 @@ import express from 'express';
 import fetch from 'node-fetch';
 
 const router = express.Router();
-const TAPESTRY_BASE_URL = 'https://api.usetapestry.dev/v1';
+const TAPESTRY_BASE_URL = 'https://api.usetapestry.dev/api/v1';
 const TAPESTRY_API_KEY = process.env.TAPESTRY_API_KEY || '7ef7d2eb-1c0e-41d7-baaf-06a3fa5fbf49';
 
 /**

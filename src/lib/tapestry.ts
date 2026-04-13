@@ -16,10 +16,15 @@ const tapestryFetch = async (endpoint: string, method: string = 'GET', body?: an
             },
             body: body ? JSON.stringify(body) : undefined
         });
+
+        // 404 from Tapestry indicates a new user/no profile yet. 
+        // We return null to allow getters to handle the fallback.
+        if (res.status === 404) return null;
+
         if (!res.ok) throw new Error(`Tapestry API Error: ${res.status}`);
         return await res.json();
     } catch (err) {
-        console.error(`[Tapestry] Request failed: ${endpoint}`, err);
+        console.warn(`[Tapestry] Request fallback for ${endpoint}:`, err);
         return null;
     }
 };

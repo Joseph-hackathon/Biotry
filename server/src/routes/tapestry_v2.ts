@@ -32,6 +32,11 @@ router.use(async (req: any, res: any) => {
         
         console.log(`[PROXY v2.1] Upstream Status: ${response.status}`);
         
+        // 404 is a valid state for new researchers who haven't synced yet.
+        if (response.status === 404) {
+            console.log(`[PROXY v2.1] Researcher profile not yet initialized on Tapestry. Expected 404.`);
+        }
+        
         // Inject version header for verification
         res.set('X-Proxy-Version', '2.1-Sturdy');
         

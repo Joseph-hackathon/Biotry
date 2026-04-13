@@ -336,19 +336,21 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
 
                       {(phase === 'simulating' || phase === 'result') && (
                           <div className="w-full px-4 sm:px-12 space-y-12 pb-24">
-                             <div className="flex items-center justify-between">
-                                 <div className="flex items-center gap-3">
-                                     <Terminal className="w-4 h-4 text-[#F6851B]" />
-                                     <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Multi-Agent Strategic Verification Grid</h3>
+                             {phase === 'simulating' && (
+                                 <div className="flex items-center justify-between">
+                                     <div className="flex items-center gap-3">
+                                         <Terminal className="w-4 h-4 text-[#F6851B]" />
+                                         <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Multi-Agent Strategic Verification Grid</h3>
+                                     </div>
+                                     <div className="flex items-center gap-2 px-4 py-1.5 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-full">
+                                         <Info className="w-3.5 h-3.5 text-[#F6851B]" />
+                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#F6851B]">Integrated Colosseum Validation Framework</span>
+                                     </div>
                                  </div>
-                                 <div className="flex items-center gap-2 px-4 py-1.5 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-full">
-                                     <Info className="w-3.5 h-3.5 text-[#F6851B]" />
-                                     <span className="text-[9px] font-bold uppercase tracking-widest text-[#F6851B]">Integrated Colosseum Validation Framework</span>
-                                 </div>
-                             </div>
+                             )}
 
                                <div ref={agentsRef} className="w-full">
-                                    {phase === 'simulating' ? (
+                                    {phase === 'simulating' && (
                                         <div className="flex flex-col items-start gap-16 animate-in fade-in zoom-in duration-700">
                                             <div className="relative w-full">
                                                 <div className="absolute inset-0 bg-white/5 blur-[100px] rounded-full animate-pulse" />
@@ -405,436 +407,170 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                                 })}
                                             </div>
                                         </div>
-                                    ) : (
-                                        <div className="flex flex-wrap justify-start gap-10 w-full transition-all duration-1000">
-                                            {analysis?.agentReports.filter((report) => !leadAgent || report.agentName === leadAgent).map((report) => {
-                                                    const meta = getAgentMeta(report.agentName);
-                                                    const Icon = meta.icon;
-                                                    return (
-                                                        <div key={report.agentName} className={clsx("p-10 border-2 transition-all duration-700 rounded-[40px] relative group overflow-hidden text-left flex flex-col min-h-[450px] w-full backdrop-blur-3xl opacity-100", meta.border, "bg-gradient-to-b from-zinc-800 to-zinc-900 shadow-[0_0_100px_rgba(255,255,255,0.1)] ring-1 ring-white/40")}>
-                                                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent shadow-[0_0_20px_white]" />
-                                                            <div className="flex items-center justify-between mb-8">
-                                                                <div className="px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 border bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]">
-                                                                    <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED_AUDIT
-                                                                </div>
-                                                            </div>
-                                                            <div className="space-y-4 mb-8">
-                                                                <h4 className="text-3xl font-black uppercase tracking-tight text-white">{report.agentName}</h4>
-                                                                <p className="text-sm font-black text-[#F6851B] uppercase tracking-[0.4em]">{report.specialization}</p>
-                                                            </div>
-                                                            <p className="text-2xl leading-relaxed text-white font-bold italic">"{report.feedback}"</p>
-                                                            <div className="mt-auto pt-8 border-t border-white/10 font-mono flex items-center justify-between">
-                                                                <div className="flex items-center gap-3">
-                                                                    <Terminal className="w-5 h-5 text-white/40" />
-                                                                    <span className="text-[10px] text-white/60 uppercase tracking-[0.3em] font-black">
-                                                                        {report.scientificGap ? `STATUS: GAP_${report.scientificGap.toUpperCase()}` : 'STATUS: AUDITING_01'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                        </div>
                                     )}
                                </div>
 
-                                {phase === 'result' && analysis && (
-                                   <div className="w-full space-y-12 animate-in fade-in slide-in-from-top-12 duration-1000">
-                                       {/* Strategic Executive Summary (New Top Section) */}
-                                       <div className="relative p-1 bg-gradient-to-br from-[#F6851B] via-[#F6851B]/20 to-transparent rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(246,133,27,0.1)]">
-                                            <div className="bg-[#050505] rounded-[47px] p-12 relative overflow-hidden">
-                                                <div className="absolute top-0 right-0 w-96 h-96 bg-[#F6851B]/10 blur-[120px] rounded-full -mr-48 -mt-48" />
-                                                <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-start justify-between">
-                                                    <div className="space-y-6 max-w-3xl">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="px-5 py-2 bg-[#F6851B]/10 border border-[#F6851B]/30 rounded-full">
-                                                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#F6851B]">Strategic Executive Summary</span>
-                                                            </div>
-                                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                                            <span className="text-[9px] font-mono text-white/30 uppercase tracking-widest">VERIFICATION_STATUS: OPTIMAL</span>
-                                                        </div>
-                                                        <h2 className="text-5xl font-black tracking-tight leading-tight">
-                                                            Detailed Strategic Analysis & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F6851B] to-orange-400">Scientific Gap Verification</span>
-                                                        </h2>
-                                                        <p className="text-xl text-white/60 leading-relaxed italic">
-                                                            "{analysis.result.keyInsight}"
-                                                        </p>
-                                                        <div className="pt-4 flex flex-wrap gap-4">
-                                                            {analysis.result.hurdles.map((hurdle, i) => (
-                                                                <div key={i} className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
-                                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#F6851B]" />
-                                                                    <span className="text-xs font-bold text-white/70">{hurdle}</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-col gap-6 w-full lg:w-80">
-                                                        <div className="p-8 bg-[#F6851B] rounded-[32px] text-black space-y-2 group hover:scale-105 transition-transform duration-500">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Success Probability</p>
-                                                            <div className="flex items-baseline gap-2">
-                                                                <span className="text-6xl font-black">{analysis.result.successRate.toFixed(2)}</span>
-                                                                <span className="text-2xl font-black">%</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="p-8 bg-zinc-900 border border-white/10 rounded-[32px] space-y-2 group hover:scale-105 transition-transform duration-500">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Actionability Index</p>
-                                                            <div className="flex items-baseline gap-2 text-[#F6851B]">
-                                                                <span className="text-5xl font-black">{analysis.result.actionabilityIndex.toFixed(2)}</span>
-                                                                <div className="h-1 flex-1 bg-white/5 rounded-full mx-2 overflow-hidden">
-                                                                    <div className="h-full bg-[#F6851B]" style={{ width: `${analysis.result.actionabilityIndex}%` }} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                 {phase === 'result' && analysis && (
+                                    <div className="w-full space-y-16 animate-in fade-in slide-in-from-top-4 duration-1000 pb-32">
+                                        
+                                        {/* 1. Executive Hero: Success & Key Insight */}
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-[#F6851B]/10 to-transparent blur-3xl opacity-20" />
+                                            <div className="relative p-12 border border-white/10 bg-zinc-900/40 backdrop-blur-3xl rounded-[40px] flex flex-col items-center text-center space-y-8">
+                                                <div className="space-y-2">
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#F6851B]">AI Strategic Assessment</p>
+                                                    <h2 className="text-6xl font-black tracking-tighter">
+                                                        {analysis.result.successRate.toFixed(1)}% <span className="text-white/20">SUCCESS_RATIO</span>
+                                                    </h2>
                                                 </div>
-                                            </div>
-                                       </div>
-
-                                       <div className="flex items-center gap-4 py-8">
-                                           <div className="h-[1px] w-40 bg-gradient-to-r from-transparent to-white/10" />
-                                           <span className="text-[10px] font-black uppercase tracking-[0.5em] text-[#F6851B]">Consensus_Agent_Detailed_Reports</span>
-                                           <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/10" />
-                                       </div>
-
-                                       {/* Technical Audit Proof - OWS Deep Integration Visibility */}
-                                       <div className="p-14 border border-[#F6851B]/20 rounded-[56px] bg-white/5 backdrop-blur-3xl space-y-12 relative overflow-hidden group">
-                                            <div className="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-[#F6851B]/5 to-transparent" />
-                                            <div className="flex flex-col md:flex-row items-start justify-between gap-12">
-                                                <div className="space-y-6 flex-1">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="p-3 bg-white/10 rounded-2xl border border-white/20">
-                                                            <Code2 className="w-6 h-6 text-white" />
-                                                        </div>
-                                                        <div className="space-y-1">
-                                                            <h4 className="text-[10px] text-white/40 font-black uppercase tracking-[0.4em]">OWS-Core v1.2.0</h4>
-                                                            <p className="text-2xl font-bold">Scientific Audit Proof</p>
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-lg text-white/60 leading-relaxed max-w-2xl">
-                                                        This audit was generated and signed by the sovereign **Biotry Audit Agent** using the `@open-wallet-standard/core` library. 
-                                                        The signature provides non-repudiable proof that the analysis belongs to our authorized agent vault.
+                                                <div className="max-w-3xl">
+                                                    <p className="text-2xl font-bold leading-relaxed text-white italic">
+                                                        "{analysis.result.keyInsight}"
                                                     </p>
-                                                    <div className="flex flex-wrap gap-4">
-                                                        <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2">
-                                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                                            <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Integrity_Verified</span>
-                                                        </div>
-                                                        <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center gap-2">
-                                                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">NAPI_RS_BINDING_ACTIVE</span>
-                                                        </div>
-                                                    </div>
                                                 </div>
-                                                <div className="grid grid-cols-1 gap-4 min-w-[350px]">
-                                                    <div className="p-6 bg-black/40 border border-white/10 rounded-3xl space-y-3">
-                                                        <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Agent Sovereign ID</p>
-                                                        <p className="text-[10px] text-white/80 font-mono break-all font-black">{analysis.agentAddress}</p>
-                                                    </div>
-                                                    <div className="p-6 bg-black/40 border border-[#F6851B]/20 rounded-3xl space-y-3">
-                                                        <div className="flex justify-between items-center">
-                                                            <p className="text-[9px] font-black uppercase text-[#F6851B]/60 tracking-widest">Digital Signature</p>
-                                                            <Info className="w-3 h-3 text-[#F6851B]/40" />
+                                                <div className="flex flex-wrap justify-center gap-4">
+                                                    {analysis.result.hurdles.map((hurdle, i) => (
+                                                        <div key={i} className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-full flex items-center gap-3">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-[#F6851B]" />
+                                                            <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">{hurdle}</span>
                                                         </div>
-                                                        <p className="text-[10px] text-[#F6851B] font-mono break-all border-l border-[#F6851B]/40 pl-4 text-[9px] leading-tight font-black">
-                                                            {analysis.agentSignature}
-                                                        </p>
-                                                    </div>
-                                                    <a 
-                                                      href={`https://solscan.io/account/${analysis.agentAddress}?cluster=devnet`}
-                                                      target="_blank"
-                                                      rel="noopener noreferrer"
-                                                      className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-3 hover:bg-white/10 transition-all group"
-                                                    >
-                                                      <Globe className="w-4 h-4 text-white/30 group-hover:text-white group-hover:rotate-12 transition-all" />
-                                                      <span className="text-[10px] font-black uppercase tracking-widest">View Agent on Explorer</span>
-                                                    </a>
+                                                    ))}
                                                 </div>
                                             </div>
-                                       </div>
-                                   </div>
-                               )}
+                                        </div>
+                                        {/* 2. Unified Strategic Metrics Bar */}
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                            {[
+                                                { label: 'Market Field', value: analysis.researchField, color: 'text-white' },
+                                                { label: 'Actionability', value: `${analysis.result.actionabilityIndex.toFixed(0)}%`, color: 'text-[#F6851B]' },
+                                                { label: 'Crowdedness', value: analysis.result.crowdednessScore, color: analysis.result.crowdednessScore === 'Low' ? 'text-green-400' : 'text-red-400' },
+                                                { label: 'Time to Market', value: analysis.result.timeToMarket, color: 'text-white' }
+                                            ].map((stat, i) => (
+                                                <div key={i} className="p-8 border border-white/5 bg-white/5 rounded-[32px] space-y-2 group hover:border-white/10 transition-all">
+                                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">{stat.label}</p>
+                                                    <p className={clsx("text-xl font-black uppercase tracking-tight", stat.color)}>{stat.value}</p>
+                                                </div>
+                                            ))}
+                                        </div>
 
-                             {phase === 'result' && analysis && (
-                                 <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20">
-                                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                          <div className="lg:col-span-2 p-10 glass-card bg-[#F6851B]/5 border border-[#F6851B]/20 rounded-[32px]">
-                                              <div className="flex items-center gap-4 mb-6">
-                                                  <div className="p-3 bg-[#F6851B] rounded-2xl shadow-[0_0_20px_rgba(246,133,27,0.3)]"><CheckCircle2 className="w-6 h-6 text-black" /></div>
-                                                  <div className="space-y-1">
-                                                      <h3 className="text-[10px] text-[#F6851B] font-black uppercase tracking-[0.3em]">NODE Data Verified</h3>
-                                                      <p className="text-2xl font-bold">Research Integrity Check Complete</p>
-                                                  </div>
-                                              </div>
-                                              <p className="text-white/70 leading-relaxed text-lg italic border-l-2 border-[#F6851B]/20 pl-6 mb-6">
-                                                  "Analyzing title, abstract, topics, and {post.pdfName ? `on-chain file (${post.pdfName})` : 'uploaded research datasets'} for unique strategic differentiators."
-                                              </p>
-                                              <p className="text-white/70 leading-relaxed text-lg bg-white/5 p-6 rounded-2xl border border-white/5">{analysis.summary}</p>
-                                          </div>
-                                         <div className="p-10 glass-card border border-white/10 rounded-[32px] space-y-8 bg-zinc-900/50">
-                                             <h3 className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-black">Strategic Rankings</h3>
-                                             <div className="space-y-8">
-                                                 <div className="space-y-3">
-                                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                                         <span>Crowdedness</span>
-                                                         <span className={clsx(analysis.result.crowdednessScore === 'Low' ? "text-green-400" : "text-red-400")}>{analysis.result.crowdednessScore}</span>
-                                                     </div>
-                                                     <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                                         <div className={clsx("h-full transition-all duration-1000", analysis.result.crowdednessScore === 'Low' ? "bg-green-400 w-1/3" : analysis.result.crowdednessScore === 'Medium' ? "bg-yellow-400 w-2/3" : "bg-red-400 w-full")} />
-                                                     </div>
-                                                 </div>
-                                                 <div className="space-y-3">
-                                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                                         <span>Actionability</span>
-                                                         <span className="text-[#F6851B]">{analysis.result.actionabilityIndex.toFixed(2)}%</span>
-                                                     </div>
-                                                     <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                                         <div className="h-full bg-[#F6851B] transition-all duration-1000" style={{ width: `${analysis.result.actionabilityIndex}%` }} />
-                                                     </div>
-                                                 </div>
-                                                 <div className="pt-4 border-t border-white/5">
-                                                     <p className="text-[10px] text-white/30 uppercase tracking-widest mb-1">Time to Market</p>
-                                                     <p className="text-xl font-bold text-white">{analysis.result.timeToMarket}</p>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     </div>
-
-                                     {/* Detailed Result Card Layout */}
-                                     <div className="grid grid-cols-1 gap-12">
-                                         {/* 1. Technical & Scientific Summary */}
-                                         <div className="p-16 glass-card bg-[#F6851B]/5 border border-[#F6851B]/20 rounded-[56px] relative overflow-hidden">
-                                             <div className="absolute top-0 right-0 w-64 h-64 bg-[#F6851B]/5 rotate-45 transform translate-x-32 -translate-y-32" />
-                                             <div className="flex flex-col lg:flex-row gap-16">
-                                                 <div className="flex-1 space-y-8">
-                                                     <div className="flex items-center gap-4">
-                                                         <div className="p-4 bg-[#F6851B] rounded-3xl shadow-[0_0_30px_rgba(246,133,27,0.4)]"><FlaskConical className="w-8 h-8 text-black" /></div>
-                                                         <div className="space-y-1">
-                                                             <h3 className="text-[10px] text-[#F6851B] font-black uppercase tracking-[0.4em]">Core Scientific Summary</h3>
-                                                             <p className="text-4xl font-black tracking-tight">{analysis.title}</p>
-                                                         </div>
-                                                     </div>
-                                                     <p className="text-2xl text-white/80 leading-relaxed font-medium">
-                                                         {analysis.summary}
-                                                     </p>
-                                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-                                                         <div className="space-y-1">
-                                                             <p className="text-[9px] text-white/30 uppercase tracking-widest">Field</p>
-                                                             <p className="text-sm font-bold text-[#F6851B]">{analysis.researchField}</p>
-                                                         </div>
-                                                         <div className="space-y-1">
-                                                             <p className="text-[9px] text-white/30 uppercase tracking-widest">Market Size</p>
-                                                             <p className="text-sm font-bold">$2.5B+ Potential</p>
-                                                         </div>
-                                                         <div className="space-y-1">
-                                                             <p className="text-[9px] text-white/30 uppercase tracking-widest">Wedge Typology</p>
-                                                             <p className="text-sm font-bold">Atomic Logic</p>
-                                                         </div>
-                                                         <div className="space-y-1">
-                                                             <p className="text-[9px] text-white/30 uppercase tracking-widest">Horizon</p>
-                                                             <p className="text-sm font-bold">{analysis.result.timeToMarket}</p>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                                 <div className="w-full lg:w-96 space-y-8">
-                                                     <div className="p-10 bg-zinc-950/50 border border-white/5 rounded-[40px] space-y-6">
-                                                         <h3 className="text-[10px] text-white/40 uppercase tracking-[0.4em] font-black">Strategic Ratings</h3>
-                                                         <div className="space-y-6">
-                                                             <div className="space-y-3">
-                                                                 <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest">
-                                                                     <span>Crowdedness</span>
-                                                                     <span className={clsx(analysis.result.crowdednessScore === 'Low' ? "text-green-400" : "text-red-400")}>{analysis.result.crowdednessScore}</span>
-                                                                 </div>
-                                                                 <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                                                     <div className={clsx("h-full transition-all duration-1000", analysis.result.crowdednessScore === 'Low' ? "bg-green-400 w-1/3" : analysis.result.crowdednessScore === 'Medium' ? "bg-yellow-400 w-2/3" : "bg-red-400 w-full")} />
-                                                                 </div>
-                                                             </div>
-                                                             <div className="space-y-3">
-                                                                 <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-white/60">
-                                                                     <span>Impact Multiplier</span>
-                                                                     <span className="text-white">{analysis.result.impactScore.toFixed(2)}%</span>
-                                                                 </div>
-                                                                 <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                                                     <div className="h-full bg-white transition-all duration-1000" style={{ width: `${analysis.result.impactScore}%` }} />
-                                                                 </div>
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </div>
-
-                                         {/* OWS Agent Signature - Proof of Authenticity */}
-                                         {analysis.agentSignature && (
-                                             <div className="p-14 border-2 border-[#F6851B]/30 rounded-[56px] bg-[#F6851B]/5 backdrop-blur-3xl space-y-10 relative overflow-hidden group mb-12">
-                                                 <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#F6851B]/10 blur-[100px] rounded-full group-hover:bg-[#F6851B]/20 transition-all duration-1000" />
-                                                 <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative">
-                                                     <div className="flex items-center gap-8 flex-1">
-                                                         <div className="p-6 bg-[#F6851B] rounded-[32px] shadow-[0_0_50px_rgba(246,133,27,0.3)] animate-pulse">
-                                                             <Shield className="w-10 h-10 text-black" />
-                                                         </div>
-                                                         <div className="space-y-3">
-                                                             <div className="flex items-center gap-3">
-                                                                 <h4 className="text-[10px] text-[#F6851B] font-black uppercase tracking-[0.5em]">Authenticity Verified</h4>
-                                                                 <div className="px-3 py-1 bg-[#F6851B]/20 border border-[#F6851B]/30 rounded-full">
-                                                                     <p className="text-[8px] font-black text-[#F6851B] uppercase tracking-widest">OWS_CORE_V1.2</p>
-                                                                 </div>
-                                                             </div>
-                                                             <p className="text-3xl font-black tracking-tight text-white">Agent Sovereign Identity</p>
-                                                             <div className="flex items-center gap-4">
-                                                                <p className="text-white/50 font-medium">This scientific audit has been cryptographically signed by the Biotry Audit Agent.</p>
-                                                                <a 
-                                                                    href={`https://solscan.io/account/${analysis.agentAddress}?cluster=devnet`} 
-                                                                    target="_blank" 
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-[10px] text-[#F6851B] underline font-bold uppercase tracking-widest hover:text-white transition-colors"
-                                                                >
-                                                                    Verify Identity On-Chain
-                                                                </a>
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                     <div className="w-full lg:w-auto p-8 bg-black/40 border border-white/10 rounded-[32px] space-y-4 font-mono min-w-[320px]">
-                                                         <div className="space-y-1">
-                                                             <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Agent Address</p>
-                                                             <a 
-                                                                href={`https://solscan.io/account/${analysis.agentAddress}?cluster=devnet`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-[11px] text-[#F6851B] break-all hover:underline"
-                                                             >
-                                                                {analysis.agentAddress}
-                                                             </a>
-                                                         </div>
-                                                         <div className="space-y-1">
-                                                             <div className="flex justify-between items-center">
-                                                                <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Digital Signature</p>
-                                                                <span className="text-[8px] text-green-400 font-bold uppercase tracking-widest">● Valid OWS Proof</span>
-                                                             </div>
-                                                             <p className="text-[11px] text-[#F6851B] break-all border-l-2 border-[#F6851B]/40 pl-4">
-                                                                 {analysis.agentSignature.slice(0, 32)}...{analysis.agentSignature.slice(-32)}
-                                                             </p>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         )}
-
-                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                             {/* 2. Market Landscape Detail */}
-                                             <div className="p-14 border border-white/10 rounded-[56px] bg-zinc-900/30 backdrop-blur-3xl space-y-10 group hover:border-[#F6851B]/30 transition-colors duration-500">
-                                                 <div className="flex items-center gap-5">
-                                                     <div className="p-4 bg-blue-500/10 rounded-2xl border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors"><Globe className="w-8 h-8 text-blue-400" /></div>
-                                                     <div className="space-y-1">
-                                                         <h4 className="text-[10px] text-blue-400 font-black uppercase tracking-[0.4em]">Comprehensive Market View</h4>
-                                                         <p className="text-2xl font-bold">Landscape & Trends</p>
-                                                     </div>
-                                                 </div>
-                                                 <div className="space-y-8">
-                                                     <p className="text-xl text-white/80 leading-relaxed indent-8 first-letter:text-4xl first-letter:font-black first-letter:text-blue-400 first-letter:mr-2">
-                                                         {analysis.result.marketLandscape}
-                                                     </p>
-                                                     <div className="space-y-6 pt-6 border-t border-white/5">
-                                                         <div className="space-y-3">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-2 h-2 rounded-full bg-blue-400" />
-                                                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400/60">Concrete Industry Friction</p>
+                                        {/* 3. Auditor Consensus Grid (Simplified) */}
+                                        <div className="space-y-8">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-[1px] flex-1 bg-white/5" />
+                                                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-[#F6851B]">Expert_Auditor_Consensus</span>
+                                                <div className="h-[1px] flex-1 bg-white/5" />
+                                            </div>
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {analysis?.agentReports.filter((report) => !leadAgent || report.agentName === leadAgent).map((report) => (
+                                                    <div key={report.agentName} className="p-10 border border-white/10 bg-zinc-900/30 rounded-[40px] space-y-6 group hover:border-[#F6851B]/30 transition-all">
+                                                        <div className="flex justify-between items-start">
+                                                            <div className="space-y-1">
+                                                                <h4 className="text-xl font-black uppercase tracking-tight">{report.agentName}</h4>
+                                                                <p className="text-[10px] font-bold text-[#F6851B] uppercase tracking-[0.3em] opacity-80">{report.specialization}</p>
                                                             </div>
-                                                            <p className="text-lg text-white/70 leading-relaxed font-medium pl-5">{analysis.result.concreteProblem}</p>
-                                                         </div>
-                                                         <div className="space-y-3">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-2 h-2 rounded-full bg-blue-400" />
-                                                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400/60">Quantified Economic Impact</p>
+                                                            <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
+                                                                {getAgentMeta(report.agentName) && React.createElement(getAgentMeta(report.agentName).icon, { className: "w-5 h-5 text-white/40" })}
                                                             </div>
-                                                            <p className="text-lg text-white/70 leading-relaxed font-medium pl-5">{analysis.result.quantifiedImpact}</p>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             </div>
+                                                        </div>
+                                                        <p className="text-lg leading-relaxed text-white/80 font-medium">"{report.feedback}"</p>
+                                                        <div className="pt-6 border-t border-white/5 flex items-center justify-between font-mono">
+                                                            <div className="flex items-center gap-3">
+                                                                <Terminal className="w-4 h-4 text-white/20" />
+                                                                <span className="text-[9px] text-white/40 uppercase tracking-widest">{report.scientificGap ? `GAP: ${report.scientificGap.toUpperCase()}` : 'STATUS: AUDITED'}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
 
-                                             {/* 3. Revenue & GTM Detail */}
-                                             <div className="p-14 border border-white/10 rounded-[56px] bg-zinc-900/30 backdrop-blur-3xl space-y-10 group hover:border-emerald-500/30 transition-colors duration-500">
-                                                 <div className="flex items-center gap-5">
-                                                     <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-colors"><DollarSign className="w-8 h-8 text-emerald-400" /></div>
-                                                     <div className="space-y-1">
-                                                         <h4 className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.4em]">Sustainable Value Capture</h4>
-                                                         <p className="text-2xl font-bold">Monetization & Scaling</p>
-                                                     </div>
-                                                 </div>
-                                                 <div className="space-y-8">
-                                                     <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-[32px] p-10">
-                                                         <p className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.3em] mb-4">Revenue Architecture</p>
-                                                         <p className="text-xl text-white/90 leading-relaxed font-medium">{analysis.result.revenueModel}</p>
-                                                     </div>
-                                                     <div className="space-y-6 pt-6">
-                                                         <div className="flex items-start gap-6">
-                                                             <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center flex-shrink-0 border border-emerald-500/20"><Rocket className="w-6 h-6 text-emerald-400" /></div>
-                                                             <div className="space-y-2">
-                                                                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400/60">Go-To-Market Strategy</p>
-                                                                 <p className="text-lg text-white/70 leading-relaxed font-medium">{analysis.result.gtmStrategy}</p>
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             </div>
+                                        {/* 4. Detailed Breakdown Sections */}
+                                        <div className="space-y-12">
+                                            {/* Summary & Market */}
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                                <div className="p-12 border border-white/5 bg-white/[0.02] rounded-[48px] space-y-8">
+                                                   <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-white/5 rounded-2xl"><FlaskConical className="w-6 h-6 text-white" /></div>
+                                                        <h4 className="text-lg font-bold">Research Core</h4>
+                                                   </div>
+                                                   <p className="text-lg text-white/60 leading-relaxed">{analysis.summary}</p>
+                                                   <div className="p-6 bg-white/5 border border-white/5 rounded-3xl">
+                                                        <p className="text-[10px] text-[#F6851B] font-black uppercase tracking-widest mb-2">Concrete Industry Friction</p>
+                                                        <p className="text-sm text-white/80 font-medium">{analysis.result.concreteProblem}</p>
+                                                   </div>
+                                                </div>
 
-                                             {/* 4. Technical Rationale Detail */}
-                                             <div className="p-14 border border-white/10 rounded-[56px] bg-zinc-900/30 backdrop-blur-3xl space-y-10 group hover:border-purple-500/30 transition-colors duration-500">
-                                                 <div className="flex items-center gap-5">
-                                                     <div className="p-4 bg-purple-500/10 rounded-2xl border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors"><Zap className="w-8 h-8 text-purple-400" /></div>
-                                                     <div className="space-y-1">
-                                                         <h4 className="text-[10px] text-purple-400 font-black uppercase tracking-[0.4em]">Infrastructural Backbone</h4>
-                                                         <p className="text-2xl font-bold">The Solana Advantage</p>
-                                                     </div>
-                                                 </div>
-                                                 <div className="space-y-8">
-                                                     <div className="space-y-3">
-                                                         <p className="text-[10px] text-purple-400/60 font-black uppercase tracking-widest">Why Blockchain / Solana Core?</p>
-                                                         <p className="text-xl text-white/80 leading-relaxed font-medium">{analysis.result.whySolana}</p>
-                                                     </div>
-                                                     <div className="p-8 bg-purple-500/5 border border-purple-500/20 rounded-[32px] flex items-start gap-6">
-                                                         <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center flex-shrink-0 border border-purple-500/20"><Target className="w-6 h-6 text-purple-400" /></div>
-                                                         <div className="space-y-2">
-                                                             <p className="text-[10px] font-black uppercase tracking-widest text-purple-400/60">Founder-Market Alignment</p>
-                                                             <p className="text-lg text-white/80 leading-relaxed">{analysis.result.founderMarketFit}</p>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             </div>
+                                                <div className="p-12 border border-blue-500/10 bg-blue-500/[0.02] rounded-[48px] space-y-8">
+                                                   <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-blue-500/10 rounded-2xl"><Globe className="w-6 h-6 text-blue-400" /></div>
+                                                        <h4 className="text-lg font-bold">Landscape Detail</h4>
+                                                   </div>
+                                                   <p className="text-lg text-white/60 leading-relaxed">{analysis.result.marketLandscape}</p>
+                                                   <div className="p-6 bg-blue-500/10 border border-blue-500/20 rounded-3xl">
+                                                        <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-2">Quantified Impact</p>
+                                                        <p className="text-sm text-white/80 font-medium">{analysis.result.quantifiedImpact}</p>
+                                                   </div>
+                                                </div>
+                                            </div>
 
-                                             {/* 5. Risk Assessment Detail */}
-                                             <div className="p-14 border border-white/10 rounded-[56px] bg-zinc-900/30 backdrop-blur-3xl space-y-10 group hover:border-red-400/30 transition-colors duration-500">
-                                                 <div className="flex items-center gap-5">
-                                                     <div className="p-4 bg-red-400/10 rounded-2xl border border-red-400/20 group-hover:bg-red-400/20 transition-colors"><AlertTriangle className="w-8 h-8 text-red-400" /></div>
-                                                     <div className="space-y-1">
-                                                         <h4 className="text-[10px] text-red-400 font-black uppercase tracking-[0.4em]">Conflict Mitigation</h4>
-                                                         <p className="text-2xl font-bold">Multi-Vector Risk Analysis</p>
-                                                     </div>
-                                                 </div>
-                                                 <div className="grid grid-cols-2 gap-8">
-                                                     <div className="p-8 bg-white/5 border border-white/5 rounded-[32px] space-y-3 hover:bg-white/10 transition-colors">
-                                                         <p className="text-[11px] font-black uppercase tracking-widest text-white/40">Technical Vector</p>
-                                                         <p className="text-lg text-white/80 font-bold leading-tight">{analysis.result.risks.technical}</p>
-                                                     </div>
-                                                     <div className="p-8 bg-white/5 border border-white/5 rounded-[32px] space-y-3 hover:bg-white/10 transition-colors">
-                                                         <p className="text-[11px] font-black uppercase tracking-widest text-white/40">Regulatory Vector</p>
-                                                         <p className="text-lg text-white/80 font-bold leading-tight">{analysis.result.risks.regulatory}</p>
-                                                     </div>
-                                                     <div className="p-8 bg-white/5 border border-white/5 rounded-[32px] space-y-3 hover:bg-white/10 transition-colors">
-                                                         <p className="text-[11px] font-black uppercase tracking-widest text-white/40">Market Adoption Vector</p>
-                                                         <p className="text-lg text-white/80 font-bold leading-tight">{analysis.result.risks.market}</p>
-                                                     </div>
-                                                     <div className="p-8 bg-white/5 border border-white/5 rounded-[32px] space-y-3 hover:bg-white/10 transition-colors">
-                                                         <p className="text-[11px] font-black uppercase tracking-widest text-white/40">Execution Capacity Vector</p>
-                                                         <p className="text-lg text-white/80 font-bold leading-tight">{analysis.result.risks.execution}</p>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                             )}
-                          </div>
-                      )}
+                                            {/* Revenue & Infrastructure */}
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                                <div className="p-12 border border-emerald-500/10 bg-emerald-500/[0.02] rounded-[48px] space-y-8">
+                                                   <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-emerald-500/10 rounded-2xl"><DollarSign className="w-6 h-6 text-emerald-400" /></div>
+                                                        <h4 className="text-lg font-bold">Monetization Loop</h4>
+                                                   </div>
+                                                   <p className="text-lg text-white/60 leading-relaxed font-medium">{analysis.result.revenueModel}</p>
+                                                   <div className="flex items-center gap-6 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl">
+                                                        <Rocket className="w-8 h-8 text-emerald-400" />
+                                                        <div className="space-y-1">
+                                                            <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest">GTM Strategy</p>
+                                                            <p className="text-sm text-white/80">{analysis.result.gtmStrategy}</p>
+                                                        </div>
+                                                   </div>
+                                                </div>
+
+                                                <div className="p-12 border border-purple-500/10 bg-purple-500/[0.02] rounded-[48px] space-y-8">
+                                                   <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-purple-500/10 rounded-2xl"><Zap className="w-6 h-6 text-purple-400" /></div>
+                                                        <h4 className="text-lg font-bold">Infrastructural Backbone</h4>
+                                                   </div>
+                                                   <p className="text-lg text-white/60 leading-relaxed font-medium">{analysis.result.whySolana}</p>
+                                                   <div className="flex items-center gap-6 p-6 bg-purple-500/10 border border-purple-500/20 rounded-3xl">
+                                                        <Target className="w-8 h-8 text-purple-400" />
+                                                        <div className="space-y-1">
+                                                            <p className="text-[10px] text-purple-400 font-black uppercase tracking-widest">Founder Alignment</p>
+                                                            <p className="text-sm text-white/80">{analysis.result.founderMarketFit}</p>
+                                                        </div>
+                                                   </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Risk Assessment (Standardized Blocks) */}
+                                            <div className="p-12 border border-red-500/10 bg-red-500/[0.02] rounded-[48px] space-y-10">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-red-500/10 rounded-2xl"><AlertTriangle className="w-6 h-6 text-red-400" /></div>
+                                                    <h4 className="text-lg font-bold">Multi-Vector Risk Audit</h4>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                                    {[
+                                                        { label: 'Technical', value: analysis.result.risks.technical },
+                                                        { label: 'Regulatory', value: analysis.result.risks.regulatory },
+                                                        { label: 'Market', value: analysis.result.risks.market },
+                                                        { label: 'Execution', value: analysis.result.risks.execution }
+                                                    ].map((risk, i) => (
+                                                        <div key={i} className="p-6 border border-white/5 bg-white/5 rounded-3xl space-y-3">
+                                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{risk.label}</p>
+                                                            <p className="text-xs font-bold text-white/70 leading-relaxed">{risk.value}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                           </div>
+                       )}
                 </section>
 
                 <aside className="w-[450px] border-l border-white/5 bg-[#050505] flex flex-col z-10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">

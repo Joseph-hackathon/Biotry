@@ -147,7 +147,12 @@ const ResearchEditor = () => {
                 commentCount: 0,
                 createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                 timestamp: Date.now(),
-                attachedLinks: links
+                attachedLinks: links,
+                milestones: [
+                    { label: 'Setup & Equipment', percentage: 30, state: 'Ready' },
+                    { label: 'Data Collection', percentage: 40, state: 'Locked' },
+                    { label: 'Final Synthesis', percentage: 30, state: 'Locked' }
+                ]
             });
             navigate('/journal');
         } catch (error) {

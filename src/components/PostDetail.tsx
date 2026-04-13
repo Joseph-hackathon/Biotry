@@ -142,6 +142,54 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         }
     };
 
+    const handleSubmitProof = async (milestoneIndex: number) => {
+        if (!program || !solanaAddress) return;
+        if (!milestoneProof.trim()) {
+             showModal('warning', 'PROOF_REQUIRED', 'Please provide an IPFS URI or documentation link as evidence for this milestone.');
+             return;
+        }
+
+        setIsFunding(true);
+        try {
+            const proposalPDA = new PublicKey(post.id);
+            const { tx } = await submitMilestoneProof(program, {
+                author: new PublicKey(solanaAddress),
+                proposalPDA,
+                milestoneIndex,
+                proofUri: milestoneProof
+            });
+
+            showModal('success', 'MILESTONE_PROOF_SUBMITTED', `Verified proof for milestone #${milestoneIndex + 1} has been anchored to the research graph.`, `https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+            setMilestoneProof('');
+            // local state update for demo/instant feedback
+            milestones[milestoneIndex].state = 'Ready'; 
+        } catch (err: any) {
+             showModal('error', 'PROOF_ANCHOR_FAILED', err.message || String(err));
+        } finally {
+            setIsFunding(false);
+        }
+    };
+
+    const handleClaimMilestone = async (milestoneIndex: number) => {
+        if (!program || !solanaAddress) return;
+        setIsClaiming(milestoneIndex);
+        try {
+            const proposalPDA = new PublicKey(post.id);
+            const { tx } = await claimMilestoneFunds(program, {
+                author: new PublicKey(solanaAddress),
+                proposalPDA,
+                milestoneIndex
+            });
+
+            showModal('success', 'GRANTS_DISBURSED', `Grant funds for milestone #${milestoneIndex + 1} have been autonomously released to your research wallet.`, `https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+            milestones[milestoneIndex].state = 'Claimed';
+        } catch (err: any) {
+             showModal('error', 'DISBURSEMENT_FAILED', err.message || String(err));
+        } finally {
+            setIsClaiming(null);
+        }
+    };
+
     const handleAddComment = () => {
         if (!authenticated) return login();
         if (!newComment.trim()) return;
@@ -282,7 +330,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                                     )}
 
                                     {isAuthor && m.state === 'Ready' && (
-                                        <div className="flex gap-3 pt-2">
+                                        <div className="flex gap-3 pt-2 animate-in fade-in slide-in-from-top-2">
                                             <input 
                                                 value={milestoneProof}
                                                 onChange={e => setMilestoneProof(e.target.value)}
@@ -290,12 +338,24 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                                                 className="flex-1 h-10 bg-black/40 border border-white/10 rounded-xl px-4 text-[10px] font-bold outline-none focus:border-[#F6851B]/50 transition-all"
                                             />
                                             <button 
-                                                onClick={() => showModal('info', 'PROOF_SUBMISSION', 'Milestone proof submission logic is active on-chain. Authorize via wallet.')}
-                                                className="h-10 px-5 bg-[#F6851B] text-black text-[9px] font-black uppercase tracking-widest rounded-xl hover:shadow-[0_0_15px_#F6851B] transition-all"
+                                                onClick={() => handleSubmitProof(idx)}
+                                                disabled={isFunding}
+                                                className="h-10 px-5 bg-[#F6851B] text-black text-[9px] font-black uppercase tracking-widest rounded-xl hover:shadow-[0_0_15px_#F6851B] transition-all disabled:opacity-50"
                                             >
-                                                SUBMIT
+                                                {isFunding ? '...' : 'SUBMIT_PROOF'}
                                             </button>
                                         </div>
+                                    )}
+
+                                    {isAuthor && m.proof_uri && m.state !== 'Claimed' && (
+                                        <button 
+                                            onClick={() => handleClaimMilestone(idx)}
+                                            disabled={isClaiming !== null}
+                                            className="w-full mt-3 h-12 bg-green-500 text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all flex items-center justify-center gap-2 group"
+                                        >
+                                            <Coins className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                                            {isClaiming === idx ? 'CLAIMING_GRANT...' : 'CLAIM_GRANTS'}
+                                        </button>
                                     )}
                                 </div>
                             </div>

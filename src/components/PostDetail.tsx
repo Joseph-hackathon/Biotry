@@ -367,11 +367,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                                     )}
                                 </div>
                             </div>
-                        ))}
                     </div>
                 </div>
-            </div>
-                <div className="glass-panel p-8 rounded-[32px] border border-white/10 space-y-8 bg-gradient-to-br from-white/5 to-transparent">
             </div>
 
             {/* ── Simulator CTA Banner with Dropdown ── */}

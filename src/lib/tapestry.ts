@@ -84,6 +84,7 @@ export const createPostNode = async (walletAddress: string, postId: string, titl
         profileId: walletAddress,
         content: title,
         contentType: 'text',
+        execution: 'FAST_UNCONFIRMED',
         properties: [
             { key: 'title', value: title || 'Research Node' },
             { key: 'author', value: walletAddress },
@@ -99,7 +100,8 @@ export const likePost = async (walletAddress: string, postId: string, title?: st
         
         // documented v1 likes path
         const res = await tapestryFetch(`/likes/${postId}`, 'POST', { 
-            startId: walletAddress 
+            startId: walletAddress,
+            execution: 'FAST_UNCONFIRMED'
         });
         return !!res;
     } catch (err) {

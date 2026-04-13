@@ -12,6 +12,7 @@ import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAppContext } from '../context/AppContext';
 import { truncateAddress } from '../utils/address';
+import { useUmbra } from '../hooks/useUmbra';
 import { useSolana } from '../context/SolanaContext';
 import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { submitMilestoneProof, claimMilestoneFunds } from '../lib/program';
@@ -76,6 +77,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         upvotePost(postId, true);
     };
 
+    const { fundAnonymously } = useUmbra(program?.provider || null);
+    
     const handleFund = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!isReady || !solanaAddress || !program) {
@@ -83,53 +86,41 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             return;
         }
 
-        setIsStealthGenerating(true);
-        // Simulate Stealth Address Generation
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsStealthGenerating(false);
-
         setIsFunding(true);
         try {
-            const lamports = 0.01 * fundingAmount * LAMPORTS_PER_SOL;
-            const recipientPubKey = new PublicKey('pvK3j774HX9g3fRX19csEoD1j1wcRgSNhmKjrSsGaM5');
-            const instruction = SystemProgram.transfer({
-                fromPubkey: new PublicKey(solanaAddress),
-                toPubkey: recipientPubKey,
-                lamports: lamports,
+            // Live Umbra Protocol: Real On-Chain Transaction sign/send
+            const result = await fundAnonymously({
+                amount: fundingAmount,
+                recipient: post.author,
+                donor: solanaAddress
             });
-
-            const transaction = new Transaction().add(instruction);
-            const { blockhash } = await connection.getLatestBlockhash();
-            transaction.recentBlockhash = blockhash;
-            transaction.feePayer = new PublicKey(solanaAddress);
-
-            const signedTx = await (program.provider as any).wallet.signTransaction(transaction);
-            const signature = await connection.sendRawTransaction(signedTx.serialize());
             
-            await connection.confirmTransaction(signature, 'confirmed');
+            console.log(`[UMBRA] Live Stealth Grant Signature: ${result.signature}`);
 
             const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app';
             const res = await fetch(`${baseUrl}/api/posts/${post.id}/fund`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-PAYMENT-SIGNATURE': signature
-                }
+                    'X-PAYMENT-SIGNATURE': result.signature
+                },
+                body: JSON.stringify({ 
+                    stealthAddress: result.stealthAddress,
+                    amount: fundingAmount
+                })
             });
 
             if (res.ok || res.status === 409) {
                 const isPendingSync = res.status === 409;
-
-                // Global State Update: Synchronizes gauges across all views
                 fundPost(post.id, fundingAmount);
 
-                const explorerLink = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+                const explorerLink = `https://explorer.solana.com/tx/${result.signature}?cluster=devnet`;
                 showModal(
                     'success', 
                     isPendingSync ? 'PERSISTENCE_PENDING' : 'UMBRA_GRANT_VERIFIED', 
                     isPendingSync
-                        ? `Transaction confirmed ($${fundingAmount.toFixed(2)})! On-chain verification complete. The research network is currently syncing your contribution to the archives—it will appear in 30 seconds.`
-                        : `Your $${fundingAmount.toFixed(2)} anonymous grant has been sent via Umbra Stealth Address and verified on the Biotry network.`,
+                        ? `Transaction confirmed ($${fundingAmount.toFixed(2)})! On-chain verification complete. The research network is currently syncing your contribution—it will appear in 30 seconds.`
+                        : `Your $${fundingAmount.toFixed(2)} anonymous grant has been verified on the Biotry network.`,
                     explorerLink
                 );
             } else if (res.status === 503) {
@@ -140,19 +131,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             }
         } catch (error: any) {
             console.error('Funding failed', error);
-
-            // Graceful handling for user cancellations: Don't show scary error modal
-            if (error.message?.includes('User rejected')) {
-                console.log('[OWS] Project funding canceled by researcher.');
-                return;
-            }
-
-            // Specific handling for sync pending errors
+            if (error.message?.includes('User rejected')) return;
             if (error.message?.includes('syncing')) {
                 showModal('warning', 'SYNC_IN_PROGRESS', error.message);
                 return;
             }
-
             showModal('error', 'UMBRA_GRANT_FAILED', error.message || 'We encountered an error during stealth transaction verification.');
         } finally {
             setIsFunding(false);

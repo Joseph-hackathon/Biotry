@@ -29,7 +29,7 @@ app.use(cors({
     return callback(null, true); 
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-UMBRA-STEALTH', 'x-umbra-stealth'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-UMBRA-STEALTH', 'x-umbra-stealth', 'X-PAYMENT-SIGNATURE', 'x-payment-signature', 'X-PAYMENT-AMOUNT', 'x-payment-amount'],
   exposedHeaders: ['X-UMBRA-STEALTH'],
   credentials: true
 }));

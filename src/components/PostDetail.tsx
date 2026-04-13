@@ -18,7 +18,7 @@ import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana
 import { submitMilestoneProof, claimMilestoneFunds } from '../lib/program';
 import { useTapestryReputation } from '../hooks/useTapestryReputation';
 import SystemModal, { SystemModalType } from './SystemModal';
-import { getContentStats, likePost } from '../lib/tapestry';
+import { getContentStats, likePost, fetchComments } from '../lib/tapestry';
 
 interface PostDetailProps { post: Post; onBack: () => void; }
 
@@ -53,6 +53,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
 
     const [liveStats, setLiveStats] = useState({ upvotes: 0, comments: 0 });
+    const [fetchedComments, setFetchedComments] = useState<any[]>([]);
 
     useEffect(() => {
         const loadNodeStats = async () => {
@@ -202,8 +203,14 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         if (stats) setLiveStats(stats);
     };
 
+    const loadComments = async () => {
+        const anchored = await fetchComments(post.id);
+        if (anchored?.length > 0) setFetchedComments(anchored);
+    };
+
     useEffect(() => {
         loadNodeStats();
+        loadComments();
     }, [post.id]);
 
     const handleUpvote = async (postId: string) => {
@@ -230,7 +237,10 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         setNewComment('');
         
         // Indexer-aware refresh
-        setTimeout(() => loadNodeStats(), 1500);
+        setTimeout(() => {
+            loadNodeStats();
+            loadComments();
+        }, 1500);
     };
 
     const fundingPercentage = Math.min(((postData?.fundUSDC || 0) / (postData?.fundingGoal || 100)) * 100, 100);
@@ -611,8 +621,15 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
                     {/* Render existing comments */}
                     <div className="space-y-6 pt-6">
-                        {postComments.map((comment) => (
-                            <div key={comment.id} className="glass-panel p-6 border-white/5 bg-white/5 rounded-[24px] space-y-4 animate-in fade-in slide-in-from-left-4">
+                        {/* Combine local and graph-anchored comments */}
+                        {[...postComments, ...fetchedComments.map(c => ({
+                            id: c.id,
+                            author: c.profileId,
+                            content: c.text,
+                            createdAt: 'Anchored Discussion',
+                            upvotes: 0
+                        }))].map((comment, idx) => (
+                            <div key={comment.id || idx} className="glass-panel p-6 border-white/5 bg-white/5 rounded-[24px] space-y-4 animate-in fade-in slide-in-from-left-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl border border-white/10 overflow-hidden shadow-xl bg-black">

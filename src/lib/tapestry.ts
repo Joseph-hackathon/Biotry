@@ -151,6 +151,7 @@ export const postComment = async (walletAddress: string, nodeId: string, text: s
             profileId: walletAddress,
             contentId: nodeId,
             text,
+            blockchain: 'SOLANA',
             execution: 'FAST_UNCONFIRMED',
             properties: [
                 { key: 'label', value: 'ScientificCommentary' },

@@ -414,9 +414,6 @@ const SimulatePage: React.FC<SimulatePageProps> = ({ post, onBack }) => {
                                                         <div key={report.agentName} className={clsx("p-10 border-2 transition-all duration-700 rounded-[40px] relative group overflow-hidden text-left flex flex-col min-h-[450px] w-full backdrop-blur-3xl opacity-100", meta.border, "bg-gradient-to-b from-zinc-800 to-zinc-900 shadow-[0_0_100px_rgba(255,255,255,0.1)] ring-1 ring-white/40")}>
                                                             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent shadow-[0_0_20px_white]" />
                                                             <div className="flex items-center justify-between mb-8">
-                                                                <div className="w-16 h-16 rounded-3xl flex items-center justify-center shadow-xl bg-white/10 border border-white/20">
-                                                                    <Icon className="w-8 h-8 text-white" />
-                                                                </div>
                                                                 <div className="px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 border bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]">
                                                                     <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED_AUDIT
                                                                 </div>

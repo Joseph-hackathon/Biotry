@@ -367,6 +367,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                                     )}
                                 </div>
                             </div>
+                        ))}
                     </div>
                 </div>
             </div>

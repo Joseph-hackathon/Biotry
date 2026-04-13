@@ -51,6 +51,17 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
     const [selectedLeadAgent, setSelectedLeadAgent] = useState('Dr. Bio');
 
+    const [liveStats, setLiveStats] = useState({ upvotes: 0, comments: 0 });
+    const { getContentStats } = require('../lib/tapestry');
+
+    useEffect(() => {
+        const loadNodeStats = async () => {
+             const stats = await getContentStats(post.id);
+             if (stats) setLiveStats(stats);
+        };
+        loadNodeStats();
+    }, [post.id]);
+
     // Modal State
     const [modalConfig, setModalConfig] = useState<{
         isOpen: boolean;
@@ -72,10 +83,6 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
     const AGENTS = ['Dr. Bio', 'Solana Architect', 'ZK Shadow', 'Codama Bot', 'Colosseum Strategist'];
 
-    const handleUpvote = (postId: string) => {
-        if (!authenticated) return login();
-        upvotePost(postId, true);
-    };
 
     const { fundAnonymously } = useUmbra(program?.provider || null);
     
@@ -190,11 +197,38 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
         }
     };
 
-    const handleAddComment = () => {
+    const loadNodeStats = async () => {
+        const stats = await getContentStats(post.id);
+        if (stats) setLiveStats(stats);
+    };
+
+    useEffect(() => {
+        loadNodeStats();
+    }, [post.id]);
+
+    const handleUpvote = async (postId: string) => {
+        if (!authenticated) return login();
+        if (!solanaAddress) return;
+        
+        // Optimistic local update
+        upvotePost(postId, true);
+        
+        // Real graph anchoring
+        const { likePost } = require('../lib/tapestry');
+        const success = await likePost(solanaAddress, postId, post.title);
+        if (success) {
+            loadNodeStats(); // Refresh live counters
+        }
+    };
+
+    const handleAddComment = async () => {
         if (!authenticated) return login();
         if (!newComment.trim()) return;
-        addComment(post.id, authenticated ? truncateAddress("User") : "Anonymous", newComment);
+        
+        // Add locally and anchor to social graph
+        await addComment(post.id, authenticated ? truncateAddress("User") : "Anonymous", newComment, solanaAddress || undefined);
         setNewComment('');
+        loadNodeStats(); // Refresh comment count from graph
     };
 
     const fundingPercentage = Math.min(((postData?.fundUSDC || 0) / (postData?.fundingGoal || 100)) * 100, 100);
@@ -518,20 +552,20 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         </div>
                         <div className="grid grid-cols-2 gap-x-12 gap-y-12">
                              <div className="space-y-2">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Citations</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-white">1,244</p>
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Upvotes</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">{(liveStats.upvotes || post.upvotes)}</p>
                              </div>
                              <div className="space-y-2">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">H-Index (AI)</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-white">42</p>
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Expert Comments</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-white">{(liveStats.comments || postComments.length)}</p>
                              </div>
                              <div className="space-y-2 pt-6 border-t border-white/5">
                                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Followers</p>
                                  <p className="text-3xl font-bold tracking-tighter text-[#F6851B]">{reputation.followerCount || 42}</p>
                              </div>
                              <div className="space-y-2 pt-6 border-t border-white/5">
-                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Published</p>
-                                 <p className="text-3xl font-bold tracking-tighter text-[#A78BFA]">12</p>
+                                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] leading-none mb-2 text-white/40">Trust Score</p>
+                                 <p className="text-3xl font-bold tracking-tighter text-[#A78BFA]">{reputation.score || 0}</p>
                              </div>
                         </div>
                     </div>
@@ -546,11 +580,11 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         className="flex items-center gap-3 px-8 py-3 bg-[#F6851B]/10 border border-[#F6851B]/50 rounded-2xl text-white hover:bg-[#F6851B] transition-all group"
                     >
                         <ArrowUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{post.upvotes} UPVOTES</span>
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{(liveStats.upvotes || post.upvotes)} UPVOTES</span>
                     </button>
                     <div className="flex items-center gap-3 text-white/40">
                         <MessageSquare className="w-5 h-5" />
-                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{postComments.length} COMMENTS</span>
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{(liveStats.comments || postComments.length)} COMMENTS</span>
                     </div>
                 </div>
 

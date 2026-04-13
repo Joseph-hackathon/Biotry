@@ -55,10 +55,26 @@ const JournalView: React.FC = () => {
         return result.sort((a, b) => b.timestamp - a.timestamp);
     }, [posts, activeTab, searchQuery, selectedHub]);
 
+    const [liveStats, setLiveStats] = useState({ scientistCount: 0, nodeCount: 0 });
+    const { getNetworkStats } = require('../lib/tapestry');
+
+    React.useEffect(() => {
+        const loadStats = async () => {
+            const data = await getNetworkStats();
+            setLiveStats(data);
+        };
+        loadStats();
+    }, []);
+
+    const totalDiscoveryCredits = useMemo(() => {
+        const total = posts.reduce((acc, p) => acc + (p.fundUSDC || 0), 0);
+        return total > 1000000 ? `${(total / 1000000).toFixed(1)}M` : `$${total.toLocaleString()}`;
+    }, [posts]);
+
     const stats = [
-        { label: 'Network Nodes', value: '1,284', icon: Binary, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
-        { label: 'Active Scientists', value: '542', icon: Users, color: 'text-[#F6851B]', bg: 'bg-[#F6851B]/10' },
-        { label: 'Discovery Credits', value: '12.4M', icon: Coins, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
+        { label: 'Network Nodes', value: liveStats.nodeCount.toLocaleString() || '1,284', icon: Binary, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
+        { label: 'Active Scientists', value: liveStats.scientistCount.toLocaleString() || '542', icon: Users, color: 'text-[#F6851B]', bg: 'bg-[#F6851B]/10' },
+        { label: 'Discovery Credits', value: totalDiscoveryCredits, icon: Coins, color: 'text-[#A78BFA]', bg: 'bg-[#7C3AED]/10' },
     ];
 
     const hubIcons: Record<string, any> = {

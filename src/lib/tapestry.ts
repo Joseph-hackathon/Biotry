@@ -6,20 +6,24 @@ const TAPESTRY_BASE_URL = `${BACKEND_URL}/api/tapestry`;
  * Helper to perform authenticated Tapestry API requests via the Biotry Backend Proxy.
  * This resolves CORS issues for production origins (e.g., Vercel).
  */
-const tapestryFetch = async (endpoint: string, method: string = 'GET', body?: any) => {
+const tapestryFetch = async (endpoint: string, method: string = 'GET', body?: any, queryParams?: Record<string, string>) => {
     try {
         // Identifier Integrity: Reject truncated addresses containing '...'
-        // Solana addresses must be the full 44-character public key.
         if (endpoint.includes('...')) {
             console.warn(`[Tapestry] Blocked invalid truncated identifier: ${endpoint}`);
             return null;
         }
 
-        const res = await fetch(`${TAPESTRY_BASE_URL}${endpoint}`, {
+        let url = `${TAPESTRY_BASE_URL}${endpoint}`;
+        if (queryParams) {
+            const searchParams = new URLSearchParams(queryParams);
+            url += `?${searchParams.toString()}`;
+        }
+
+        const res = await fetch(url, {
             method,
             headers: {
                 'Content-Type': 'application/json'
-                // Authorization is now handled by the backend proxy.
             },
             body: body ? JSON.stringify(body) : undefined
         });
@@ -92,6 +96,70 @@ export const ensureTapestryProfile = async (walletAddress: string) => {
         return !!res;
     } catch (err) {
         console.warn(`[Tapestry] Profile sync error for ${walletAddress}:`, err);
+        return false;
+    }
+};
+
+// ─── Metadata & Aggregation ──────────────────────────────────────
+
+export const getNetworkStats = async () => {
+    try {
+        const [profiles, contents] = await Promise.all([
+            tapestryFetch('/profiles', 'GET'),
+            tapestryFetch('/contents', 'GET')
+        ]);
+        return {
+            scientistCount: profiles?.totalCount || 0,
+            nodeCount: contents?.totalCount || 0
+        };
+    } catch (err) {
+        console.warn('[Tapestry] Global stats fetch error:', err);
+        return { scientistCount: 0, nodeCount: 0 };
+    }
+};
+
+export const getContentStats = async (postId: string) => {
+    try {
+        const res = await tapestryFetch(`/contents/${postId}`, 'GET');
+        return {
+            upvotes: res?.socialCounts?.likeCount || 0,
+            comments: res?.socialCounts?.commentCount || 0
+        };
+    } catch (err) {
+        console.warn(`[Tapestry] Stats fetch error for node ${postId}:`, err);
+        return null;
+    }
+};
+
+export const fetchComments = async (nodeId: string) => {
+    try {
+        const res = await tapestryFetch('/comments', 'GET', undefined, { contentId: nodeId });
+        return res?.comments || [];
+    } catch (err) {
+        console.warn(`[Tapestry] Comment fetch error for node ${nodeId}:`, err);
+        return [];
+    }
+};
+
+export const postComment = async (walletAddress: string, nodeId: string, text: string) => {
+    try {
+        // Step 1: Guarantee author presence
+        await ensureTapestryProfile(walletAddress);
+
+        // Step 2: Anchor professional commentary
+        const res = await tapestryFetch('/comments', 'POST', {
+            profileId: walletAddress,
+            contentId: nodeId,
+            text,
+            execution: 'FAST_UNCONFIRMED',
+            properties: [
+                { key: 'label', value: 'ScientificCommentary' },
+                { key: 'network', value: 'Biotry' }
+            ]
+        });
+        return !!res;
+    } catch (err) {
+        console.warn('[Tapestry] Comment anchoring rejected:', err);
         return false;
     }
 };

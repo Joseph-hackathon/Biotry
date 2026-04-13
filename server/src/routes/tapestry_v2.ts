@@ -24,10 +24,14 @@ router.use(async (req: any, res: any) => {
             });
         }
 
-        // API v1 requires apiKey as a query parameter, not as a header.
-        const url = `${TAPESTRY_BASE_URL}${req.path}?apiKey=${TAPESTRY_API_KEY}`;
+        // API v1 requires apiKey as a query parameter.
+        // We preserve incoming query params and append the apiKey.
+        const queryParams = new URLSearchParams(req.query as any);
+        queryParams.set('apiKey', TAPESTRY_API_KEY);
         
-        console.log(`[PROXY v2.2] Relaying to: ${url}`);
+        const url = `${TAPESTRY_BASE_URL}${req.path}?${queryParams.toString()}`;
+        
+        console.log(`[PROXY v2.3] Relaying [${req.method}] to: ${url}`);
 
         const response = await fetch(url, {
             method: req.method,

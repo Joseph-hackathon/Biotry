@@ -9,7 +9,7 @@ interface AppContextValue {
     addProposal: (proposal: Post) => void;
     voteOnProposal: (proposalId: string, approve: boolean) => void;
     fundPost: (postId: string, amount: number) => void;
-    addComment: (postId: string, author: string, content: string) => void;
+    addComment: (postId: string, author: string, content: string, walletAddress?: string) => void;
     comments: Record<string, Comment[]>;
 }
 
@@ -57,7 +57,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     }, [API_URL]);
 
-    const addComment = useCallback((postId: string, author: string, content: string) => {
+    const addComment = useCallback(async (postId: string, author: string, content: string, walletAddress?: string) => {
         const newComment: Comment = {
             id: Math.random().toString(36).substr(2, 9),
             author,
@@ -69,6 +69,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...prev,
             [postId]: [...(prev[postId] || []), newComment],
         }));
+
+        // Persistent Social Graph Anchoring
+        if (walletAddress) {
+            const { postComment } = await import('../lib/tapestry');
+            await postComment(walletAddress, postId, content);
+        }
     }, []);
 
     const voteOnProposal = useCallback((proposalId: string, approve: boolean) => {

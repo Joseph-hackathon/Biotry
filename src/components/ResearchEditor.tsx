@@ -32,7 +32,7 @@ const truncateAddress = (address: string) =>
 
 const ResearchEditor = () => {
     const { authenticated, login } = usePrivy();
-    const { addProposal } = useAppContext();
+    const { addProposal, addActivity } = useAppContext();
     const navigate = useNavigate();
     const { program, solanaAddress, hasProtocolConfig, initializeHub } = useSolana();
     const { showTransactionModal, showSystemModal } = useUI();
@@ -117,6 +117,12 @@ const ResearchEditor = () => {
                         fundingGoal: 0
                     });
                     showTransactionModal({ status: 'success', category: 'PUBLISH', txId: tx });
+                    addActivity({
+                        signature: tx,
+                        category: 'NODE_PUBLICATION',
+                        err: false,
+                        target: title
+                    });
                     finalId = proposalPDA.toBase58();
                 } catch (txErr: any) {
                     showTransactionModal({ status: 'error', category: 'PUBLISH', message: txErr.message || String(txErr) });

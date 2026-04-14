@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Microscope, Check, Copy, Activity, Shield, AlertCircle, Info, User, ChevronDown, Wallet, ExternalLink, RefreshCw } from 'lucide-react';
+import { Microscope, Check, Copy, Activity, Shield, AlertCircle, Info, User, ChevronDown, Wallet, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
 import { truncateAddress } from '../../utils/address';
 
@@ -137,6 +137,18 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({
                                 {hasProfile && (
                                     <div className="px-3.5 py-1.5 bg-[#7C3AED]/10 border border-[#7C3AED]/20 text-[#A78BFA] rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl flex items-center gap-1.5">
                                         <User className="w-3 h-3" /> @{memberProfile?.username || 'Core'}
+                                    </div>
+                                )}
+
+                                {memberProfile && (
+                                    <div className={clsx(
+                                        "px-3.5 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] shadow-xl flex items-center gap-1.5",
+                                        (memberProfile.reputationScore || 0) > 70 
+                                            ? "bg-purple-500/20 border border-purple-500/40 text-purple-300" 
+                                            : "bg-white/5 border border-white/10 text-white/40"
+                                    )}>
+                                        <Sparkles className="w-3 h-3 text-[#F6851B]" /> 
+                                        ZK_EXPERTISE: {memberProfile.reputationScore || 0}
                                     </div>
                                 )}
                             </div>

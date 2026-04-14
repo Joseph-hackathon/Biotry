@@ -24,13 +24,14 @@ interface PostDetailProps { post: Post; onBack: () => void; }
 
 const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const { authenticated, login } = usePrivy();
-    const { voteOnProposal: upvotePost, addComment, comments: allComments } = useAppContext();
+    const { voteOnProposal: upvotePost, addComment, comments: allComments, addActivity } = useAppContext();
     const { proposals, fundPost } = useAppContext();
     const { connection, solanaAddress, isReady, program } = useSolana();
     const navigate = useNavigate();
 
     // Reputation & Milestones
     const reputation = useTapestryReputation(post.author);
+    const userReputation = useTapestryReputation(solanaAddress || '');
     const [isClaiming, setIsClaiming] = useState<number | null>(null);
     const [milestoneProof, setMilestoneProof] = useState('');
 
@@ -54,6 +55,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
     const [liveStats, setLiveStats] = useState({ upvotes: 0, comments: 0 });
     const [fetchedComments, setFetchedComments] = useState<any[]>([]);
+    const [isStealthTip, setIsStealthTip] = useState(false);
+    const [isGeneratingZk, setIsGeneratingZk] = useState(false);
 
     useEffect(() => {
         const loadNodeStats = async () => {
@@ -85,8 +88,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
     const AGENTS = ['Dr. Bio', 'Solana Architect', 'ZK Shadow', 'Codama Bot', 'Colosseum Strategist'];
 
 
-    const { fundAnonymously } = useUmbra(program?.provider || null);
-    
+    const { fundAnonymously, getShieldedBalance, generatePrivacyProof } = useUmbra(program?.provider || null);
+    const shieldedBalance = getShieldedBalance();
     const handleFund = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!isReady || !solanaAddress || !program) {
@@ -94,14 +97,23 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
             return;
         }
 
+        if (reputation.score < 10) {
+            showModal('warning', 'DECENTRALIZED_TRUST_WARNING', `This researcher's Tapestry Trust Score (${reputation.score}) is below the protocol threshold (10). Anonymous funding is restricted to protect donors.`);
+            return;
+        }
+
         setIsFunding(true);
         try {
-            // Live Umbra Protocol: Real On-Chain Transaction sign/send
-            const result = await fundAnonymously({
+            // Field-Specific Mixer Pool Logic
+            const fundingParams = {
                 amount: fundingAmount,
                 recipient: post.author,
-                donor: solanaAddress
-            });
+                donor: solanaAddress,
+                field: isStealthTip ? undefined : post.researchField // Use field-pool if not a direct tip
+            };
+
+            // Live Umbra Protocol: Real On-Chain Transaction sign/send
+            const result = await fundAnonymously(fundingParams);
             
             console.log(`[UMBRA] Live Stealth Grant Signature: ${result.signature}`);
 
@@ -131,6 +143,14 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         : `Your $${fundingAmount.toFixed(2)} anonymous grant has been verified on the Biotry network.`,
                     explorerLink
                 );
+
+                // Track Activity
+                addActivity({
+                    signature: result.signature,
+                    category: 'RESEARCH_GRANT',
+                    err: false,
+                    target: post.title
+                });
             } else if (res.status === 503) {
                 throw new Error('Research network is currently syncing schemas. Please refresh in 30 seconds.');
             } else {
@@ -230,10 +250,43 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
 
     const handleAddComment = async () => {
         if (!authenticated) return login();
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || !solanaAddress) return;
         
-        // Add locally and anchor to social graph
+        // Step 1: Add locally and anchor to social graph
         await addComment(post.id, authenticated ? truncateAddress("User") : "Anonymous", newComment, solanaAddress || undefined);
+        
+        // Step 2: Tapestry + Umbra Synergy: Expert Review Rewards
+        if (userReputation.score > 70 && generatePrivacyProof) {
+            setIsGeneratingZk(true);
+            try {
+                // Generate ZK-Expertise Proof
+                const proof = await generatePrivacyProof(userReputation.score, 70);
+                console.log(`[ZK-RP] Verified Expert Proof: ${proof.proof}`);
+                
+                // Disburse Anonymous Expert Reward from Vault
+                const rewardResult = await fundAnonymously({
+                    amount: 0.1, // Expert bounty
+                    recipient: solanaAddress,
+                    donor: '2BY4tpMZVrHtzJHnYcQwuy3yL13QjeykvVjz2zCEjU6Y', // Protocol Vault
+                    isExpertReward: true
+                });
+                
+                showModal('success', 'EXPERT_REWARD_DISBURSED', `Your professional commentary has been verified via ZK-Proof. An expert bounty of 0.1 SOL has been sent to your stealth address.`, `https://explorer.solana.com/tx/${rewardResult.signature}?cluster=devnet`);
+
+                // Track Activity
+                addActivity({
+                    signature: rewardResult.signature,
+                    category: 'EXPERT_BOUNTY',
+                    err: false,
+                    target: post.title
+                });
+            } catch (err) {
+                console.error('[Synergy] Expert reward failed', err);
+            } finally {
+                setIsGeneratingZk(false);
+            }
+        }
+
         setNewComment('');
         
         // Indexer-aware refresh
@@ -322,11 +375,16 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                     </div>
                     
                     {/* Independent Status Badge - Far Right */}
-                    <div className="ml-auto hidden xl:block">
-                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] px-4 py-2 border border-white/5 rounded-xl flex items-center gap-2 group hover:border-[#F6851B]/30 hover:text-white/40 transition-all">
-                            <Globe className="w-4 h-4 text-[#F6851B] group-hover:rotate-12 transition-transform" /> 
-                            VERIFICATION: TAPESTRY_GRAPH_ACTIVE
+                    <div className="ml-auto hidden xl:flex flex-col items-end gap-2">
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] px-4 py-2 border border-white/5 rounded-xl flex items-center gap-2 group hover:border-[#F6851B]/30 hover:text-white/40 transition-all bg-black/20">
+                            <Fingerprint className="w-4 h-4 text-[#F6851B] group-hover:rotate-12 transition-transform" /> 
+                            UMBRA_SHIELDED: {shieldedBalance.toFixed(2)} SOL
                         </span>
+                        {isGeneratingZk && (
+                            <span className="text-[8px] font-black text-green-400 uppercase tracking-widest animate-pulse">
+                                PROVING_EXPERTISE_ZK...
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
@@ -432,8 +490,19 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row items-center gap-4 relative z-50 w-full xl:w-auto">
-                    {/* Amount Selector */}
+                    {/* Mix/Tip Selector */}
                     <div className="flex gap-2 p-1.5 bg-black/40 border border-white/10 rounded-2xl w-full sm:w-auto">
+                        <button
+                            onClick={() => setIsStealthTip(!isStealthTip)}
+                            className={clsx(
+                                "h-12 px-4 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2",
+                                isStealthTip ? "bg-purple-600 text-white shadow-xl" : "text-white/30 hover:bg-white/5"
+                            )}
+                        >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            {isStealthTip ? 'STEALTH_TIP' : 'MIXER_FUND'}
+                        </button>
+                        <div className="w-[1px] h-8 bg-white/10 my-auto mx-1" />
                         {[1, 10, 50].map(amt => (
                             <button
                                 key={amt}
@@ -592,7 +661,10 @@ const PostDetail: React.FC<PostDetailProps> = ({ post, onBack }) => {
                         className="flex items-center gap-3 px-8 py-3 bg-[#F6851B]/10 border border-[#F6851B]/50 rounded-2xl text-white hover:bg-[#F6851B] transition-all group"
                     >
                         <ArrowUp className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">{Math.max(liveStats.upvotes, postData.upvotes || 0)} UPVOTES</span>
+                        <span className="text-sm font-bold tracking-widest uppercase tabular-nums">
+                            {Math.max(liveStats.upvotes, postData.upvotes || 0)} UPVOTES 
+                            {isStealthTip && " + STEALTH_TIP"}
+                        </span>
                     </button>
                     <div className="flex items-center gap-3 text-white/40">
                         <MessageSquare className="w-5 h-5" />

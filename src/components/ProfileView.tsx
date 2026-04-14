@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlaskConical, ArrowUpRight, Activity, User, Microscope, Copy, Check, Info, Zap, Sparkles, ChevronRight, Share2, Plus } from 'lucide-react';
 import { clsx } from 'clsx';
 import { usePrivy } from '@privy-io/react-auth';
@@ -11,6 +11,7 @@ import { PublicKey } from '@solana/web3.js';
 import { Shield, AlertCircle, History, ExternalLink, Clock } from 'lucide-react';
 import ActivityHistory from './profile/ActivityHistory';
 import ProfileHero from './profile/ProfileHero';
+import { useTapestryReputation } from '../hooks/useTapestryReputation';
 import { truncateAddress } from '../utils/address';
 
 const typeStyle: Record<string, string> = {
@@ -21,9 +22,10 @@ const typeStyle: Record<string, string> = {
 
 const ProfileView: React.FC = () => {
     const { authenticated, login, logout, user, connectWallet, linkWallet } = usePrivy();
-    const { proposals: posts } = useAppContext();
+    const { proposals: posts, recentActivity, addActivity } = useAppContext();
     const { program, solanaAddress, availableWallets, setActiveAddress, balance, refreshBalance, hasProfile, refreshProfile, memberProfile } = useSolana();
     const { showTransactionModal, showSystemModal } = useUI();
+    const reputation = useTapestryReputation(solanaAddress || '');
     const navigate = useNavigate();
     const [isInitializing, setIsInitializing] = useState(false);
     const [protocolStatus, setProtocolStatus] = useState<'checking' | 'initialized' | 'not-initialized'>('checking');
@@ -35,7 +37,8 @@ const ProfileView: React.FC = () => {
     const activeAddress = solanaAddress || '';
     const myAuthorTag = activeAddress ? truncateAddress(activeAddress) : null;
 
-    React.useEffect(() => {
+        useEffect(() => {
+
         const checkProtocolStatus = async () => {
             if (!program) {
                 setProtocolStatus('checking');
@@ -52,7 +55,7 @@ const ProfileView: React.FC = () => {
         checkProtocolStatus();
     }, [program, activeAddress]);
 
-    const fetchHistory = React.useCallback(async () => {
+    const fetchHistory = useCallback(async () => {
         if (!activeAddress || !program) return;
         setIsLoadingHistory(true);
         try {
@@ -72,6 +75,7 @@ const ProfileView: React.FC = () => {
                         else if (logs.includes('Instruction: VoteOnProposal')) category = 'RESEARCH_UPVOTE';
                         else if (logs.includes('Instruction: SubmitProposal')) category = 'NODE_PUBLICATION';
                         else if (logs.includes('Instruction: InitializeDao')) category = 'PROTOCOL_INIT';
+                        else if (logs.includes('Transfer')) category = 'CREDENTIAL_STAKING';
                     }
                     return { ...sig, category };
                 } catch (e) {
@@ -96,6 +100,17 @@ const ProfileView: React.FC = () => {
         p.author === truncateAddress(activeAddress)
     ) : [];
     const totalUpvotes = myPosts.reduce((sum, p) => sum + p.upvotes, 0);
+    
+    // Merge external history with local recent activity, deduplicating by signature
+    const mergedHistory = useMemo(() => {
+        const merged = [...recentActivity];
+        history.forEach(h => {
+            if (!merged.find(m => m.signature === h.signature)) {
+                merged.push(h);
+            }
+        });
+        return merged.sort((a, b) => (b.blockTime || 0) - (a.blockTime || 0));
+    }, [history, recentActivity]);
 
     const handleActivateIdentity = async () => {
         if (!program || !activeAddress || isInitializing) return;
@@ -109,6 +124,11 @@ const ProfileView: React.FC = () => {
         try {
             const { tx } = await createProfile(program, { owner: new PublicKey(activeAddress), username, bio });
             showTransactionModal({ status: 'success', category: 'NETWORK_IDENTITY', txId: tx });
+            addActivity({
+                signature: tx,
+                category: 'NETWORK_ONBOARD',
+                err: false
+            });
             await refreshProfile();
             fetchHistory();
         } catch (err: any) {
@@ -131,6 +151,11 @@ const ProfileView: React.FC = () => {
 
             const { tx } = await initializeDao(program, daoName, new PublicKey(activeAddress));
             showTransactionModal({ status: 'success', category: 'PROTOCOL_INIT', txId: tx });
+            addActivity({
+                signature: tx,
+                category: 'PROTOCOL_INIT',
+                err: false
+            });
             setProtocolStatus('initialized');
             fetchHistory();
         } catch (err: any) {
@@ -175,7 +200,7 @@ const ProfileView: React.FC = () => {
                 navigate={navigate}
                 protocolStatus={protocolStatus}
                 hasProfile={hasProfile}
-                memberProfile={memberProfile}
+                memberProfile={memberProfile ? { ...memberProfile, reputationScore: reputation.score } : null}
                 programReady={!!program}
             />
 
@@ -273,7 +298,7 @@ const ProfileView: React.FC = () => {
             </div>
 
             <ActivityHistory
-                history={history}
+                history={mergedHistory}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 setCurrentPage={setCurrentPage}

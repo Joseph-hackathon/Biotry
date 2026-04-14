@@ -9,8 +9,12 @@ interface AppContextValue {
     addProposal: (proposal: Post) => void;
     voteOnProposal: (proposalId: string, approve: boolean) => void;
     fundPost: (postId: string, amount: number) => void;
+    fundFieldPool: (field: string, amount: number) => void;
     addComment: (postId: string, author: string, content: string, walletAddress?: string) => void;
     comments: Record<string, Comment[]>;
+    fieldFunds: Record<string, number>;
+    recentActivity: any[];
+    addActivity: (entry: any) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -22,6 +26,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [isLoading, setIsLoading] = useState(true);
 
     const [comments, setComments] = useState<Record<string, Comment[]>>({});
+    const [fieldFunds, setFieldFunds] = useState<Record<string, number>>({});
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
     const API_URL = (import.meta.env.VITE_API_BASE_URL || 'https://biotry-production.up.railway.app') + '/api';
 
@@ -99,8 +105,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
     }, []);
 
+    const fundFieldPool = useCallback((field: string, amount: number) => {
+        setFieldFunds(prev => ({
+            ...prev,
+            [field]: (prev[field] || 0) + amount
+        }));
+    }, []);
+
+    const addActivity = useCallback((entry: any) => {
+        setRecentActivity(prev => [
+            {
+                ...entry,
+                blockTime: Math.floor(Date.now() / 1000),
+                isRecent: true
+            },
+            ...prev
+        ].slice(0, 10)); // Keep last 10 local entries
+    }, []);
+
     return (
-        <AppContext.Provider value={{ proposals, members, searchQuery, setSearchQuery, addProposal, voteOnProposal, fundPost, addComment, comments }}>
+        <AppContext.Provider value={{ 
+            proposals, members, searchQuery, setSearchQuery, 
+            addProposal, voteOnProposal, fundPost, fundFieldPool,
+            addComment, comments, fieldFunds, recentActivity, addActivity
+        }}>
             {children}
         </AppContext.Provider>
     );

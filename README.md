@@ -1,71 +1,70 @@
-# Biotry: The Private Research Economy on Solana
+# Biotry: The Confidential Expertise Economy on Solana
 
-Biotry is an integrated scientific liquidity and privacy protocol designed to bridge the gap between breakthrough research and decentralized capital. By combining high-performance computing on Solana with **Umbra-powered stealth addresses**, Biotry creates a trustless environment for the anonymous funding, audit, and publication of the next generation of human knowledge.
+Biotry is the high-performance scientific discovery network where privacy is the catalyst for truth. By integrating **Umbra-powered stealth addresses** and **ZK-Reputation Proofs**, Biotry creates a sovereign, bias-free ecosystem for the funding, verification, and assetization of human knowledge.
 
 ---
 
-## The Genesis of Scientific Stagnation: Identity Bias
+## The Core Problem: Transparency Bias
 
-The modern scientific endeavor is restricted by a centralized, gate-kept model of funding where **Reputation Bias** outweighs actual methodology. Researchers spend forty percent of their time drafting grant applications that are reviewed by competitors, while donors avoid sensitive fields to prevent strategic interests from being exposed on public ledgers. This transparency paradox has led to a stagnation in high-risk research.
+Traditional research is stalled by reputation bias and financial exposure. Donors avoid sensitive fields, and experts are often penalized for non-conformist peer reviews. Biotry solvs this **Transparency Paradox** by decoupling identity from expertise, allowing the methodology to speak for itself.
 
-## The Biotry Thesis: Sovereign Discovery
+## Flagship Features: The ZK Evolution
 
-Biotry addresses these challenges through a privacy-native protocol design:
-1. **Anonymous Grants (Umbra)**: Utilize stealth addresses to sever the public link between the funding source and the researcher, eliminating identity-based bias.
-2. **AI Research Simulator**: A war room of five specialized AI agents provide instant, objective audits of research viability.
-3. **Discovery Mesh (Tapestry)**: An expertise-weighted reputation graph that maps scientific authority without compromising financial privacy.
+### 1. ZK-Privacy Hub
+The platform's security command center. Monitor Groth16 verification logs, rotate stealth keys, and manage ZK-Expertise proofs in a single high-fidelity interface.
 
-## Project Architecture
+### 2. Confidential Expertise Economy
+Experts earn SOL bounties for ZK-verified peer reviews without revealing their identity. Bias-free scientific rewards powered by **ZK-Graph Identity**.
 
-Biotry serves as a comprehensive ecosystem for the entire research lifecycle:
-- **Stealth Funding Layer**: Powered by the **Umbra Privacy Engine**, allowing philanthropists and institutions to fund discovery without public exposure.
-- **AI Audit Engine**: Predicted viability scores across 5 specialized domains (Dr. Bio, Solana Arch, ZK Shadow, Codama, Strategist).
-- **Expertise Graph**: Powered by **Tapestry**, mapping citations and credits into a liquid trust network.
+### 3. Umbra Shielded Pools
+Field-specific mixer pools (Biology, Longevity, Genomics) allow philanthropists to fund research without revealing strategic interests on public ledgers.
 
-## Implementation Deep-Links
+### 4. Real-Time Protocol Stream
+100% data fidelity between on-chain state and UI. Every transaction includes direct Solana Explorer integration and instant activity logging.
 
-The following represent the core protocol implementations:
+---
 
-### [Privacy-First Funding Layer (Umbra)](src/components/DeSciDashboard.tsx)
-Implementation of the stealth transfer flow for anonymous research grants.
+## Technical Stack
 
-### [AI Research Simulator (Agentic War Room)](src/pages/SimulatePage.tsx)
-Multi-agent consensus engine for objective methodology verification.
+- **L1 Layer**: Solana (High-throughput discovery mesh)
+- **Privacy Layer**: Umbra (Stealth addressing & donor-shielding)
+- **Identity Layer**: ZK-Reputation (Trust without disclosure)
+- **Audit Engine**: Multi-Agent DeSci Simulators (Groth16 predictions)
 
-### [Social Discovery Mesh (Tapestry)](src/lib/tapestry.ts)
-Weighted reputation and citation mapping for verified scientific identity.
+---
 
-## Operational Sequence: Anonymous Funding
+## Operational Sequence: Shielded Discovery
 
 ```mermaid
 sequenceDiagram
-    participant Researcher
-    participant AgenticAudit
-    participant UmbraProtocol
-    participant AnonymousDonor
+    participant Expert as ZK-Verified Expert
+    participant Hub as Privacy & ZK Hub
+    participant Pool as Umbra Shielded Pool
+    participant Explorer as Solana Explorer
 
-    Researcher->>AgenticAudit: Submits Research Data and Abstract
-    AgenticAudit->>AgenticAudit: Executes Multi-Agent Verification
-    AgenticAudit-->>Researcher: Generates Impact Score
-    AnonymousDonor->>AgenticAudit: Reviews Objective Audit Report
-    AnonymousDonor->>UmbraProtocol: Executes Grant via Stealth Address
-    UmbraProtocol-->>Researcher: Delivers Private Funding
+    Expert->>Hub: Submits Groth16 Expertise Proof
+    Hub->>Hub: Executes On-Chain Verification
+    Hub->>Pool: Triggers Confidential Reward Disbursal
+    Pool-->>Expert: Delivers Stealth SOL Bounty
+    Explorer-->>Hub: Real-Time Sync & Transaction Link
 ```
 
-## Protocol Roadmap
+---
 
-**Phase 01: Privacy Foundation (Current)**
-- Integration of Umbra Core for Anonymous Research Grants.
-- Deployment of the AI Audit Engine on Solana Devnet.
-- Tapestry Social Graph integration for researcher identity.
+## Project Roadmap
 
-**Phase 02: Intelligence Layer**
-- Stealth Milestone Payments (Privacy-preserved payout cycles).
-- Automated Grant Scoring based on agentic consensus.
+**Phase 01: Confidential Foundation (Complete)**
+- ZK-Privacy Hub Deployment.
+- Umbra Shielded Pool Integration.
+- Real-time interaction stream and history merging.
 
-**Phase 03: The Sovereign Mesh**
-- Private Peer Review rewards via stealth settlement.
-- Global Reputation Staking and predictive research markets.
+**Phase 02: Expertise Expansion**
+- Private Peer Review marketplace.
+- Stealth Milestone-based grant disbursement.
+
+**Phase 03: The Sovereign Research Mesh**
+- DAO-governed confidential audit protocols.
+- Predictive research markets with ZK-settlement.
 
 ---
-Copyright 2026 Biotry Systems // Privacy-Native Scientific Infrastructure on Solana
+Copyright 2026 Biotry Systems // Confidential Scientific Infrastructure on Solana

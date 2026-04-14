@@ -9,6 +9,7 @@ import DeSciDashboard from './components/DeSciDashboard';
 import ProfileView from './components/ProfileView';
 import JournalView from './components/JournalView';
 import SimulatePage from './pages/SimulatePage';
+import PrivacyHub from './pages/PrivacyHub';
 import { Globe, Network as NetworkIcon } from 'lucide-react';
 import { SolanaProvider } from './context/SolanaContext';
 import { useAppContext } from './context/AppContext';
@@ -51,6 +52,7 @@ function App() {
                                 <Route path="journal" element={<JournalView />} />
                                 <Route path="studio" element={<ResearchEditor />} />
                                 <Route path="analytics" element={<DeSciDashboard />} />
+                                <Route path="privacy" element={<PrivacyHub />} />
                                 <Route path="profile" element={<ProfileView />} />
                                 <Route path="node/:id" element={<PostDetailWrapper />} />
                                 <Route path="*" element={<Navigate to="/journal" />} />

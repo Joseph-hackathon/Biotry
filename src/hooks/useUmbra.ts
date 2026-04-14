@@ -37,6 +37,8 @@ export const useUmbra = (provider: Provider | null) => {
         getStealthAddress,
         fundAnonymously,
         isFunding,
-        verifyGrantPrivacy: umbra ? umbra.verifyGrantPrivacy.bind(umbra) : () => false
+        verifyGrantPrivacy: umbra ? umbra.verifyGrantPrivacy.bind(umbra) : () => false,
+        getShieldedBalance: umbra ? () => umbra.getShieldedBalance() : () => 0,
+        generatePrivacyProof: umbra ? umbra.generatePrivacyProof.bind(umbra) : null
     };
 };

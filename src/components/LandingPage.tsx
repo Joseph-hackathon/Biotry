@@ -218,7 +218,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
 
                 <div className="flex items-center gap-8">
                     <div className="hidden md:flex gap-10">
-                        {['Discovery', 'Simulation', 'Identity', 'Governance'].map(l => (
+                        {['Discovery', 'Simulation', 'Privacy_Hub', 'Governance'].map(l => (
                             <a key={l} href={`#${l.toLowerCase()}`} className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 hover:text-white transition-colors">{l}</a>
                         ))}
                     </div>
@@ -230,7 +230,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
             <section className="relative min-h-screen flex flex-col items-center justify-center px-6" style={{ maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)' }}>
                 <div className="hero-reveal text-center max-w-5xl space-y-10 z-10 relative">
                     <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-[11px] font-black uppercase tracking-[0.4em] backdrop-blur-xl mb-4 text-[#F6851B]">
-                        <Zap className="w-4 h-4 fill-current" /> Liquid Discovery Protocol
+                        <Fingerprint className="w-4 h-4 fill-current" /> Confidential Expertise Protocol
                     </div>
                     
                     <h1 className="text-7xl md:text-[10rem] font-black tracking-tighter leading-[0.8] text-white uppercase italic">
@@ -239,8 +239,8 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                     </h1>
                     
                     <p className="text-xl md:text-2xl text-white/40 max-w-4xl mx-auto font-medium leading-[1.6] tracking-tight">
-                        Biotry is the high-performance discovery network where science is no longer static. <br />
-                        A living protocol for <span className="text-white font-bold">sovereign research</span>, <span className="text-[#F6851B] font-bold">instant verification</span>, and <span className="text-[#A78BFA] font-bold">privacy-preserved funding</span>.
+                        High-performance discovery network for <span className="text-white font-bold">sovereign research</span>, <br />
+                        <span className="text-[#F6851B] font-bold">confidential expertise</span>, and <span className="text-[#A78BFA] font-bold">ZK-verified funding</span>.
                     </p>
 
 
@@ -273,7 +273,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             NO MORE <br /><span className="text-gradient-purple">SILOS.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight leading-relaxed max-w-xl">
-                            Science today is locked behind paywalls and static PDFs. Biotry weaves research into a real-time social mesh of citations, credits, and active collaboration.
+                            Science unchained. A real-time social mesh of citations, credits, and active collaboration without silos.
                         </p>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="p-8 glass-panel border border-white/10 rounded-3xl space-y-4">
@@ -333,7 +333,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             INSTANT <br /><span className="text-gradient-purple">PROOF.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight leading-relaxed max-w-xl">
-                            Traditional peer review takes months. We execute methodologies in sovereign AI sandboxes, predicting viability before a single drop hits the pipette.
+                            Skip the months of peer review. Predict methodology viability in sovereign AI sandboxes before the first drop hits the pipette.
                         </p>
                         <button onClick={onLaunch} className="btn-metamask py-5 px-14 text-sm group">
                             SIMULATE NOW <Zap className="w-5 h-5 ml-2 fill-current" />
@@ -351,10 +351,10 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             <ShieldCheck className="w-3 h-3" /> UMBRA PRIVACY ENGINE
                         </div>
                         <h2 className="text-6xl md:text-[9rem] font-black tracking-tighter uppercase leading-[0.8] italic text-white/90">
-                            BIAS-FREE <br /><span className="text-gradient-orange">FUNDING.</span>
+                            EXPERT <br /><span className="text-gradient-orange">ECONOMY.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight max-w-2xl mx-auto leading-relaxed">
-                            Biotry utilizes **Stealth Addresses** to sever the link between donors and discovery. Assetize every breakthrough via <span className="text-white font-bold">Anonymous Grants</span> and sovereign research nodes.
+                            Bias-free rewards via ZK-Graph Identity and Umbra Stealth Addresses. Support discoveries anonymously.
                         </p>
                     </div>
 
@@ -366,7 +366,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             <div className="space-y-6">
                                 <h3 className="text-4xl font-black uppercase italic tracking-tighter">ANONYMOUS GRANTS</h3>
                                 <p className="text-sm text-white/30 font-medium leading-relaxed uppercase tracking-tight">
-                                    Support high-impact research without revealing strategic interests. Our Umbra-powered stealth flow ensures that only the science remains public.
+                                    Support high-impact research without revealing strategic interests. Only the science remains public.
                                 </p>
                                 <div className="pt-4 flex items-center gap-4 text-[10px] font-black text-[#F6851B] uppercase tracking-[0.2em]">
                                     [STEALTH_TRANSFER] [ZERO_BIAS] [UMBRA_NATIVE]
@@ -379,12 +379,12 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                                 <ShieldCheck className="w-10 h-10 text-[#7C3AED]" />
                             </div>
                             <div className="space-y-6">
-                                <h3 className="text-4xl font-black uppercase italic tracking-tighter">PRIVATE REPUTATION</h3>
+                                <h3 className="text-4xl font-black uppercase italic tracking-tighter">ZK-REPUTATION</h3>
                                 <p className="text-sm text-white/30 font-medium leading-relaxed uppercase tracking-tight">
-                                    Trust is verified, but identity is sovereign. We bridge Tapestry Social Graphs with Umbra Privacy to protect the world's leading minds.
+                                    Trust verified via Groth16 proofs. Protect your identity while proving domain mastery.
                                 </p>
                                 <div className="pt-4 flex items-center gap-4 text-[10px] font-black text-[#7C3AED] uppercase tracking-[0.2em]">
-                                    [SOVEREIGN_ID] [VERIFIABLE_TRUST] [CONFIDENTIAL_NODES]
+                                    [ZK_RP_PROOFS] [SOVEREIGN_ID] [VERIFIABLE_TRUST]
                                 </div>
                             </div>
                         </div>
@@ -402,9 +402,9 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                         {[
-                            { i: ShieldCheck, t: 'ZK-Identity', d: 'Prove your credentials without revealing sensitive data.' },
-                            { i: Fingerprint, t: 'Reputation', d: 'Your scientific impact stored immutably on Solana.' },
-                            { i: Cpu, t: 'TEE Nodes', d: 'Encrypted computation for confidential research tasks.' }
+                            { i: ShieldCheck, t: 'ZK-Expertise', d: 'Prove domain mastery via Groth16 proofs without revealing identity.' },
+                            { i: Activity, t: 'Live Sync', d: 'Real-time on-chain interaction stream for instant visibility.' },
+                            { i: Cpu, t: 'Shielded Hub', d: 'The core ZK-Privacy engine for bias-free research grants.' }
                         ].map((item, i) => (
                             <div key={i} className="reveal-section glass-card p-12 flex flex-col items-center text-center space-y-8 group hover:border-[#F6851B]/40 transition-all duration-500 bg-[#0B0E11]/40 rounded-[40px]">
                                 <item.i className="w-16 h-16 text-[#F6851B] group-hover:scale-110 transition-transform mb-2" />

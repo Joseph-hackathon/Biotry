@@ -35,6 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView }) => {
     const navItems = React.useMemo(() => [
         { id: 'journal', label: 'Journal', icon: BookOpen, path: '/journal' },
         { id: 'analytics', label: 'Analytics', icon: LayoutDashboard, path: '/analytics' },
+        { id: 'privacy', label: 'Privacy Hub', icon: ShieldCheck, path: '/privacy' },
         { id: 'studio', label: 'Research Studio', icon: FlaskConical, path: '/studio' },
         { id: 'profile', label: 'Profile', icon: User, path: '/profile', requiresAuth: true },
     ], []);

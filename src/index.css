@@ -96,3 +96,16 @@
 .glow-purple {
     @apply shadow-[0_0_50px_rgba(124,58,237,0.15)];
 }
+
+/* ZK Pulse Animation */
+.animate-heartbeat {
+    animation: heartbeat 4s linear infinite;
+}
+
+@keyframes heartbeat {
+    0% { stroke-dashoffset: 1000; opacity: 0; }
+    10% { opacity: 0.2; }
+    50% { stroke-dashoffset: 0; opacity: 1; }
+    90% { opacity: 0.2; }
+    100% { stroke-dashoffset: -1000; opacity: 0; }
+}

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import TransactionModal, { TransactionCategory } from '../components/TransactionModal';
 import SystemModal, { SystemModalType } from '../components/SystemModal';
+import InputModal from '../components/InputModal';
 
 interface UIContextValue {
     showTransactionModal: (params: {
@@ -16,6 +17,13 @@ interface UIContextValue {
         message: string;
         actionLink?: string;
         actionLabel?: string;
+    }) => void;
+    showInputModal: (params: {
+        title: string;
+        message: string;
+        placeholder?: string;
+        defaultValue?: string;
+        onConfirm: (value: string) => void;
     }) => void;
 }
 
@@ -55,12 +63,28 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         message: ''
     });
 
+    const [inputModalConfig, setInputModalConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        placeholder?: string;
+        defaultValue?: string;
+        onConfirm: (value: string) => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {}
+    });
+
     const showTransactionModal = (params: any) => setModalConfig({ ...params, isOpen: true });
     const showSystemModal = (params: any) => setSystemModalConfig({ ...params, isOpen: true });
+    const showInputModal = (params: any) => setInputModalConfig({ ...params, isOpen: true });
 
     const value = useMemo(() => ({
         showTransactionModal,
-        showSystemModal
+        showSystemModal,
+        showInputModal
     }), []);
 
     return (
@@ -83,6 +107,15 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
                 message={systemModalConfig.message}
                 actionLink={systemModalConfig.actionLink}
                 actionLabel={systemModalConfig.actionLabel}
+            />
+            <InputModal
+                isOpen={inputModalConfig.isOpen}
+                onClose={() => setInputModalConfig(prev => ({ ...prev, isOpen: false }))}
+                title={inputModalConfig.title}
+                message={inputModalConfig.message}
+                placeholder={inputModalConfig.placeholder}
+                defaultValue={inputModalConfig.defaultValue}
+                onConfirm={inputModalConfig.onConfirm}
             />
         </UIContext.Provider>
     );

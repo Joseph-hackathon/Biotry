@@ -239,8 +239,8 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                     </h1>
                     
                     <p className="text-xl md:text-2xl text-white/40 max-w-4xl mx-auto font-medium leading-[1.6] tracking-tight">
-                        High-performance discovery network for <span className="text-white font-bold">sovereign research</span>, <br />
-                        <span className="text-[#F6851B] font-bold">confidential expertise</span>, and <span className="text-[#A78BFA] font-bold">ZK-verified funding</span>.
+                        The intersection of decentralized reputation and financial privacy. <br />
+                        Powered by the <span className="text-white font-bold">Tapestry Social Graph</span> and the <span className="text-[#F6851B] font-bold">Umbra Privacy Protocol</span>.
                     </p>
 
 
@@ -354,7 +354,7 @@ const LandingPage = ({ onLaunch }: { onLaunch: () => void }) => {
                             EXPERT <br /><span className="text-gradient-orange">ECONOMY.</span>
                         </h2>
                         <p className="text-xl text-white/40 font-medium uppercase tracking-tight max-w-2xl mx-auto leading-relaxed">
-                            Bias-free rewards via ZK-Graph Identity and Umbra Stealth Addresses. Support discoveries anonymously.
+                            Biotry bridges **Tapestry Reputation** with **Umbra Shielding** to reward research expertise without bias. Support discoveries anonymously.
                         </p>
                     </div>
 

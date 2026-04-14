@@ -1,6 +1,6 @@
 import { useMemo, useCallback, useState } from 'react';
 import { Provider } from '@coral-xyz/anchor';
-import { UmbraProtocol } from '../lib/umbraProtocol';
+import { UmbraProtocol, UmbraGrantParams } from '../lib/umbraProtocol';
 
 /**
  * Custom hook for Umbra Privacy Protocol interactions.
@@ -19,11 +19,7 @@ export const useUmbra = (provider: Provider | null) => {
         return await umbra.generateStealthAddress(recipient);
     }, [umbra]);
 
-    const fundAnonymously = useCallback(async (params: { 
-        amount: number; 
-        recipient: string; 
-        donor: string;
-    }) => {
+    const fundAnonymously = useCallback(async (params: UmbraGrantParams) => {
         if (!umbra) throw new Error('Umbra Protocol not initialized. Connect wallet.');
         try {
             setIsFunding(true);

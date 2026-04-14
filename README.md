@@ -1,6 +1,6 @@
 # Biotry: The Confidential Expertise Economy on Solana
 
-Biotry is the high-performance scientific discovery network where privacy is the catalyst for truth. By integrating **Umbra-powered stealth addresses** and **ZK-Reputation Proofs**, Biotry creates a sovereign, bias-free ecosystem for the funding, verification, and assetization of human knowledge.
+Biotry is the high-performance scientific discovery network where privacy is the catalyst for truth. By naturally bridging the **Tapestry Social Graph** for decentralized reputation and the **Umbra Privacy Protocol** for shielded research funding, Biotry creates a sovereign, bias-free ecosystem for the funding, verification, and assetization of human knowledge.
 
 ---
 
@@ -26,9 +26,9 @@ Field-specific mixer pools (Biology, Longevity, Genomics) allow philanthropists 
 
 ## Technical Stack
 
-- **L1 Layer**: Solana (High-throughput discovery mesh)
-- **Privacy Layer**: Umbra (Stealth addressing & donor-shielding)
-- **Identity Layer**: ZK-Reputation (Trust without disclosure)
+- **Reputation Layer**: Tapestry Social Graph (Expertise-weighted impact)
+- **Privacy Layer**: Umbra Protocol (Stealth addressing & donor-shielding)
+- **Verification Layer**: ZK-Reputation (Trust without disclosure)
 - **Audit Engine**: Multi-Agent DeSci Simulators (Groth16 predictions)
 
 ---

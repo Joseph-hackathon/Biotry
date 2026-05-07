@@ -123,11 +123,17 @@ export class UmbraProtocol {
             tx.recentBlockhash = blockhash;
             tx.feePayer = donorPubkey;
 
+            const rentExemptBalance = await connection.getMinimumBalanceForRentExemption(0);
+            const transferAmount = Math.floor(params.amount * LAMPORTS_PER_SOL);
+            
+            // Ensure the account is created with enough SOL to be rent-exempt
+            const finalAmount = Math.max(transferAmount, rentExemptBalance);
+
             tx.add(
                 SystemProgram.transfer({
                     fromPubkey: donorPubkey,
                     toPubkey: stealthAddress,
-                    lamports: Math.floor(params.amount * LAMPORTS_PER_SOL * 0.05),
+                    lamports: finalAmount,
                 })
             );
 

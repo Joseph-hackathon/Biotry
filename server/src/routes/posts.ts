@@ -81,7 +81,7 @@ router.get('/', async (req, res) => {
     res.json(serializedPosts);
   } catch (error: any) {
     console.error('[GET /api/posts] Fetch Failed.', error.message);
-    res.status(503).json({ error: 'Database Error', technical: error.message });
+    res.status(500).json({ error: 'Database Connection Error', technical: error.message });
   }
 });
 

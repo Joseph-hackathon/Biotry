@@ -63,7 +63,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4.5rem;
+            padding: 6rem;
             position: relative;
             z-index: 10;
         }
@@ -83,15 +83,16 @@
 
         .bio-logo-box {
             background: linear-gradient(135deg, #F6851B 0%, #FFAB5E 100%) !important;
-            border-radius: 2.5rem;
-            width: 320px;
-            height: 320px;
+            border-radius: 3rem;
+            width: 380px;
+            height: 380px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 80px rgba(246, 133, 27, 0.4);
+            box-shadow: 0 0 100px rgba(246, 133, 27, 0.4);
         }
-        .official-logo-img { width: 68%; height: 68%; object-fit: contain; filter: brightness(0) invert(1); }
+        .official-logo-img { width: 70%; height: 70%; object-fit: contain; filter: brightness(0) invert(1); }
+        .white-logo { filter: brightness(0) invert(1); }
 
         .ui-card {
             background: rgba(255, 255, 255, 0.05);
@@ -101,26 +102,27 @@
 
         .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0 0.8rem; }
         .comparison-table th { padding: 1rem; text-align: left; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-        .comparison-table td { padding: 1rem; background: rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.08); border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.85rem; color: #ffffff; }
+        .comparison-table td { padding: 1.2rem; background: rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.08); border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.9rem; color: #ffffff; }
         .comparison-table td:last-child { background: rgba(246, 133, 27, 0.15) !important; color: #F6851B !important; font-weight: 800; border-top-right-radius: 1rem; border-bottom-right-radius: 1rem; }
 
         @media print {
             @page { 
-                size: landscape; 
+                size: 1920px 1080px; 
                 margin: 0 !important; 
             }
             html, body {
-                width: 100% !important;
-                height: 100% !important;
+                width: 1920px !important;
+                height: auto !important;
                 background-color: #030303 !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                overflow: visible !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             .slide-container { 
-                width: 100vw !important;
-                height: 100vh !important;
+                width: 1920px !important;
+                height: 1080px !important;
                 page-break-after: always !important; 
                 break-after: page !important; 
                 display: flex !important; 
@@ -131,11 +133,11 @@
                 padding: 0 !important;
                 border: none !important;
                 position: relative !important;
-                overflow: hidden !important;
+                overflow: visible !important;
                 break-inside: avoid !important;
             }
             .slide-content {
-                padding: 5rem !important;
+                padding: 6rem !important;
                 margin: 0 auto !important;
                 width: 100% !important;
                 height: 100% !important;
@@ -152,16 +154,15 @@
     <!-- Slide 1: Hero -->
     <section class="slide-container" id="slide-1">
         <div class="slide-content">
-            <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-12">
-                <div class="col-span-12 md:col-span-7 space-y-6 text-left">
-                    <div class="flex items-center gap-3 px-4 py-2 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-full w-fit">
-                        <span class="text-[var(--accent)] font-black text-[10px] uppercase tracking-[0.4em]">Liquid Discovery Protocol</span>
+            <div class="flex w-full max-w-7xl items-center justify-between gap-20">
+                <div class="w-3/5 space-y-10 text-left">
+                    <div class="flex items-center gap-3 px-6 py-3 bg-[#F6851B]/10 border border-[#F6851B]/20 rounded-full w-fit">
+                        <span class="text-[var(--accent)] font-black text-xs uppercase tracking-[0.5em]">Liquid Discovery Protocol</span>
                     </div>
-                    <h1 class="text-8xl font-black tracking-tighter leading-[0.8] uppercase italic">BIOTRY <br/> <span class="text-gradient-orange italic">SYSTEMS.</span></h1>
-                    <p class="text-2xl text-white/40 leading-relaxed max-w-xl font-light">Recoding Science with the Umbra Privacy Upgrade on Solana.</p>
-
+                    <h1 class="text-[10rem] font-black tracking-tighter leading-[0.8] uppercase italic">BIOTRY <br/> <span class="text-gradient-orange italic">SYSTEMS.</span></h1>
+                    <p class="text-3xl text-white/40 leading-relaxed max-w-2xl font-light">Recoding Science with the Umbra Privacy Upgrade on Solana.</p>
                 </div>
-                <div class="col-span-12 md:col-span-5 flex justify-end pr-8">
+                <div class="w-2/5 flex justify-end">
                     <div class="bio-logo-box">
                         <img src="public/biotry-logo.png" class="official-logo-img" alt="Biotry Official Logo">
                     </div>
@@ -173,28 +174,28 @@
     <!-- Slide 2: The Hook (Science is Broken) -->
     <section class="slide-container" id="slide-2">
         <div class="slide-content">
-            <div class="max-w-6xl w-full grid grid-cols-2 gap-20 items-center">
-                <div class="space-y-8">
-                    <h2 class="text-5xl font-black text-white italic uppercase leading-none">Science is <br/><span class="text-red-500">Broken.</span></h2>
-                    <ul class="space-y-6">
-                        <li class="flex gap-4 items-start">
-                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
-                            <p class="text-xl text-white/50"><b class="text-white">Paywalls</b> — $35 for a single static PDF is insanity. Knowledge is locked.</p>
+            <div class="max-w-7xl w-full flex items-center justify-between gap-32">
+                <div class="w-1/2 space-y-12">
+                    <h2 class="text-7xl font-black text-white italic uppercase leading-none">Science is <br/><span class="text-red-500">Broken.</span></h2>
+                    <ul class="space-y-8">
+                        <li class="flex gap-6 items-start">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mt-2"></div>
+                            <p class="text-2xl text-white/50"><b class="text-white">Paywalls</b> — $35 for a single static PDF is insanity. Knowledge is locked.</p>
                         </li>
-                        <li class="flex gap-4 items-start">
-                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
-                            <p class="text-xl text-white/50"><b class="text-white">Slow Valuation</b> — Peer review takes years. Innovation dies in the queue.</p>
+                        <li class="flex gap-6 items-start">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mt-2"></div>
+                            <p class="text-2xl text-white/50"><b class="text-white">Slow Valuation</b> — Peer review takes years. Innovation dies in the queue.</p>
                         </li>
-                        <li class="flex gap-4 items-start">
-                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
-                            <p class="text-xl text-white/50"><b class="text-white">Reproduction Crisis</b> — 70%+ of research is irreproducible but funded nonetheless.</p>
+                        <li class="flex gap-6 items-start">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mt-2"></div>
+                            <p class="text-2xl text-white/50"><b class="text-white">Reproduction Crisis</b> — 70%+ of research is irreproducible but funded nonetheless.</p>
                         </li>
                     </ul>
                 </div>
-                <div class="ui-card p-12 bg-white/5 space-y-8 border-l-8 border-red-500">
-                    <p class="text-[10px] font-black uppercase text-white/30 tracking-widest">Market Stagnation</p>
-                    <p class="text-5xl font-black text-white italic">$20B+</p>
-                    <p class="text-sm font-light text-white/40 leading-relaxed">The global scientific publishing market is a black box of inefficiency and centralized gatekeeping.</p>
+                <div class="w-1/2 ui-card p-16 bg-white/5 space-y-10 border-l-[12px] border-red-500">
+                    <p class="text-xs font-black uppercase text-white/30 tracking-[0.5em]">Market Stagnation</p>
+                    <p class="text-8xl font-black text-white italic">$20B+</p>
+                    <p class="text-lg font-light text-white/40 leading-relaxed">The global scientific publishing market is a black box of inefficiency and centralized gatekeeping.</p>
                 </div>
             </div>
         </div>
@@ -203,21 +204,21 @@
     <!-- Slide 3: The Solution (A Fluid Layer) -->
     <section class="slide-container" id="slide-3">
         <div class="slide-content">
-            <div class="text-center space-y-12">
-                <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">The Paradigm Shift</p>
-                <h2 class="text-8xl font-black text-white tracking-tighter uppercase leading-[0.8]">Discovery is a <br/><span class="text-gradient-orange italic">Fluid Layer.</span></h2>
-                <div class="grid grid-cols-3 gap-8 max-w-5xl mx-auto pt-10">
-                    <div class="ui-card p-8 space-y-2">
-                        <p class="text-2xl font-black text-white italic">SOLANA</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">High Speed Verification</p>
+            <div class="text-center space-y-16">
+                <p class="text-sm font-black tracking-[0.8em] text-[var(--accent)] uppercase">The Paradigm Shift</p>
+                <h2 class="text-[11rem] font-black text-white tracking-tighter uppercase leading-[0.8]">Discovery is a <br/><span class="text-gradient-orange italic">Fluid Layer.</span></h2>
+                <div class="flex gap-12 max-w-6xl mx-auto pt-16">
+                    <div class="flex-1 ui-card p-12 space-y-4">
+                        <p class="text-4xl font-black text-white italic">SOLANA</p>
+                        <p class="text-xs text-white/30 uppercase tracking-[0.4em]">High Speed Verification</p>
                     </div>
-                    <div class="ui-card p-8 space-y-2">
-                        <p class="text-2xl font-black text-[var(--accent)] italic">UMBRA</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Confidential Funding</p>
+                    <div class="flex-1 ui-card p-12 space-y-4 shadow-[0_0_60px_rgba(246,133,27,0.15)] border-[var(--accent)]/30">
+                        <p class="text-4xl font-black text-[var(--accent)] italic">UMBRA</p>
+                        <p class="text-xs text-white/30 uppercase tracking-[0.4em]">Confidential Funding</p>
                     </div>
-                    <div class="ui-card p-8 space-y-2 border-l-4 border-[var(--accent)]">
-                        <p class="text-2xl font-black text-white italic italic">TAPESTRY</p>
-                        <p class="text-[10px] text-white/30 uppercase tracking-widest">Verified Identity Graph</p>
+                    <div class="flex-1 ui-card p-12 space-y-4 border-l-8 border-[var(--accent)]">
+                        <p class="text-4xl font-black text-white italic">TAPESTRY</p>
+                        <p class="text-xs text-white/30 uppercase tracking-[0.4em]">Verified Identity Graph</p>
                     </div>
                 </div>
             </div>
@@ -227,87 +228,86 @@
     <!-- Slide 4: Product I (Assetizing Insight) -->
     <section class="slide-container" id="slide-4">
         <div class="slide-content">
-            <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-16">
-                <div class="col-span-12 md:col-span-6 space-y-10">
-                    <div class="space-y-4">
-                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Innovation Layer: Umbra Upgrade</p>
-                        <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter leading-none">Anonymous <br/><span class="text-gradient-orange italic">Grants.</span></h2>
+            <div class="flex w-full max-w-7xl items-center justify-between gap-24">
+                <div class="w-1/2 space-y-12">
+                    <div class="space-y-6">
+                        <p class="text-sm font-black tracking-[0.5em] text-[var(--accent)] uppercase">Innovation Layer: Umbra Upgrade</p>
+                        <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter leading-none">Anonymous <br/><span class="text-gradient-orange italic">Grants.</span></h2>
                     </div>
-                    <p class="text-xl text-white/40 leading-relaxed font-light">Biotry integrates the <b>Umbra Privacy Engine</b> to eliminate funding bias via Stealth Addresses. Donors support research anonymously, severing the public link between strategic interests and scientific pursuit.</p>
-                    <div class="flex gap-4 items-center text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
+                    <p class="text-2xl text-white/40 leading-relaxed font-light">Biotry integrates the <b>Umbra Privacy Engine</b> to eliminate funding bias via Stealth Addresses. Donors support research anonymously, severing the public link between strategic interests and scientific pursuit.</p>
+                    <div class="flex gap-6 items-center text-xs font-black text-white/20 uppercase tracking-[0.5em]">
                         [STEALTH_ADDRESS] [ANONYMOUS_SUPPORT] [ZERO_BIAS]
                     </div>
                 </div>
-                <div class="col-span-12 md:col-span-6 ui-card p-12 bg-black/40 relative overflow-hidden border-2 border-white/5 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
-                    <div class="space-y-8">
-                        <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/10">
-                            <p class="font-mono text-[10px] text-[#F6851B]">STATUS: GENERATING_STEALTH</p>
-                            <p class="font-bold text-[10px] text-white italic uppercase">Privacy Enabled</p>
+                <div class="w-1/2 ui-card p-16 bg-black/40 relative overflow-hidden border-2 border-white/5 shadow-[0_0_120px_rgba(246,133,27,0.1)]">
+                    <div class="space-y-12">
+                        <div class="flex justify-between items-center bg-white/5 p-8 rounded-3xl border border-white/10">
+                            <p class="font-mono text-xs text-[#F6851B]">STATUS: GENERATING_STEALTH</p>
+                            <p class="font-bold text-xs text-white italic uppercase tracking-widest">Privacy Enabled</p>
                         </div>
-                        <div class="space-y-4">
+                        <div class="space-y-6">
                             <div class="flex justify-between items-end">
-                                <p class="text-sm font-black text-white/60">Anonymous Grant Node #882</p>
-                                <p class="text-3xl font-black text-white">$1,000.00 <span class="text-xs font-light text-white/20 tracking-normal italic">USDC</span></p>
+                                <p class="text-xl font-black text-white/60 uppercase">Anonymous Grant Node #882</p>
+                                <p class="text-5xl font-black text-white">$1,000.00 <span class="text-lg font-light text-white/20 tracking-normal italic">USDC</span></p>
                             </div>
-                            <div class="h-1.5 bg-white/10 rounded-full w-full overflow-hidden">
-                                <div class="h-full bg-[var(--accent)] w-[100%] shadow-[0_0_20px_var(--accent)]"></div>
+                            <div class="h-3 bg-white/10 rounded-full w-full overflow-hidden">
+                                <div class="h-full bg-[var(--accent)] w-[100%] shadow-[0_0_30px_var(--accent)]"></div>
                             </div>
                         </div>
-                        <p class="text-[10px] font-bold text-white/20 uppercase tracking-widest text-center italic">Stealth Verification Complete</p>
+                        <p class="text-xs font-bold text-white/20 uppercase tracking-[0.6em] text-center italic">Stealth Verification Complete</p>
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 
     <!-- Slide 5: Product II (AI War Room) -->
     <section class="slide-container" id="slide-5">
         <div class="slide-content">
-            <div class="w-full max-w-7xl space-y-12">
-                <div class="text-center space-y-2">
-                    <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Multi-Agent Intelligence</p>
-                    <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter">The AI War Room.</h2>
-                    <p class="text-xl text-white/30 font-light">5 specialized AI agents audit methodology in real-time.</p>
+            <div class="w-full max-w-7xl space-y-16">
+                <div class="text-center space-y-4">
+                    <p class="text-sm font-black tracking-[0.5em] text-[var(--accent)] uppercase">Multi-Agent Intelligence</p>
+                    <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter">The AI War Room.</h2>
+                    <p class="text-2xl text-white/30 font-light pt-2">5 specialized AI agents audit methodology in real-time.</p>
                 </div>
-                <div class="grid grid-cols-5 gap-6">
-                    <div class="ui-card p-8 border-t-4 border-t-blue-400 space-y-4">
-                        <h4 class="font-black text-white italic uppercase text-lg">Dr. Bio</h4>
-                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">Scientific methodology validation & citation auditing.</p>
+                <div class="flex gap-8">
+                    <div class="flex-1 ui-card p-10 border-t-8 border-t-blue-400 space-y-6">
+                        <h4 class="font-black text-white italic uppercase text-2xl">Dr. Bio</h4>
+                        <p class="text-sm text-white/40 leading-relaxed uppercase tracking-tight">Scientific methodology validation & citation auditing.</p>
                     </div>
-                    <div class="ui-card p-8 border-t-4 border-t-purple-400 space-y-4">
-                        <h4 class="font-black text-white italic uppercase text-lg">Solana Arch</h4>
-                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">Anchor program structure & PDA security scan.</p>
+                    <div class="flex-1 ui-card p-10 border-t-8 border-t-purple-400 space-y-6">
+                        <h4 class="font-black text-white italic uppercase text-2xl">Solana Arch</h4>
+                        <p class="text-sm text-white/40 leading-relaxed uppercase tracking-tight">Anchor program structure & PDA security scan.</p>
                     </div>
-                    <div class="ui-card p-8 border-t-4 border-t-green-400 space-y-4">
-                        <h4 class="font-black text-white italic uppercase text-lg">ZK Shadow</h4>
-                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">Privacy-preserving data layers & ZK-integrity.</p>
+                    <div class="flex-1 ui-card p-10 border-t-8 border-t-green-400 space-y-6">
+                        <h4 class="font-black text-white italic uppercase text-2xl">ZK Shadow</h4>
+                        <p class="text-sm text-white/40 leading-relaxed uppercase tracking-tight">Privacy-preserving data layers & ZK-integrity.</p>
                     </div>
-                    <div class="ui-card p-8 border-t-4 border-t-yellow-400 space-y-4">
-                        <h4 class="font-black text-white italic uppercase text-lg">Codama Bot</h4>
-                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">IDL-to-SDK & Kinobi auditing.</p>
+                    <div class="flex-1 ui-card p-10 border-t-8 border-t-yellow-400 space-y-6">
+                        <h4 class="font-black text-white italic uppercase text-2xl">Codama Bot</h4>
+                        <p class="text-sm text-white/40 leading-relaxed uppercase tracking-tight">IDL-to-SDK & Kinobi auditing.</p>
                     </div>
-                    <div class="ui-card p-8 border-t-4 border-t-[var(--accent)] space-y-4 shadow-[0_0_40px_rgba(246,133,27,0.1)]">
-                        <h4 class="font-black text-white italic uppercase text-lg">Strategist</h4>
-                        <p class="text-xs text-white/40 leading-relaxed uppercase tracking-tighter">8-step gap analysis & crowdedness audit.</p>
+                    <div class="flex-1 ui-card p-10 border-t-8 border-t-[var(--accent)] space-y-6 shadow-[0_0_60px_rgba(246,133,27,0.15)]">
+                        <h4 class="font-black text-white italic uppercase text-2xl">Strategist</h4>
+                        <p class="text-sm text-white/40 leading-relaxed uppercase tracking-tight">8-step gap analysis & crowdedness audit.</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-4 gap-8 pt-4">
-                    <div class="ui-card p-6 text-center border-b-4 border-b-[#F6851B] bg-[#F6851B]/5">
-                        <p class="text-3xl font-black text-white italic">93.9%</p>
-                        <p class="text-[10px] text-[var(--accent)] font-black uppercase tracking-[0.4em]">SUCCESS_RATIO</p>
+                <div class="flex gap-12 pt-8">
+                    <div class="flex-1 ui-card p-10 text-center border-b-8 border-b-[#F6851B] bg-[#F6851B]/5">
+                        <p class="text-5xl font-black text-white italic">93.9%</p>
+                        <p class="text-xs text-[var(--accent)] font-black uppercase tracking-[0.5em] pt-2">SUCCESS_RATIO</p>
                     </div>
-                    <div class="ui-card p-6 text-center">
-                        <p class="text-3xl font-black text-white italic">BIOLOGY</p>
-                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">MARKET_FIELD</p>
+                    <div class="flex-1 ui-card p-10 text-center">
+                        <p class="text-5xl font-black text-white italic">BIOLOGY</p>
+                        <p class="text-xs text-white/20 uppercase tracking-[0.5em] pt-2">MARKET_FIELD</p>
                     </div>
-                    <div class="ui-card p-6 text-center">
-                        <p class="text-3xl font-black text-white italic">93%</p>
-                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">ACTIONABILITY</p>
+                    <div class="flex-1 ui-card p-10 text-center">
+                        <p class="text-5xl font-black text-white italic">93%</p>
+                        <p class="text-xs text-white/20 uppercase tracking-[0.5em] pt-2">ACTIONABILITY</p>
                     </div>
-                    <div class="ui-card p-6 text-center">
-                        <p class="text-3xl font-black text-white italic">1.8Y</p>
-                        <p class="text-[10px] text-white/20 uppercase tracking-[0.4em]">TIME_TO_MARKET</p>
+                    <div class="flex-1 ui-card p-10 text-center">
+                        <p class="text-5xl font-black text-white italic">1.8Y</p>
+                        <p class="text-xs text-white/20 uppercase tracking-[0.5em] pt-2">TIME_TO_MARKET</p>
                     </div>
                 </div>
             </div>
@@ -317,29 +317,31 @@
     <!-- Slide 6: Social Graph (Expertise) -->
     <section class="slide-container" id="slide-6">
         <div class="slide-content">
-            <div class="grid grid-cols-12 w-full max-w-7xl items-center gap-16">
-                <div class="col-span-12 md:col-span-6 ui-card p-14 h-[450px] relative overflow-hidden flex flex-col justify-center border-l-8 border-l-[var(--accent)]">
-                    <div class="absolute top-0 right-0 p-8 text-8xl font-black opacity-[0.03] uppercase italic">REPUTATION</div>
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-6">
-                            <div class="w-20 h-20 rounded-3xl bg-[var(--accent)]/20 border border-[var(--accent)]/30 flex items-center justify-center font-black text-4xl text-[var(--accent)] shadow-[0_0_40px_var(--accent-glow)]">N</div>
-                            <div>
-                                <h4 class="text-3xl font-black text-white uppercase italic tracking-tighter">Neuro_Verified</h4>
-                                <p class="text-xs font-mono text-white/30 tracking-widest uppercase">Expertise Graph: Level A</p>
+            <div class="flex w-full max-w-7xl items-center justify-between gap-24">
+                <div class="w-1/2 ui-card p-20 h-[500px] relative overflow-hidden flex flex-col justify-center border-l-[12px] border-l-[var(--accent)] shadow-[0_0_100px_rgba(246,133,27,0.1)]">
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                         <span class="text-[15rem] font-black opacity-[0.03] uppercase italic">GRAPH</span>
+                    </div>
+                    <div class="space-y-12 relative z-10">
+                        <div class="flex items-center gap-10">
+                            <div class="w-32 h-32 rounded-[2.5rem] bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center font-black text-6xl text-[var(--accent)] shadow-[0_0_60px_var(--accent-glow)]">N</div>
+                            <div class="space-y-2">
+                                <h4 class="text-5xl font-black text-white uppercase italic tracking-tighter">Neuro_Verified</h4>
+                                <p class="text-sm font-mono text-white/30 tracking-[0.4em] uppercase italic">Expertise Graph: Level A</p>
                             </div>
                         </div>
-                        <div class="p-6 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center">
-                            <p class="text-xs font-black uppercase text-white/40 tracking-widest">Impact Factor</p>
-                            <p class="text-2xl font-black text-[var(--accent)] italic">4.82</p>
+                        <div class="p-10 bg-white/5 border border-white/10 rounded-[2.5rem] flex justify-between items-center">
+                            <p class="text-sm font-black uppercase text-white/40 tracking-[0.6em]">Impact Factor</p>
+                            <p class="text-5xl font-black text-[var(--accent)] italic">4.82</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-span-12 md:col-span-6 space-y-10">
-                    <div class="space-y-4">
-                        <p class="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">The Discovery Mesh</p>
-                        <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter leading-none">Weighted <br/><span class="text-gradient-orange italic">Reputation.</span></h2>
+                <div class="w-1/2 space-y-12">
+                    <div class="space-y-6">
+                        <p class="text-sm font-black tracking-[0.5em] text-[var(--accent)] uppercase">The Discovery Mesh</p>
+                        <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter leading-none">Weighted <br/><span class="text-gradient-orange italic">Reputation.</span></h2>
                     </div>
-                    <p class="text-xl text-white/40 leading-relaxed font-light">Powered by the <b>Tapestry Protocol</b>. We map citations, expertise levels, and experimental history to create a liquid trust network where the truth is verifiable.</p>
+                    <p class="text-2xl text-white/40 leading-relaxed font-light">Powered by the <b>Tapestry Protocol</b>. We map citations, expertise levels, and experimental history to create a liquid trust network where the truth is verifiable.</p>
                 </div>
             </div>
         </div>
@@ -348,34 +350,34 @@
     <!-- Slide 7: Strategic Monetization (Umbra & Privacy) -->
     <section class="slide-container" id="slide-7">
         <div class="slide-content">
-            <div class="max-w-6xl w-full grid grid-cols-2 gap-20 items-center">
-                <div class="space-y-8">
-                    <h2 class="text-6xl font-black text-white italic uppercase leading-tight">The Private <br/><span class="text-gradient-orange italic">Research Economy.</span></h2>
-                    <p class="text-xl text-white/40 leading-relaxed font-light">Umbra-powered stealth addresses ensure that scientific capital flows without strings attached.</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="ui-card p-6 bg-white/5 space-y-2 border-t-2 border-t-blue-400">
-                            <p class="text-blue-400 font-black text-xs uppercase italic tracking-widest">MPC Privacy</p>
-                            <p class="text-[10px] text-white/40 uppercase">Confidential Multi-Party Logic</p>
+            <div class="max-w-7xl w-full flex items-center justify-between gap-32">
+                <div class="w-1/2 space-y-12">
+                    <h2 class="text-8xl font-black text-white italic uppercase leading-tight">The Private <br/><span class="text-gradient-orange italic">Research Economy.</span></h2>
+                    <p class="text-2xl text-white/40 leading-relaxed font-light">Umbra-powered stealth addresses ensure that scientific capital flows without strings attached.</p>
+                    <div class="flex gap-8">
+                        <div class="flex-1 ui-card p-10 bg-white/5 space-y-4 border-t-4 border-t-blue-400">
+                            <p class="text-blue-400 font-black text-sm uppercase italic tracking-[0.4em]">MPC Privacy</p>
+                            <p class="text-xs text-white/40 uppercase tracking-widest">Confidential Multi-Party Logic</p>
                         </div>
-                        <div class="ui-card p-6 bg-white/5 space-y-2 border-t-2 border-t-[var(--accent)] shadow-[0_0_30px_rgba(246,133,27,0.1)]">
-                            <p class="text-[var(--accent)] font-black text-xs uppercase italic tracking-widest">Stealth Node</p>
-                            <p class="text-[10px] text-white/40 uppercase">Confidential Settlement</p>
+                        <div class="flex-1 ui-card p-10 bg-white/5 space-y-4 border-t-4 border-t-[var(--accent)] shadow-[0_0_40px_rgba(246,133,27,0.1)]">
+                            <p class="text-[var(--accent)] font-black text-sm uppercase italic tracking-[0.4em]">Stealth Node</p>
+                            <p class="text-xs text-white/40 uppercase tracking-widest">Confidential Settlement</p>
                         </div>
                     </div>
                 </div>
-                <div class="ui-card p-10 bg-black/60 space-y-8 relative overflow-hidden border-2 border-[#F6851B]/30">
-                    <div class="flex justify-between items-center text-[9px] font-black tracking-widest text-[#F6851B] uppercase">
+                <div class="w-1/2 ui-card p-16 bg-black/60 space-y-12 relative overflow-hidden border-2 border-[#F6851B]/30">
+                    <div class="flex justify-between items-center text-xs font-black tracking-[0.5em] text-[#F6851B] uppercase">
                         <p>Status: Privacy Enabled</p>
                         <p>Umbra Native</p>
                     </div>
-                    <div class="p-8 bg-black rounded-3xl font-mono text-[11px] text-white/60 space-y-3 leading-relaxed border border-white/5">
-                        <p class="text-blue-400 uppercase font-black tracking-widest">UMBRA_TRANSFER // EXEC</p>
+                    <div class="p-10 bg-black rounded-[2.5rem] font-mono text-sm text-white/60 space-y-4 leading-loose border border-white/5 shadow-inner">
+                        <p class="text-blue-400 uppercase font-black tracking-[0.4em]">UMBRA_TRANSFER // EXEC</p>
                         <p>network: solana:devnet;</p>
                         <p>method: stealth_transfer;</p>
                         <p>recipient: [ENCRYPTED_STEALTH_ID];</p>
                         <p>proof: ZK_CONF_PROVEN;</p>
                     </div>
-                    <div class="flex justify-between items-center bg-[var(--accent)] rounded-2xl p-4 text-black text-center font-black text-xs uppercase tracking-widest italic">
+                    <div class="flex justify-center items-center bg-[var(--accent)] rounded-3xl p-8 text-black text-center font-black text-lg uppercase tracking-[0.5em] italic shadow-[0_20px_50px_rgba(246,133,27,0.3)]">
                         Authorize Anonymous Fund
                     </div>
                 </div>
@@ -386,37 +388,36 @@
     <!-- Slide 8: Competitive Edge -->
     <section class="slide-container" id="slide-8">
         <div class="slide-content">
-            <div class="w-full max-w-6xl space-y-12">
-                <div class="text-center space-y-2">
-                    <p class="text-[var(--accent)] font-black uppercase text-xs tracking-widest">Market Position</p>
-                    <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter">The Umbra Advantage</h2>
+            <div class="w-full max-w-7xl space-y-16">
+                <div class="text-center space-y-4">
+                    <p class="text-[var(--accent)] font-black uppercase text-sm tracking-[0.6em]">Market Position</p>
+                    <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter">The Umbra Advantage</h2>
                 </div>
-                <div class="ui-card p-10">
+                <div class="ui-card p-16 shadow-[0_0_100px_rgba(255,255,255,0.03)]">
                     <table class="comparison-table">
                         <thead>
                             <tr>
-                                <th>Capability</th>
-                                <th>ResearchHub</th>
-                                <th>Biotry</th>
+                                <th class="text-xl">Capability</th>
+                                <th class="text-xl">ResearchHub</th>
+                                <th class="text-xl">Biotry</th>
                             </tr>
                         </thead>
                         <tbody>
                              <tr>
-                                <td class="font-bold">Privacy</td>
+                                <td class="font-black italic uppercase tracking-tighter">Privacy</td>
                                 <td>Public On-Chain Data</td>
                                 <td>Stealth Address Grant Flow</td>
                              </tr>
                              <tr>
-                                <td class="font-bold">Monetization</td>
+                                <td class="font-black italic uppercase tracking-tighter">Monetization</td>
                                 <td>Tokenized Rewards (RSC)</td>
                                 <td>Anonymous Grants + x402</td>
                              </tr>
                              <tr>
-                                <td class="font-bold">Valuation</td>
+                                <td class="font-black italic uppercase tracking-tighter">Valuation</td>
                                 <td>Community Voting</td>
                                 <td>AI Multi-Agent Viability Audit</td>
                              </tr>
-
                         </tbody>
                     </table>
                 </div>
@@ -427,42 +428,42 @@
     <!-- Slide 9: Traction & Founder -->
     <section class="slide-container" id="slide-9">
         <div class="slide-content">
-            <div class="w-full max-w-7xl space-y-12">
-                <div class="text-center space-y-2">
-                    <p class="text-xs font-black tracking-[0.6em] text-[var(--accent)] uppercase">Momentum & Build</p>
-                    <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter">Proven Delivery.</h2>
+            <div class="w-full max-w-7xl space-y-16">
+                <div class="text-center space-y-4">
+                    <p class="text-sm font-black tracking-[0.8em] text-[var(--accent)] uppercase">Momentum & Build</p>
+                    <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter">Proven Delivery.</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-10">
-                    <div class="ui-card p-10 space-y-8 border-l-8 border-l-[var(--accent)]">
-                        <div class="flex items-center gap-6">
-                            <div class="w-20 h-20 rounded-2xl bg-[var(--accent)] flex items-center justify-center font-black text-4xl text-black">J</div>
-                            <div>
-                                <h4 class="text-3xl font-black text-white uppercase italic tracking-tighter">Joseph</h4>
-                                <p class="text-[var(--accent)] font-bold text-xs tracking-[0.3em] uppercase">Founder & Lead Engineer</p>
+                <div class="flex gap-16">
+                    <div class="w-1/2 ui-card p-16 space-y-12 border-l-[16px] border-l-[var(--accent)] shadow-[0_0_80px_rgba(246,133,27,0.05)]">
+                        <div class="flex items-center gap-10">
+                            <div class="w-28 h-28 rounded-3xl bg-[var(--accent)] flex items-center justify-center font-black text-5xl text-black shadow-[0_0_40px_rgba(246,133,27,0.4)]">J</div>
+                            <div class="space-y-2">
+                                <h4 class="text-5xl font-black text-white uppercase italic tracking-tighter">Joseph</h4>
+                                <p class="text-[var(--accent)] font-bold text-sm tracking-[0.4em] uppercase italic">Founder & Lead Engineer</p>
                             </div>
                         </div>
-                        <ul class="space-y-4 text-sm text-white/40 font-light">
-                            <li class="flex gap-4">
-                                <span class="text-[var(--accent)] font-black text-xl">✦</span>
+                        <ul class="space-y-6 text-xl text-white/40 font-light">
+                            <li class="flex gap-6 items-center">
+                                <span class="text-[var(--accent)] font-black text-3xl">✦</span>
                                 <span>AI Security & Adverse Defense Expert</span>
                             </li>
-                            <li class="flex gap-4">
-                                <span class="text-[var(--accent)] font-black text-xl">✦</span>
-                                <span>Web3 Infrastructure & Production Specialist</span>
+                            <li class="flex gap-6 items-center">
+                                <span class="text-[var(--accent)] font-black text-3xl">✦</span>
+                                <span>Web3 Infrastructure Specialist</span>
                             </li>
-                            <li class="flex gap-4">
-                                <span class="text-[var(--accent)] font-black text-xl">✦</span>
+                            <li class="flex gap-6 items-center">
+                                <span class="text-[var(--accent)] font-black text-3xl">✦</span>
                                 <span>10+ Global Hackathon Victories</span>
                             </li>
                         </ul>
                     </div>
-                    <div class="ui-card p-10 flex flex-col justify-between items-center text-center space-y-4 bg-white/5 w-full">
-                        <img src="public/tapestry-logo.png" alt="Tapestry Logo" class="h-16 opacity-90">
-                        <div class="space-y-1">
-                            <h4 class="text-3xl font-black text-white uppercase italic tracking-tighter">Hackathon Winner</h4>
-                            <p class="text-[10px] font-black text-[var(--accent)] uppercase tracking-widest">1ST PLACE | TAPESTRY TRACK</p>
+                    <div class="w-1/2 ui-card p-16 flex flex-col justify-between items-center text-center space-y-10 bg-white/5 w-full border-t-8 border-t-[var(--accent)]">
+                        <img src="public/tapestry-logo.png" alt="Tapestry Logo" class="h-24 opacity-100 object-contain">
+                        <div class="space-y-2">
+                            <h4 class="text-5xl font-black text-white uppercase italic tracking-tighter">Hackathon Winner</h4>
+                            <p class="text-xs font-black text-[var(--accent)] uppercase tracking-[0.6em]">1ST PLACE | TAPESTRY TRACK</p>
                         </div>
-                        <img src="public/hackathon-victory.jpg" class="h-32 object-contain rounded-xl opacity-80 hover:opacity-100 transition-opacity" alt="Biotry Hackathon Display">
+                        <img src="public/hackathon-victory.jpg" class="h-48 object-contain rounded-3xl opacity-80 hover:opacity-100 transition-opacity" alt="Biotry Hackathon Display">
                     </div>
                 </div>
             </div>
@@ -472,38 +473,37 @@
     <!-- Slide 10: Roadmap & Vision -->
     <section class="slide-container" id="slide-10">
         <div class="slide-content">
-            <div class="max-w-6xl w-full space-y-16">
-                <div class="text-center space-y-6">
-                    <h2 class="text-8xl font-black text-white italic uppercase tracking-tighter leading-none m-0 p-0">Recode the <span class="text-gradient-orange uppercase inline-block -ml-2">Simulation.</span></h2>
-                           <div class="grid grid-cols-3 gap-8">
-                    <div class="ui-card p-8 border-l-4 border-l-green-400 space-y-4 bg-green-400/5">
-                        <p class="text-xs font-black uppercase text-green-400 tracking-widest">Phase 01 — Protocol Core</p>
-                        <h4 class="text-xl font-bold text-white uppercase italic tracking-tighter">Privacy & Grant Nodes</h4>
-                        <p class="text-xs text-white/30 leading-relaxed uppercase">Stealth Addresses. Umbra Core Integration. Grant Verification. ✅</p>
-                    </div>
-                    <div class="ui-card p-8 border-l-4 border-l-[var(--accent)] space-y-4 shadow-[0_0_40px_rgba(246,133,27,0.1)] bg-[var(--accent)]/5">
-                        <p class="text-xs font-black uppercase text-[var(--accent)] tracking-widest">Phase 02 — Intelligence Layer</p>
-                        <h4 class="text-xl font-bold text-white uppercase italic tracking-tighter">Strategic Audit Flow</h4>
-                        <p class="text-xs text-white/30 leading-relaxed uppercase italic font-bold">AI Multi-Agent Methodology Audits. Automated Strategic Scoring. Milestone Payments. 🚀</p>
-                    </div>
-                    <div class="ui-card p-8 border-l-4 border-l-white/20 space-y-4">
-                        <p class="text-xs font-black uppercase text-white/20 tracking-widest">Phase 03 — Research Mesh</p>
-                        <h4 class="text-xl font-bold text-white uppercase italic tracking-tighter">Liquid Peer Review</h4>
-                        <p class="text-xs text-white/30 leading-relaxed uppercase">Confidential Review Rewards. Expertise Social Graph (Tapestry). Scientific Staking. 🌐</p>
-                    </div>
-                </div>
-
-                <div class="flex justify-center items-center gap-48 pt-4">
-                    <div class="text-center">
-                        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-white/20">Protocol Live</p>
-                        <a href="https://biotry.vercel.app" target="_blank" class="text-2xl font-black text-[var(--accent)] uppercase italic hover:underline">biotry.vercel.app</a>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-white/20">Connect</p>
-                        <a href="https://x.com/BiotryProtocol" target="_blank" class="text-2xl font-black text-white uppercase italic hover:underline">@BiotryProtocol</a>
+            <div class="max-w-7xl w-full space-y-24">
+                <div class="text-center space-y-10">
+                    <h2 class="text-[12rem] font-black text-white italic uppercase tracking-tighter leading-none m-0 p-0">Recode the <span class="text-gradient-orange uppercase inline-block -ml-4">Simulation.</span></h2>
+                    <div class="flex gap-12 pt-10">
+                        <div class="flex-1 ui-card p-12 border-l-8 border-l-green-400 space-y-6 bg-green-400/5">
+                            <p class="text-xs font-black uppercase text-green-400 tracking-[0.4em]">Phase 01 — Protocol Core</p>
+                            <h4 class="text-3xl font-bold text-white uppercase italic tracking-tighter">Privacy & Grant Nodes</h4>
+                            <p class="text-sm text-white/30 leading-relaxed uppercase italic">Stealth Addresses. Umbra Core Integration. Grant Verification. ✅</p>
+                        </div>
+                        <div class="flex-1 ui-card p-12 border-l-8 border-l-[var(--accent)] space-y-6 shadow-[0_0_60px_rgba(246,133,27,0.15)] bg-[var(--accent)]/5">
+                            <p class="text-xs font-black uppercase text-[var(--accent)] tracking-[0.4em]">Phase 02 — Intelligence Layer</p>
+                            <h4 class="text-3xl font-bold text-white uppercase italic tracking-tighter">Strategic Audit Flow</h4>
+                            <p class="text-sm text-white/30 leading-relaxed uppercase italic font-bold">AI Multi-Agent Methodology Audits. Automated Strategic Scoring. 🚀</p>
+                        </div>
+                        <div class="flex-1 ui-card p-12 border-l-8 border-l-white/20 space-y-6">
+                            <p class="text-xs font-black uppercase text-white/20 tracking-[0.4em]">Phase 03 — Research Mesh</p>
+                            <h4 class="text-3xl font-bold text-white uppercase italic tracking-tighter">Liquid Peer Review</h4>
+                            <p class="text-sm text-white/30 leading-relaxed uppercase italic">Confidential Review Rewards. Expertise Social Graph (Tapestry). 🌐</p>
+                        </div>
                     </div>
 
-
+                    <div class="flex justify-center items-center gap-64 pt-16 border-t border-white/5">
+                        <div class="text-center space-y-2">
+                            <p class="text-xs font-black uppercase tracking-[0.8em] text-white/20">Protocol Live</p>
+                            <a href="https://biotry.vercel.app" target="_blank" class="text-4xl font-black text-[var(--accent)] uppercase italic hover:underline hover:scale-110 transition-transform inline-block">biotry.vercel.app</a>
+                        </div>
+                        <div class="text-center space-y-2">
+                            <p class="text-xs font-black uppercase tracking-[0.8em] text-white/20">Connect</p>
+                            <a href="https://x.com/BiotryApp" target="_blank" class="text-4xl font-black text-white uppercase italic hover:underline hover:scale-110 transition-transform inline-block">@BiotryApp</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
